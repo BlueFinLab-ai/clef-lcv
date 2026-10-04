@@ -41,6 +41,10 @@ Dated summaries of notable changes. Measurements and test details are in the
   [optimized kernels](docs/optimized-kernels.md).
 
 ### Benchmarks
+- Clef Flash measured on the RTX 2080 Ti (65.22 s serial, after restoring
+  cooling) and the 400 W RTX 3090 (43.41 s), alongside the RTX 3070 Ti (59.98 s).
+  All three gave identical category choices. See
+  [Clef Flash on three GPUs](benchmarks/provider-comparison/README.md#clef-flash-on-three-gpus).
 - Public 100-email synthetic benchmark and runner. See
   [the email sample](benchmarks/email-sample/README.md).
 - Comparison runner for Clef, TypeSafe JEV and other SystemOne-compatible

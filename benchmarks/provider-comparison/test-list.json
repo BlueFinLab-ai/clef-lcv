@@ -116,10 +116,34 @@
         "kv_cache": "f16"
       },
       "raw_results": "kev-9b-q4km-im.json"
+    },
+    {
+      "provider": "clef",
+      "model": "clef-flash",
+      "deployment_id": "clef-flash-2080ti",
+      "repository": "Cloudflare/clef-flash",
+      "revision": "17f0b0ad64efb65d273590632833508766b2aae6",
+      "quantization": "NF4 with compact embeddings",
+      "compute_dtype": "float16",
+      "hardware": "RTX 2080 Ti · 11 GB · 300 W",
+      "status": "completed",
+      "runtime": "Unified container with adaptive SM75 prefill and FLA recurrence",
+      "raw_results": "flash-2080ti.json"
+    },
+    {
+      "provider": "clef",
+      "model": "clef-flash",
+      "deployment_id": "clef-flash-3090-400w",
+      "repository": "Cloudflare/clef-flash",
+      "revision": "17f0b0ad64efb65d273590632833508766b2aae6",
+      "quantization": "NF4 with compact embeddings",
+      "compute_dtype": "float16",
+      "hardware": "RTX 3090 · 24 GB · 400 W",
+      "status": "completed",
+      "runtime": "Unified Docker; SM86 FLA prefill and recurrence, FIFO one GPU worker",
+      "raw_results": "flash-3090-400w.json"
     }
   ],
   "added_local_gpu_power_limit_watts": 300,
-  "timing_qualification": "After added cooling, all five local models were rerun. Observed peak GPU temperature was 75 C and no thermal-throttle samples were recorded. Initial measurements remain preserved; cloud and 3070 Ti/3090 baseline results were carried forward unchanged.",
-  "latest_local_cohort": "clef-provider-benchmark-cooled-20261004",
-  "initial_local_cohort": "clef-provider-benchmark-extended-20261004"
+  "timing_qualification": "After added cooling, all five local models were rerun. Observed peak GPU temperature was 75 C and no thermal-throttle samples were recorded. Initial measurements remain preserved; cloud and 3070 Ti/3090 baseline results were carried forward unchanged."
 }

@@ -42,11 +42,14 @@ one at a time.
 | Decider 2B v11 | Yes | Not tested | 94/100 | 48.3 s | RTX 2080 Ti |
 | Kev-4B Q8_0 | Yes | Not tested | 96/100 | 129.2 s | RTX 2080 Ti |
 | Kev-9B Q4_K_M, community | Yes | Not tested | 100/100 | 179.4 s | RTX 2080 Ti |
+| **Clef Flash 9B (this project)** | Yes | Yes, up to 16 per request | 96/100 | 65.2 s | RTX 2080 Ti |
 | **Clef Flash 9B (this project)** | Yes | Yes, up to 16 per request | 96/100 | 60.0 s | RTX 3070 Ti |
+| **Clef Flash 9B (this project)** | Yes | Yes, up to 16 per request | 96/100 | 43.4 s | RTX 3090 |
 | **Clef Full 27B (this project)** | Yes | Yes, up to 16 per request | 100/100 | 126.4 s | RTX 3090 |
 
-The models ran on different GPUs and runtimes, and some were run outside their
+Most models ran on different GPUs and runtimes, and some were run outside their
 default settings, so treat this as a fit-for-purpose check rather than a ranking.
+Clef Flash gave the same answers on all three GPUs it was tested on.
 Configurations, concurrent timings and caveats are in the
 [comparison results](benchmarks/provider-comparison/README.md). Hosted
 general-purpose models such as GPT Sol 6.1 aren't included in the published results.
@@ -57,14 +60,15 @@ general-purpose models such as GPT Sol 6.1 aren't included in the published resu
   Kev-9B also matched all 100, but was slower in our tests and wasn't tested
   with images. JEV was fast and accurate, but needs an internet connection and
   an API key.
-- **Clef Flash** gives up 4 of 100 matches for about twice Full's speed, and runs
-  on an 8 GB GPU.
+- **Clef Flash** gives up 4 of 100 matches for about three times Full's speed on
+  the same RTX 3090, and runs on GPUs with 8 GB. On the RTX 2080 Ti used for the
+  other local models, it was about 2.8 times faster than Kev-9B.
 - **Offline:** once the weights are prepared, the service runs with `--offline`
   and makes no network calls. For an air-gapped host, prepare the model on a
   connected machine, then move the image and the prepared checkpoint across. See
   [reusing prepared weights](docs/unified-service.md#reuse-existing-prepared-weights).
-- **Speed:** about 0.6 s per email for Flash and 1.3 s for Full, sent one at a
-  time, on a single consumer GPU.
+- **Speed:** sent one at a time, Flash takes about 0.43 s per email on an
+  RTX 3090 and 0.65 s on an RTX 2080 Ti; Full takes about 1.3 s on an RTX 3090.
 
 ## Models
 

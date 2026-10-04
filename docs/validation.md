@@ -611,3 +611,65 @@ four-concurrent-call/error/discovery/UI checks in that image. Full advertised
 45,056 input tokens on the test 3090. Application source hashes in the
 container match the project source. No new target-card
 throughput claims are made.
+
+## Flash container on the RTX 2080 Ti — October 4, 2026
+
+Clef Flash 9B moved from the native service to the unified Docker image on the
+RTX 2080 Ti. The image was built with `CLEF_CUDA_ARCHES=75`, and native SM75
+cubins were verified. The container sees only that GPU, at its existing 300 W
+limit. It uses the existing compact NF4 checkpoint, mounted read-only, with FP16
+compute, adaptive prefill (FLA up to 512 tokens, native PyTorch above that) and
+optimized FLA recurrence.
+
+Text, images, exact cache reuse, optional pooling, sixteen images, >8K prefill,
+four concurrent queued calls, the overlength 413, request validation and a real
+container restart all passed. Runtime source hashes matched the project.
+
+The 100-email fixture then completed three passes (1, 4 and 4 outstanding calls)
+with zero errors and 96/100 reference agreement in each. Times were 68.78, 65.50
+and 67.53 seconds. The GPU reached 88 °C, with thermal slowdown in nine samples
+late in the sustained workload. Every request body matched the earlier 3070 Ti
+Flash run. See the
+[initial results](../benchmarks/provider-comparison/results-flash-2080ti-initial-2026-10-04.json).
+
+## Flash RTX 2080 Ti cooling rerun — October 4, 2026
+
+With cooling restored, the same container and checkpoint completed three more
+passes. Times were 65.22, 64.64 and 65.06 seconds (four-call mean 64.85 s).
+Every pass kept 96/100 reference agreement, with zero errors or truncated
+requests, and all 300 request hashes and choices matched the initial run.
+
+Peak temperature fell from 88 °C to 70 °C and thermal-slowdown samples from nine
+to zero. Mean GPU utilization was 94.2%, with about 6,384 MiB of GPU memory used
+at the same 300 W limit. The serial set was 5.2% faster and the four-call mean
+2.5% faster. Caches were not cleared, so extra warm cache state may also have
+contributed. The service was healthy with an empty queue afterwards, and no
+requests failed, timed out or were rejected. See the
+[updated results](../benchmarks/provider-comparison/results-flash-2080ti-2026-10-04.json).
+
+## Flash on the 400 W RTX 3090 — October 4, 2026
+
+The RTX 3090 that served Full 27B was switched to Flash 9B, using the same
+unified image and the cached pinned NF4 Flash checkpoint with FP16 compute and
+SM86 FLA prefill and recurrence. The container sees only that GPU, at its
+existing 400 W limit. Seventeen runtime and profile source hashes matched the
+project. Text, vision, exact cache reuse, optional pooling, sixteen images, >8K
+chunked prefill, four queued calls, discovery, the portal and the expected input
+errors passed before benchmarking.
+
+Three 100-email passes (concurrency 1, 4, 4) took 43.41, 42.31 and 42.67 seconds;
+the four-call mean was 42.49 seconds. Each pass matched 96/100 reference labels,
+with zero errors or truncations. Request hashes and all category choices matched
+both earlier Flash runs, and probabilities differed by at most 0.18 percentage
+points. Model loading and smoke checks were excluded; caches were not cleared.
+
+Peak GPU temperature was 72 °C, memory use about 6,986 MiB and mean power draw
+328 W. One software thermal flag was sampled at 68 °C, but a follow-up driver
+report showed no active flag and zero accumulated slowdown. Memory temperature
+was unavailable. This is recorded as a telemetry discrepancy, without diagnosing
+overheating or a timing impact.
+
+The queue was empty after the benchmark. Its one failed-request count came from
+the intentional overlength API test beforehand. The Full container was stopped
+and kept for rollback. See the
+[results](../benchmarks/provider-comparison/results-flash-3090-2026-10-04.json).
