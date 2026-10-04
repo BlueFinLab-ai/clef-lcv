@@ -1,0 +1,156 @@
+{
+  "dataset_id": "clef-email-sample-v1",
+  "dataset_sha256": "75786bb3e7895d6a7478c184579ffe4a4017749b72354a858a4ec6e4235bf59f",
+  "completed_utc": "2026-10-04T17:37:01.534412+00:00",
+  "model": "clef-flash",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "compute_dtype": "float16",
+  "quantization": "nf4",
+  "cache": "on; existing service caches not cleared; first pass preceded by ten-case smoke tests",
+  "privacy_preparation_checks": {
+    "dataset_id": "clef-email-sample-v1",
+    "records": 100,
+    "source_addresses_checked": 83,
+    "source_identifier_fields_checked": 200,
+    "real_source_addresses_found": 0,
+    "source_identifier_fields_found": 0,
+    "long_original_subjects_found": 0,
+    "source_student_names_found": 0,
+    "source_twelve_word_passages_found": 0,
+    "dataset_sha256": "75786bb3e7895d6a7478c184579ffe4a4017749b72354a858a4ec6e4235bf59f"
+  },
+  "offline_tests": {
+    "sample_validator": "passed",
+    "publication_guards_and_label_isolation": "4 tests passed",
+    "project_check": "passed",
+    "git_diff_check": "passed"
+  },
+  "trials": [
+    {
+      "pass": 1,
+      "concurrency": 4,
+      "successful": 100,
+      "errors": 0,
+      "wall_seconds": 53.405990416998975,
+      "emails_per_second": 1.8724491245118877,
+      "reference_agreement_percent": 96.0,
+      "prefix_status_counts": {
+        "hit": 100
+      },
+      "client_wall_ms": {
+        "mean": 2108.1557945592795,
+        "median": 2076.2134165270254,
+        "p95": 2701.9288753683213,
+        "min": 426.4994589611888,
+        "max": 3078.307459014468
+      },
+      "queue_wait_ms": {
+        "mean": 1529.886,
+        "median": 1445.4499999999998,
+        "p95": 2125.495,
+        "min": 0.1,
+        "max": 2570.5
+      },
+      "server_processing_ms": {
+        "mean": 516.473,
+        "median": 472.15,
+        "p95": 853.7700000000001,
+        "min": 355.8,
+        "max": 1195.4
+      },
+      "input_tokens": {
+        "mean": 2772.83,
+        "median": 2653.0,
+        "p95": 3856.05,
+        "min": 2337,
+        "max": 3862
+      },
+      "mismatches": [
+        {
+          "id": "sample-026",
+          "reference": "marketing",
+          "choice": "newsletters"
+        },
+        {
+          "id": "sample-065",
+          "reference": "marketing",
+          "choice": "newsletters"
+        },
+        {
+          "id": "sample-071",
+          "reference": "marketing",
+          "choice": "newsletters"
+        },
+        {
+          "id": "sample-084",
+          "reference": "marketing",
+          "choice": "newsletters"
+        }
+      ]
+    },
+    {
+      "pass": 2,
+      "concurrency": 4,
+      "successful": 100,
+      "errors": 0,
+      "wall_seconds": 54.5807657080004,
+      "emails_per_second": 1.8321472537594337,
+      "reference_agreement_percent": 96.0,
+      "prefix_status_counts": {
+        "hit": 100
+      },
+      "client_wall_ms": {
+        "mean": 2154.0006042376626,
+        "median": 2085.6073335162364,
+        "p95": 3042.6820434164256,
+        "min": 391.3804170442745,
+        "max": 3293.010166962631
+      },
+      "queue_wait_ms": {
+        "mean": 1566.31,
+        "median": 1459.9,
+        "p95": 2285.025,
+        "min": 0.1,
+        "max": 2604.1
+      },
+      "server_processing_ms": {
+        "mean": 522.544,
+        "median": 476.7,
+        "p95": 870.41,
+        "min": 359.6,
+        "max": 889.4
+      },
+      "input_tokens": {
+        "mean": 2772.83,
+        "median": 2653.0,
+        "p95": 3856.05,
+        "min": 2337,
+        "max": 3862
+      },
+      "mismatches": [
+        {
+          "id": "sample-026",
+          "reference": "marketing",
+          "choice": "newsletters"
+        },
+        {
+          "id": "sample-065",
+          "reference": "marketing",
+          "choice": "newsletters"
+        },
+        {
+          "id": "sample-071",
+          "reference": "marketing",
+          "choice": "newsletters"
+        },
+        {
+          "id": "sample-084",
+          "reference": "marketing",
+          "choice": "newsletters"
+        }
+      ]
+    }
+  ],
+  "choices_matching_between_passes": 100,
+  "limits": "Single Flash instance on one RTX 3090. Existing caches and compilation state, LAN client concurrency four. This is a new synthetic baseline; no timing claim relative to the historical private corpus, no Full live validation, and no claim of GPU batching or independently adjudicated accuracy."
+}

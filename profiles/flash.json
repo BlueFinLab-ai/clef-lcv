@@ -1,0 +1,12 @@
+{
+  "repository": "Cloudflare/clef-flash",
+  "revision": "17f0b0ad64efb65d273590632833508766b2aae6",
+  "model_id": "clef-flash",
+  "checkpoint": "model-nf4-compact",
+  "compute_dtype": "float16",
+  "max_input_tokens": 8192,
+  "port": 8082,
+  "nf4_linear_layers": 358,
+  "compact_embeddings": true,
+  "require_fast_linear_attention": false
+}

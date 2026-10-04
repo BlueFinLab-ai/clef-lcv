@@ -1,0 +1,125 @@
+{
+  "dataset_id": "clef-email-sample-v1",
+  "dataset_sha256": "75786bb3e7895d6a7478c184579ffe4a4017749b72354a858a4ec6e4235bf59f",
+  "client_concurrencies": [
+    1,
+    4,
+    4
+  ],
+  "models": [
+    {
+      "provider": "jev",
+      "model": "jev-1.13.0",
+      "hardware": "Hosted",
+      "status": "completed",
+      "raw_results": "jev-rounded.json"
+    },
+    {
+      "provider": "clef",
+      "model": "clef-flash",
+      "hardware": "RTX 3070 Ti",
+      "status": "completed",
+      "raw_results": "flash-3070ti.json"
+    },
+    {
+      "provider": "clef",
+      "model": "clef",
+      "hardware": "RTX 3090 400 W",
+      "status": "completed",
+      "raw_results": "full-3090-400w.json"
+    },
+    {
+      "provider": "systemone",
+      "model": "laya",
+      "repository": "convaiinnovations/laya",
+      "revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851",
+      "quantization": "none",
+      "hardware": "RTX 2080 Ti",
+      "status": "completed",
+      "raw_results": "laya.json",
+      "runtime_revision": "fa9a2a7070b1789912a49ae24603bbfb1a78b001",
+      "input_adaptation": {
+        "max_len": 8192,
+        "head_max_len": 4096,
+        "per_option_cap_removed": true,
+        "truncation": "rejected"
+      },
+      "compute_dtype": "float16"
+    },
+    {
+      "provider": "systemone",
+      "model": "laya-typed-decisions",
+      "repository": "convaiinnovations/laya-typed-decisions",
+      "revision": "1a793eb568e6718f15941d08f85432581df534e3",
+      "quantization": "none",
+      "hardware": "RTX 2080 Ti",
+      "status": "completed",
+      "raw_results": "laya-typed-decisions.json",
+      "runtime_revision": "fa9a2a7070b1789912a49ae24603bbfb1a78b001",
+      "input_adaptation": {
+        "max_len": 8192,
+        "head_max_len": 4096,
+        "per_option_cap_removed": true,
+        "truncation": "rejected"
+      },
+      "compute_dtype": "float16"
+    },
+    {
+      "provider": "systemone",
+      "model": "decider-2b-v11",
+      "repository": "Mapika/decider-2b",
+      "revision": "533964dae8be954c5b5e19fa4948e48408094c1e",
+      "quantization": "FP16 unquantized",
+      "hardware": "RTX 2080 Ti",
+      "status": "completed",
+      "runtime_revision": "45024082b7d4bb667bf9140b7a7c073d3b483f6b",
+      "runtime_version": "1.8.1",
+      "execution": "FP16 eager, efficient SDPA, no CUDA graphs",
+      "raw_results": "decider-2b-v11.json"
+    },
+    {
+      "provider": "systemone",
+      "model": "kev-4b-q8_0",
+      "repository": "ggml-org/Kev-4B-GGUF",
+      "revision": "d924f2e2c3872da8b8aaf3eb4453b4126deceb79",
+      "quantization": "Q8_0",
+      "hardware": "RTX 2080 Ti",
+      "status": "completed",
+      "weights_sha256": "7c2ebed90560522c2801389db482ac1dc4c36d828f201f6074c1d60e433948da",
+      "runtime_tag": "b11365",
+      "runtime_revision": "dd4c286f3809e73be087f374d9d865ca97c205e4",
+      "runtime_config": {
+        "context_tokens": 8192,
+        "parallel_slots": 1,
+        "flash_attention": "off",
+        "gpu_layers": "all",
+        "kv_cache": "f16"
+      },
+      "raw_results": "kev-4b-q8_0.json"
+    },
+    {
+      "provider": "systemone",
+      "model": "kev-9b-q4km-im",
+      "repository": "espetro/kev-9b-demo-gguf",
+      "revision": "50617c08af15d0b621dd80e6a1e222d7f9634274",
+      "quantization": "Q4_K_M with importance matrix",
+      "hardware": "RTX 2080 Ti",
+      "status": "completed",
+      "weights_sha256": "ede36bfa03aa2b8381d1b46a540e3e0e7d5c008a1c9712ef1a03d0d7d29e4fe1",
+      "runtime_tag": "kev-b11127-e45aa3d",
+      "runtime_revision": "e45aa3d5383798edf4945a9f379aeea70fe7da39",
+      "runtime_config": {
+        "context_tokens": 8192,
+        "parallel_slots": 1,
+        "flash_attention": "off",
+        "gpu_layers": "all",
+        "kv_cache": "f16"
+      },
+      "raw_results": "kev-9b-q4km-im.json"
+    }
+  ],
+  "added_local_gpu_power_limit_watts": 300,
+  "timing_qualification": "After added cooling, all five local models were rerun. Observed peak GPU temperature was 75 C and no thermal-throttle samples were recorded. Initial measurements remain preserved; cloud and 3070 Ti/3090 baseline results were carried forward unchanged.",
+  "latest_local_cohort": "clef-provider-benchmark-cooled-20261004",
+  "initial_local_cohort": "clef-provider-benchmark-extended-20261004"
+}

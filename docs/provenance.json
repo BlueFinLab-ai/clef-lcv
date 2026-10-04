@@ -1,0 +1,18 @@
+{
+  "saved": "2026-10-03",
+  "upstream_wrapper_sha256": "0e304cf7c6500e8bb59bef7e2afd2c6373f82596dfb3b57d1aa93c175e2dc3a3",
+  "packaging_changes": [
+    "Model paths can be configured independently of source paths.",
+    "Both profiles use the same web UI and detect the served model from /health.",
+    "Defaults match the full 3090 and Flash 3070 Ti profiles.",
+    "Full and Flash share clef_service/app.py with single-GPU hardware-aware startup.",
+    "Docker packages pinned dependencies and an SM75/80/86/89/90/120 convolution wheel with verified cubin coverage.",
+    "Pinned sources are quantized one tensor at a time and checkpoints published atomically."
+  ],
+  "original_source_sha256": {
+    "work/clef-3090/clef_app.py": "15f5b307319ade18642aacf782a173c1e187eb8b2f178fd8d4618978189516c3",
+    "work/clef-3070ti/clef_app.py": "fe5bb18f42b21727f8ddc0811a96c159e6486be5442c07b5f6c0ab4c6b1748f9",
+    "work/compact_quant.py": "417f02e8cadda96206d9778de2108682c048a75330851876c60454d7480d3df3",
+    "work/clef-ui/app.js": "fc480b25892b3eadd99a4e41934556c468e045af50cb10c639d7d91c7812f046"
+  }
+}

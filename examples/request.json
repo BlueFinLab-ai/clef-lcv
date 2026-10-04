@@ -1,0 +1,30 @@
+{
+  "model": "clef-flash",
+  "context": "Assess support incidents using the supplied evidence. An outage blocks customers; a billing issue concerns payments or invoices.",
+  "state": "Our checkout started returning errors and orders are blocked.",
+  "image_pooling": false,
+  "questions": {
+    "urgent": {
+      "type": "noul",
+      "instructions": "Does this require immediate attention?"
+    },
+    "category": {
+      "type": "choice",
+      "instructions": "Choose the incident category.",
+      "criteria": {
+        "outage": "A service is unavailable and customers are blocked.",
+        "billing": "A question about an invoice or payment.",
+        "other": "Another kind of request."
+      }
+    },
+    "severity": {
+      "type": "score",
+      "instructions": "Rate the severity of this incident.",
+      "criteria": [
+        "No customer impact",
+        "Minor impact",
+        "Customers cannot complete purchases"
+      ]
+    }
+  }
+}

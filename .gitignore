@@ -1,0 +1,30 @@
+# Local runtime and weights
+.venv/
+.venv-*/
+models/
+cache/
+build/
+dist/
+*.egg-info/
+__pycache__/
+*.py[cod]
+*.whl
+*.safetensors
+*.gguf
+*.onnx
+*.pt
+*.pth
+# Local configuration, inputs and benchmark data
+.env
+.env.*
+!.env.example
+local/
+private/
+benchmark-data/
+*.log
+*.pem
+*.key
+.DS_Store
+
+._*
+clef_service/kernel-build.json

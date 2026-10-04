@@ -1,0 +1,12 @@
+{
+  "repository": "Cloudflare/clef",
+  "revision": "2f3de3dd85f379784083b0814d997ab627200f0c",
+  "model_id": "clef",
+  "checkpoint": "model-nf4",
+  "compute_dtype": "bfloat16",
+  "max_input_tokens": 16384,
+  "port": 8083,
+  "nf4_linear_layers": 606,
+  "compact_embeddings": false,
+  "require_fast_linear_attention": true
+}

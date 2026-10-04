@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Clef Local Inference, Caching, and Vision">
+  <title>Clef LCV · Questions & timing</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b50d9'/%3E%3Cpath d='M23 10a9 9 0 1 0 0 12' fill='none' stroke='white' stroke-width='4'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/ui/styles.css?v=20261004-bluefin-1">
+  <script src="/ui/image-input.js?v=20261004-queue-1" defer></script>
+  <script src="/ui/app.js?v=20261004-bench-2" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Clef LCV by BluefinLab.ai home"><span class="brand-mark" aria-hidden="true">c</span><span>Clef <strong>LCV</strong> <small class="brand-credit">by BluefinLab.ai</small></span></a>
+    <button id="connection" class="connection" type="button" title="Check server connection"><span class="status-dot" aria-hidden="true"></span><span id="connection-text">Connecting</span></button>
+    <span class="model-chip"><strong id="model-name">Clef</strong><span id="hardware-note">Loading model…</span></span>
+    <span class="grow"></span>
+    <button id="example" type="button" class="ghost-button">Try an example</button>
+    <label class="toggle" title="Run again about a second after you stop editing"><input id="auto-run" type="checkbox"> Auto-run on edit</label>
+    <button id="show-code" type="button" class="ghost-button">Code</button>
+    <a class="ghost-button" href="/docs" target="_blank" rel="noopener">API docs</a>
+    <button id="run-button" class="run-button" type="submit" form="decision-form"><span id="run-button-text">Ask Clef</span><kbd id="run-shortcut">⌘↵</kbd></button>
+  </header>
+
+  <div class="bench">
+    <form id="decision-form" class="editor" novalidate>
+      <fieldset id="editor-fields">
+        <legend class="sr-only">Request</legend>
+        <details class="panel" id="shared-panel">
+          <summary><span class="panel-title">Reusable context</span><span id="shared-peek" class="peek">Optional instructions and definitions you reuse across requests</span></summary>
+          <div class="panel-body">
+            <label class="sr-only" for="shared-context">Reusable context</label>
+            <textarea id="shared-context" class="auto" rows="2" aria-describedby="shared-context-note" placeholder="Instructions, category definitions, or background you will use across requests."></textarea>
+            <p id="shared-context-note" class="help">Keep shared guidance here and put each new message below. Clef reuses its cached encoding when it doesn’t change.</p>
+          </div>
+        </details>
+
+        <section class="panel panel-body" aria-labelledby="context-label">
+          <label id="context-label" class="panel-title" for="context">Input for this request <span class="optional">optional</span></label>
+          <textarea id="context" class="auto" rows="2" placeholder="Paste the message or describe the situation to evaluate this time."></textarea>
+          <div class="image-row">
+            <div id="image-previews" class="image-previews"></div>
+            <label class="upload-zone" id="drop-zone" for="image-input" title="PNG, JPEG, or WebP. Up to 16 images, 10 MB each."><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 6-6 4 4 3-3 5 5"/></svg><span><strong>Add images</strong><small>Drop, choose, or paste. Up to 16 images, 10 MB each.</small></span></label>
+            <input id="image-input" class="sr-only" type="file" accept="image/png,image/jpeg,image/webp" multiple aria-describedby="image-note paste-note">
+          </div>
+          <div id="image-status" class="sr-only" role="status"></div>
+          <div class="image-settings">
+            <label class="inline-field"><span>Image scaling</span><select id="image-scaling" aria-describedby="image-note"><option value="original">Original · source resolution</option><option value="uhd">4K UHD · 3840 × 2160</option><option value="qhd">QHD · 2560 × 1440</option><option value="fullhd">Full HD · 1920 × 1080</option><option value="hd">HD · 1280 × 720</option><option value="sd">480p · 640 × 480</option><option value="mcga">MCGA · 320 × 200</option><option value="compact" selected>Compact · 256 × 256</option></select></label>
+            <label class="inline-field" title="Experimental: reduces image tokens passed to the language model. Small text and fine details may be lost."><input id="image-pooling" type="checkbox" aria-describedby="pooling-note"> 2×2 image pooling</label>
+          </div>
+          <p id="image-note" class="help">Images are downscaled in this browser, keeping their original file format. Compact 256 × 256 is the default.</p>
+          <p id="pooling-note" class="sr-only">Experimental: reduces image tokens passed to the language model. Small text and fine details may be lost.</p>
+          <p id="paste-note" class="sr-only">Paste an image with Cmd+V or Ctrl+V anywhere on this page.</p>
+        </section>
+
+        <div class="questions-heading"><h2>Questions</h2><span><span id="question-count">1 question</span> · answered together</span></div>
+        <div id="questions"></div>
+        <button id="add-question" type="button" class="add-button"><span aria-hidden="true">+</span> Add question</button>
+      </fieldset>
+      <p id="form-error" class="error" role="alert" hidden></p>
+      <p class="limit"><span id="limit-note">8,192 total input tokens</span></p>
+    </form>
+
+    <section class="output" aria-labelledby="output-heading">
+      <h2 id="output-heading" class="sr-only">Response</h2>
+      <div class="timer-bar">
+        <div class="timer-row">
+          <div class="timer" aria-label="Total response time"><span id="elapsed">0.000</span><span class="timer-unit">s</span></div>
+          <div class="metric"><span>Server</span><strong id="server-time">—</strong></div>
+          <div class="metric"><span>Input tokens</span><strong id="input-tokens">—</strong></div>
+          <div class="metric"><span>Peak GPU tensors</span><strong id="gpu-memory">—</strong></div>
+          <span id="run-state" class="run-state">Ready</span>
+        </div>
+        <div id="spark" class="spark" hidden></div>
+        <div class="spark-label"><span id="run-label">Total time includes image preparation, upload and response.</span><button id="clear-history" class="text-button" type="button" hidden>Clear runs</button></div>
+        <p id="timer-description" class="help"></p>
+      </div>
+      <div id="result-announcement" role="status" class="sr-only"></div>
+      <div id="results" aria-busy="false">
+        <div class="empty-state"><svg aria-hidden="true" width="40" height="40" viewBox="0 0 44 44"><path d="M13 13h18v18H13zM8 18H3v8h5M36 18h5v8h-5M18 8V3h8v5M18 36v5h8v-5"/><path d="m17 23 4 4 7-10"/></svg><h3>Make your first request</h3><p>Write a question on the left, then choose Ask Clef or press <kbd>⌘↵</kbd>.<br>Each answer appears here beside its timing.</p></div>
+      </div>
+
+      <section id="code-panel" class="code-panel" aria-labelledby="code-heading">
+        <header>
+          <h3 id="code-heading">Call this from code</h3>
+          <div role="tablist" aria-label="Code format" class="code-tabs">
+            <button type="button" role="tab" id="tab-curl" data-format="curl" aria-selected="true" aria-controls="code-view">curl</button>
+            <button type="button" role="tab" id="tab-python" data-format="python" aria-selected="false" aria-controls="code-view">Python</button>
+            <button type="button" role="tab" id="tab-raw" data-format="raw" aria-selected="false" aria-controls="code-view">Raw response</button>
+          </div>
+          <button id="copy-code" type="button" class="copy-button">Copy</button>
+        </header>
+        <pre id="code-view" role="tabpanel" tabindex="0" aria-labelledby="tab-curl"></pre>
+        <p id="code-note" class="code-note"></p>
+      </section>
+    </section>
+  </div>
+</body>
+</html>

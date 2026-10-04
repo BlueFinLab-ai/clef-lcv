@@ -1,0 +1,27 @@
+# Template for clef@flash and clef@full. Adjust paths, user and port to your host.
+[Unit]
+Description=Clef %i decision service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=clef
+WorkingDirectory=/opt/Clef
+Environment=PYTHONUNBUFFERED=1
+# Defaults; override in /etc/clef/%i.env (see profile.env.example).
+Environment=CUDA_VISIBLE_DEVICES=0
+Environment=CLEF_PORT=8080
+EnvironmentFile=-/etc/clef/%i.env
+# The first start downloads and prepares the model before serving.
+ExecStart=/opt/Clef/.venv/bin/python -m clef_service --model %i --cache-dir /var/lib/clef --host 127.0.0.1 --port ${CLEF_PORT}
+Restart=on-failure
+RestartSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/clef
+
+[Install]
+WantedBy=multi-user.target

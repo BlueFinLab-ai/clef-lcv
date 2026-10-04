@@ -1,0 +1,31 @@
+name: Checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  cpu-checks:
+    name: CPU-only checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Project structure, links and UI
+        run: python scripts/check_project.py
+      - name: Email benchmark fixture
+        run: python scripts/test_email_benchmark.py
+      - name: Provider benchmark
+        run: python scripts/test_provider_benchmark.py
+      - name: Browser image scaling
+        run: node scripts/test_image_scaling.js
+      - name: JavaScript syntax
+        run: node --check web/app.js && node --check web/image-input.js

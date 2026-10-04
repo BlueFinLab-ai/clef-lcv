@@ -1,0 +1,31 @@
+{
+  "dataset_id": "clef-email-sample-v1",
+  "schema_version": 1,
+  "kind": "synthetic_adaptation",
+  "sample_count": 100,
+  "category_counts": {
+    "community": 10,
+    "events": 6,
+    "finance": 6,
+    "marketing": 41,
+    "newsletters": 26,
+    "orders": 3,
+    "personal": 4,
+    "recruiting": 1,
+    "security": 2,
+    "service": 1
+  },
+  "body_length_class_counts": {
+    "512": 18,
+    "1024": 26,
+    "2048": 30,
+    "4096": 11,
+    "8192": 15
+  },
+  "reference_labels": "Categories assigned by GPT Sol 6.1 under the frozen category policy; the quality baseline, not independently adjudicated human ground truth.",
+  "sha256": {
+    "dataset.json": "75786bb3e7895d6a7478c184579ffe4a4017749b72354a858a4ec6e4235bf59f",
+    "categories.json": "03ea7bf48b1c25b8f3bde2d413392c11a1e429a3ac5335a7b6340f0fbacedde0",
+    "category-guide.txt": "b4875911a27aceb802dab33ed3625ec98a79545a6119b3502e96c2c6bc99c1d9"
+  }
+}
