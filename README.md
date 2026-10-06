@@ -128,7 +128,13 @@ beginnings, so a later request only processes what's new.
   is never written to disk, so the caches start empty after each restart. (Only
   small memory-calibration records are saved, so routing decisions survive restarts.)
 - **Images too.** Processed images are kept in RAM, and image encodings on the
-  GPU, so new questions about the same picture skip that work.
+  GPU. Language-state checkpoints after each complete image let an unchanged
+  leading sequence survive replacing, removing or appending later images.
+  `[A, B, C, D, E]` can become `[A, B, C, D, F]` by restoring through D and
+  processing F plus the following text/questions. The response reports
+  `vision_images_reused`; memory limits and eviction still apply. Small inputs
+  may cost more snapshot work than they save. See
+  [image-boundary reuse](docs/unified-service.md#image-boundary-prefix-reuse).
 
 In the email benchmark, each request reused about 1,536 tokens, mostly the shared
 category guide. Each response reports `reused_prefix_tokens` and
@@ -229,6 +235,13 @@ shows the container as `healthy`:
 ```sh
 curl http://localhost:8080/readyz
 ```
+
+HTTP readiness waits for model loading and a small text/image warmup on the
+serving GPU worker. This reduces first-request initialization delays for both
+Flash and Full. Check `Startup warmup complete` in the logs or
+`/health.startup_warmup`. Keep the `/data` volume for compiled kernel reuse;
+unseen request shapes may still initialize later. For troubleshooting, use
+`--no-warmup` or `CLEF_WARMUP=0`. [Startup details](docs/unified-service.md#startup).
 
 Then open `http://localhost:8080/`, or `http://<this-machine's-address>:8080/`
 from another computer on your network.

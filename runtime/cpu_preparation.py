@@ -15,7 +15,7 @@ class PreparedDecision:
     boundary: int
     checkpoints: tuple
     usage: dict
-    input_key: str
+    input_key: object
 
     def __getattr__(self, name):
         return getattr(self.request, name)

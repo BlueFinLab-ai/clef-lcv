@@ -5,6 +5,21 @@ Dated summaries of notable changes. Measurements and test details are in the
 
 ## 2026-10-06
 
+### Image caching
+- When a request's later images change, are removed or are added, Flash and Full
+  reuse the work for the unchanged leading images. Cache checkpoints are kept
+  after each complete image, keyed by the exact images before it, in the existing
+  GPU and RAM tiers.
+- Restored images skip vision encoding; responses report `vision_images_reused`.
+  For five 1536px images with the last one replaced, requests were 2.5–2.9 times
+  faster than with vision caching alone.
+
+### Startup
+- Flash and Full warm a short text request and a synthetic 256px image on the
+  serving GPU worker before HTTP readiness. Warmup failures stop startup;
+  `/health.startup_warmup` reports timings. Use `--no-warmup` or `CLEF_WARMUP=0`
+  to opt out. Synthetic requests are excluded from queue counters and caches.
+
 ### Benchmarks
 - Reran the 100-email benchmark on the October 5 runtime: Flash on the RTX 3070 Ti
   and RTX 3090, and Full on the RTX 3090. With four clients after restoring

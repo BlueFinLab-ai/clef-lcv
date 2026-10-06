@@ -49,8 +49,8 @@ The first request builds state and later exact-prefix requests reuse it.
 
 Image order, fidelity, model configuration and pooling participate in language
 cache identity. Independent raw image features can survive reorder/pooling changes,
-subject to eviction, but changed fidelity needs new features. Prefix checkpoints
-never end midway through the media region. The long path transfers pixels only
+subject to eviction, but changed fidelity needs new features. Since October 6, image-prefix checkpoints can end after each complete image,
+but never midway through an image; see [image-boundary reuse](unified-service.md#image-boundary-prefix-reuse). The long path transfers pixels only
 for missing features, one complete image at a time. Language checkpoints are
 removed before small independent features under pressure. OOM recovery retains
 the existing retry with GPU caching disabled. Restart clears all entries.

@@ -42,6 +42,7 @@ def main(argv=None):
     parser.add_argument("--image-pooling", action="store_true", help="Enable optional experimental 2x2 pooling")
     parser.add_argument("--image-prefill", action="store_true", help="Compatibility flag; image prefill defaults on")
     parser.add_argument("--no-prefix-cache", action="store_true")
+    parser.add_argument("--no-warmup", action="store_true", help="Skip default startup text/image warmup before readiness")
     args = parser.parse_args(argv)
     if args.api_key is not None:
         if not args.api_key:
@@ -81,6 +82,8 @@ def main(argv=None):
         os.environ["CLEF_IMAGE_POOLING"] = "1"
     if args.no_prefix_cache:
         os.environ["CLEF_PREFIX_CACHE"] = "0"
+    if args.no_warmup:
+        os.environ["CLEF_WARMUP"] = "0"
     if args.allow_slow_kernels:
         os.environ["CLEF_REQUIRE_FAST_LINEAR_ATTENTION"] = "0"
         os.environ.setdefault("CLEF_LINEAR_PREFILL_BACKEND", "auto")

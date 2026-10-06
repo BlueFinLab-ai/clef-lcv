@@ -7,6 +7,7 @@ checkpoints and independent image-feature reuse are supplied by the memory-budge
 inference engine.
 """
 from dataclasses import replace
+from media_prefix import remaining_images
 import copy
 import math
 import os
@@ -94,6 +95,8 @@ def _forward_chunked_impl(model, processor, encoded, lexical_weight, *,
     vision_ms = 0.0
     cursor = len(prefix_entry['ids']) if prefix_entry is not None else 0
     vision_reused = False
+    vision_images_reused = 0
+    feature_offset = 0
     if has_images:
         media = batch['media']
         positions, _ = base.get_rope_index(ids, image_grid_thw=media['image_grid_thw'],
@@ -102,17 +105,19 @@ def _forward_chunked_impl(model, processor, encoded, lexical_weight, *,
             torch.cuda.current_stream(device).synchronize()
         vision_started = time.perf_counter()
         media_end = encoded.media['token_offset'] + len(encoded.media['mm_token_type_ids'])
-        vision_reused = cursor >= media_end
+        remaining, vision_images_reused = remaining_images(encoded, image_token, cursor)
+        vision_reused = vision_images_reused == len(encoded.media['image_grid_thw'])
         if not vision_reused:
-            features = (features_provider(base, encoded, device, pooling) if features_provider else
-                        image_features(base, encoded, device, pooling=pooling, batch_images=vision_batch_images,cpu_output=tiled))
+            features = (features_provider(base, remaining, device, pooling) if features_provider else
+                        image_features(base, remaining, device, pooling=pooling, batch_images=vision_batch_images,cpu_output=tiled))
         if device.type == 'cuda':
             torch.cuda.current_stream(device).synchronize()
         vision_ms = (time.perf_counter() - vision_started) * 1000
         image_counts = [0]
         for token in encoded.input_ids:
             image_counts.append(image_counts[-1] + int(token == image_token))
-        if features is not None and image_counts[-1] != features.shape[0]:
+        feature_offset = sum(math.prod(g) // 4 for g in encoded.media['image_grid_thw'][:vision_images_reused].tolist())
+        if features is not None and image_counts[-1] - feature_offset != features.shape[0]:
             raise ValueError('Image features and placeholder count disagree')
     else:
         positions = torch.arange(ids.shape[1], device=device).view(1, 1, -1).expand(3, 1, -1)
@@ -164,7 +169,7 @@ def _forward_chunked_impl(model, processor, encoded, lexical_weight, *,
             if end_feature > start_feature:
                 image_mask = (chunk_ids == image_token).unsqueeze(-1).expand_as(embeddings)
                 embeddings = embeddings.masked_scatter(image_mask,
-                    features[start_feature:end_feature].to(device=device,dtype=embeddings.dtype))
+                    features[start_feature-feature_offset:end_feature-feature_offset].to(device=device,dtype=embeddings.dtype))
             inputs = {'inputs_embeds': embeddings}
             if end < len(encoded.input_ids) and encoded.input_ids[end-1] == image_token == encoded.input_ids[end]:
                 splits += 1
@@ -228,7 +233,7 @@ def _forward_chunked_impl(model, processor, encoded, lexical_weight, *,
     if has_images:
         usage.update(multimodal_prefill=True, vision_ms=round(vision_ms, 1),
                      vision_batch_images=vision_batch_images, image_chunk_splits=splits,
-                     vision_prefix_reused=vision_reused)
+                     vision_prefix_reused=vision_reused, vision_images_reused=vision_images_reused)
     return logits, usage
 
 

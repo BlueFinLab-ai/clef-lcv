@@ -129,7 +129,8 @@ changed_response=check('changed-question',changed,changed_ref)
 assert changed_response['usage']['prefix_cache']=='hit'
 reordered=copy.deepcopy(body);reordered['images']=[body['images'][0],*reversed(body['images'][1:])]
 r=check('reordered-images',reordered)
-assert r['usage']['prefix_cache']!='hit' and r['usage']['image_feature_cache_hits']==11
+assert r['usage']['prefix_cache']=='hit' and r['usage']['vision_images_reused']>=1
+assert r['usage']['image_feature_cache_hits']+r['usage']['vision_images_reused']==11
 pooled,_=make({**case,'pooling':True});pooled.update(prefix_cache=True,input_cache=True)
 r=check('pooled-images',pooled)
 assert r['usage']['prefix_cache']!='hit' and r['usage']['image_feature_cache_hits']==11

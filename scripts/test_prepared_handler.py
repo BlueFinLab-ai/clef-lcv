@@ -6,8 +6,9 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'runtime'))
 from cpu_preparation import PreparedDecision
+from media_prefix import MediaPrefix
 source=Path(__file__).resolve().parents[1]/'clef_service/app.py'
-nodes=[n for n in ast.parse(source.read_text()).body if isinstance(n,ast.FunctionDef) and n.name in {'prepare_decision','run_decision'}]
+nodes=[n for n in ast.parse(source.read_text()).body if isinstance(n,ast.FunctionDef) and n.name in {'media_cache_key','prepare_decision','run_decision'}]
 class OOM(RuntimeError):pass
 class Engine:
  base_bytes=0
@@ -31,7 +32,8 @@ namespace={'DecisionRequest':NS,'PreparedDecision':PreparedDecision,'time':time,
  'PREFIX_CACHE_ENABLED':True,'GPU_CACHE_SUPPORTED':True,'ATTENTION_BACKEND':'efficient','IMAGE_PREFILL_ENABLED':True,
  'sdpa_kernel':lambda *a:contextlib.nullcontext(),'SDPBackend':NS(EFFICIENT_ATTENTION=1,MATH=2),'nullcontext':contextlib.nullcontext,
  'hashlib':hashlib,'json':json,'HTTPException':HTTPException,'JSONResponse':JSONResponse,'model':None,
- 'answers':lambda *a:{'ok':True},'ROCM_LONG_PROMPT_THRESHOLD':0,'gc':gc,'logging':logging}
+ 'answers':lambda *a:{'ok':True},'ROCM_LONG_PROMPT_THRESHOLD':0,'gc':gc,'logging':logging,
+ 'MediaPrefix':MediaPrefix,'log':logging.getLogger('test')}
 exec(compile(ast.Module(body=nodes,type_ignores=[]),str(source),'exec'),namespace)
 for enabled in [True,False]:
  request=NS(state='input',images=[],input_cache=enabled,prefix_cache=enabled,image_pooling=False,model='test')

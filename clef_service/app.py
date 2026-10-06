@@ -71,6 +71,7 @@ from image_request import IMAGE_FIDELITIES, media_options
 from reusable_inputs import InputCache, cpu_bytes
 from ram_cache_budget import RAMCacheBudget
 from cpu_preparation import PreparedDecision, preparation_fits
+from media_prefix import MediaPrefix
 from request_queue import DecisionQueue, QueueAdmissionMiddleware, QueueError
 from text_batching import BatchUnavailable, TextBatchAdmission, shared_tokens
 from optimized_inference import available_cuda_memory, InferenceEngine, encode_compact, pool_record, remap_checkpoints, answers
@@ -257,6 +258,11 @@ def load_model():
 @asynccontextmanager
 async def lifespan(app):
     global model, processor, context_budget
+    app.state.startup_ready = False
+    warmup_setting = os.environ.get("CLEF_WARMUP", "1")
+    if warmup_setting not in {"0", "1"}:
+        raise ValueError("CLEF_WARMUP must be 0 or 1")
+    app.state.startup_warmup = {"enabled": warmup_setting == "1", "status": "pending"}
     app.state.matrix_tuning = {"enabled": False}
     tuned_file = os.environ.get("CLEF_ROCM_TUNABLEOP_FILE", "")
     if tuned_file:
@@ -329,8 +335,29 @@ async def lifespan(app):
     app.state.cache_stats = {"prefix_cache": engine.stats(), "input_cache": input_cache.stats()}
     await request_queue.start()
     try:
+        from .startup_warmup import warmup_on_worker
+
+        def finish_warmup():
+            torch.cuda.synchronize()
+            torch.cuda.empty_cache()
+            torch.cuda.reset_peak_memory_stats()
+            engine.initialize_memory_budget()
+            refresh_context_budget()
+
+        app.state.startup_warmup["status"] = "running"
+        try:
+            app.state.startup_warmup = await warmup_on_worker(request_queue,
+                lambda payload: run_decision(DecisionRequest(**payload)), MODEL_ID,
+                enabled=warmup_setting == "1", image_pooling=POOLING_DEFAULT, finish=finish_warmup)
+        except Exception:
+            app.state.startup_warmup["status"] = "failed"
+            log.exception("Startup warmup failed; service will not become ready")
+            raise
+        app.state.cache_stats = {"prefix_cache": engine.stats(), "input_cache": input_cache.stats()}
+        app.state.startup_ready = True
         yield
     finally:
+        app.state.startup_ready = False
         await request_queue.close()
 
 
@@ -354,8 +381,10 @@ def ui_config():
 
 @app.get("/readyz", include_in_schema=False)
 def ready():
-    # Model startup finishes before HTTP serving. This minimal public probe is
+    # Model startup and warmup finish before HTTP serving. This public probe is
     # also used by Docker when detailed /health requires authorization.
+    if not getattr(app.state, "startup_ready", False):
+        return JSONResponse(status_code=503, content={"status": "starting"})
     return {"status": "ok"}
 
 if UI_DIR.is_dir():
@@ -415,6 +444,8 @@ def runtime_cache_stats():
 @app.get("/health")
 def health():
     return {
+        "ready": app.state.startup_ready,
+        "startup_warmup": app.state.startup_warmup,
         "queue": request_queue.stats(),
         "text_batching": app.state.text_batching.stats(),
         "status": "ok", "model": PROFILE["repository"], "startup_strategy": STARTUP_STRATEGY, "quantization": "nf4",
@@ -525,6 +556,16 @@ def request_record(request: DecisionRequest):
     return record
 
 
+def media_cache_key(encoded, images, options):
+    """Per-image prefix key, or the whole-media key when images can't be mapped."""
+    if images:
+        try:
+            return MediaPrefix.build(processor, encoded, images, options)
+        except ValueError:
+            log.warning("Image prefix boundaries unavailable; using whole-media cache key")
+    return hashlib.sha256(json.dumps([images, options], separators=(',', ':')).encode()).hexdigest()
+
+
 def prepare_decision(request, overlapped=False, record=None):
     started = time.perf_counter()
     try:
@@ -539,7 +580,7 @@ def prepare_decision(request, overlapped=False, record=None):
             'token_cache_hits':after['token_hits']-before['token_hits'],
             'token_cache_misses':after['token_misses']-before['token_misses'],
             'cpu_preparation_overlapped':bool(overlapped)}
-        key=hashlib.sha256(json.dumps([request.images,record.get('media_kwargs')],separators=(',',':')).encode()).hexdigest()
+        key = media_cache_key(encoded, request.images, record.get('media_kwargs'))
         record.pop('_cache_image_snapshots',None)
         return PreparedDecision(request,record,encoded,boundary,checkpoints,usage,key)
     except (ValueError, KeyError, TypeError) as exc:
@@ -623,6 +664,9 @@ def run_decision(request: DecisionRequest):
             original = encoded
             encoded, boundary = pool_record(encoded, boundary, model.language_model.config.image_token_id)
             checkpoints = remap_checkpoints(checkpoints, original, encoded)
+        input_key = prepared.input_key
+        if request.image_pooling and isinstance(input_key, MediaPrefix):
+            input_key = input_key.rebuild(processor, encoded)
         limits = refresh_context_budget()
         request_limit = limits["max_input_tokens_with_images" if request.images else "max_input_tokens"]
         if len(encoded.input_ids) > request_limit:
@@ -639,7 +683,7 @@ def run_decision(request: DecisionRequest):
             schema_bytes=max((b-a for a,b in spans),default=0)*engine.context_policy.hidden*2
             media_start=encoded.media['token_offset'] if encoded.media else None
             media_end=media_start+len(encoded.media['mm_token_type_ids']) if encoded.media else 0
-            match,_=engine._match(model,encoded.input_ids,boundary,prepared.input_key,request.image_pooling,media_start,media_end)
+            match,_=engine._match(model,encoded.input_ids,boundary,input_key,request.image_pooling,media_start,media_end)
             source=engine.host.entries.get(match)
             protected_cpu=source['bytes'] if source else 0
             cached_tokens=len(source['ids']) if source else 0
@@ -649,7 +693,7 @@ def run_decision(request: DecisionRequest):
             if execution_plan is None:
                 return JSONResponse(status_code=413,content={'detail':'Request exceeds measured memory admission for its matching prefix','input_tokens':len(encoded.input_ids),'max_input_tokens':limits['context_limit'].get('cold_max_input_tokens',request_limit)})
             if execution_plan['mode']!='none':
-                engine.reclaim_host_workspace(len(encoded.input_ids),execution_plan['mode'],model,prepared.input_key,request.image_pooling,boundary,encoded)
+                engine.reclaim_host_workspace(len(encoded.input_ids),execution_plan['mode'],model,input_key,request.image_pooling,boundary,encoded)
         cache_preparation = engine.prepare_request(execution_plan['workspace_bytes'] if execution_plan and (execution_plan['mode']!='none' or len(encoded.input_ids)>PREFILL_INITIAL_CHUNK_TOKENS) else context_budget.workspace(len(encoded.input_ids))
             if context_budget.computed and len(encoded.input_ids)>PREFILL_INITIAL_CHUNK_TOKENS else None,
             observed_chunked=(STARTUP_STRATEGY.get("runtime_backend") == "rocm"
@@ -657,7 +701,6 @@ def run_decision(request: DecisionRequest):
                 and PREFILL_CHUNK_TOKENS > 0 and len(encoded.input_ids)>PREFILL_INITIAL_CHUNK_TOKENS))
         routing_cache_start=engine._bytes()
         torch.cuda.reset_peak_memory_stats()
-        input_key = prepared.input_key
         caching = request.prefix_cache and PREFIX_CACHE_ENABLED and GPU_CACHE_SUPPORTED and not prepared.usage.get('_interleave_uncached',False)
         initial_chunk, chunk_size = PREFILL_INITIAL_CHUNK_TOKENS, PREFILL_CHUNK_TOKENS
         if (STARTUP_STRATEGY.get("runtime_backend") == "rocm" and ROCM_LONG_PROMPT_THRESHOLD

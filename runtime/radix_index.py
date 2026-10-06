@@ -124,6 +124,23 @@ class PrefixRadixIndex:
         def query(bank, group, end, lower=0):
             tree = bank.get(group)
             return tree.match(tokens, min(boundary, end), lower) if tree else (None, 0)
+        if hasattr(input_key, 'intervals'):
+            best, common, best_length = None, 0, -1
+            for namespace, image, lower, stop in reversed(input_key.intervals(boundary)):
+                if best is not None and best_length >= stop and common >= stop:
+                    break
+                pool = bool(pooling) if image else False
+                candidate, _ = query(self.cached, (model_id, namespace, pool), stop, lower)
+                if candidate is not None:
+                    length = len(self.records[candidate]['ids'])
+                    if length > best_length: best, best_length = candidate, length
+                _, shared = query(self.media, (model_id, (namespace, pool)), stop)
+                if shared >= lower: common = max(common, shared)
+            # Text before media may be observed under an unrelated media key.
+            before = 0
+            if common < media_start:
+                _, before = query(self.models, model_id, media_start)
+            return best, max(common, before)
         if media_start is None:
             best, _ = query(self.cached, (model_id, 'text', False), boundary)
             _, common = query(self.models, model_id, boundary)

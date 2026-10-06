@@ -21,11 +21,19 @@ jobs:
           node-version: "20"
       - name: Project structure, links and UI
         run: python scripts/check_project.py
+      - name: Install CPU service-test dependencies
+        run: pip install fastapi==0.142.2 pillow==12.3.0 httpx==0.28.1
+      - name: Startup warmup and request queue
+        run: python scripts/test_startup_warmup.py && python scripts/test_request_queue.py
+      - name: Image-prefix radix branches
+        run: python scripts/test_image_prefix_index.py
       - name: Email benchmark fixture
         run: python scripts/test_email_benchmark.py
       - name: Provider benchmark
         run: python scripts/test_provider_benchmark.py
       - name: Browser image scaling
         run: node scripts/test_image_scaling.js
+      - name: Portal code examples
+        run: node scripts/test_demo_examples.js
       - name: JavaScript syntax
         run: node --check web/app.js && node --check web/image-input.js

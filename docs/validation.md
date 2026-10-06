@@ -718,3 +718,65 @@ requests succeeded with the same agreement. The RTX 3070 Ti peak fell from 79 °
 to 59 °C; four-client means changed by 0.1–3.2%. See
 [queue batching results](../benchmarks/nvidia-batching/README.md).
 
+## Startup warmup — October 6, 2026
+
+Default startup now runs a short text request and a synthetic 256×256 image on
+the existing GPU worker before the HTTP lifespan yields. All three answer types
+are exercised, with input and prefix caching disabled. CPU checks cover readiness
+waiting, reuse of the serving thread, clean queue counters, failure cleanup,
+non-finite/incomplete replies, HTTP error replies, and explicit opt-out.
+
+Isolated CUDA containers with fresh kernel caches passed for compact NF4 Flash
+and NF4 Full on separate RTX 3090s. Warmup took 36.8 s and 41.5 s respectively,
+excluding model loading. Their first uncached HTTP image requests after readiness
+took 225.7 ms and 474.2 ms. These are startup smoke timings, not a hardware
+comparison or a promise for other schemas/resolutions. The logs show warmup
+completion before application startup completion. Both containers had zero user
+queue completions and no CPU input, GPU image-feature, or GPU/CPU prefix entries
+before the first real request. The test containers were removed afterward.
+
+The updated image was then deployed on the RTX 3070 Ti, preserving its existing
+settings and model/kernel cache volume. Warmup took 8.3 s with that cache; its
+first uncached 256px image request after readiness took 262.6 ms. The previous
+container remains stopped for rollback. No warmup requests entered user queue
+counters, and the real smoke request completed without errors.
+
+Unseen batch shapes, image sizes and long-context routes may still initialize on
+first use. AMD and other NVIDIA architectures use the same gate but were not
+GPU-tested in this change. [Startup options](unified-service.md#startup).
+
+## Image-boundary radix cache — October 6, 2026
+
+Flash and Full each passed 12 branch comparisons using synthetic colored images:
+256px, pooled 512px, and 1536px with incremental prefill. Cases replace the last
+image, remove it, append another, or change the first/middle image. Complete
+image checkpoints preserve the original global positions and all head vectors.
+Reported probability differences versus uncached execution were at most 0.07
+percentage points for Flash and 0.34 for Full. These are targeted correctness
+fixtures, not a broad vision quality benchmark.
+
+The following comparison asks one color question about five 1536px images and
+replaces the last image. The baseline keeps independent vision caching enabled
+but disables language prefix reuse. Timings include HTTP and preprocessing.
+
+| Model / GPU | Vision cache only | Image prefix reuse | Improvement | Identical repeat | Restore tier |
+|---|---:|---:|---:|---:|---|
+| Flash / RTX 3090, 250W | 4.330 s | 1.566 s | 2.77× | 0.522 s | GPU |
+| Full / RTX 3090, 400W | 11.248 s | 4.512 s | 2.49× | 0.575 s | GPU |
+| Flash / RTX 3070 Ti | 9.260 s | 3.194 s | 2.90× | 0.502 s | CPU RAM |
+
+Each branch restored 9,297 input tokens and four complete images; reported
+probabilities equaled the baseline at API precision. The 3070 Ti deployment
+passed readiness, startup warmup, CPU RAM checkpoint restore and repeat reuse.
+Snapshot copying often made tiny 256px / pooled 512px branches slower; large
+input gains should not be generalized to small requests. Existing cache memory
+budgets and eviction still apply.
+
+CPU checks passed 800 randomized image radix/scan comparisons plus the existing
+1,600 randomized token-prefix comparisons. Coverage includes exact image
+identity/settings/grid/model/pooling, different text beginnings, changed last
+image dimensions, safe boundaries, both cache tiers, observations, eviction,
+vision suffix insertion, global positions and complete head input. Queue,
+preparation, warmup, memory admission and project checks also passed.
+Run `scripts/test_image_prefix_index.py`, `scripts/test_image_prefix_runtime.py`
+and `scripts/test_multimodal_prefill.py` for the new checks.

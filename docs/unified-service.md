@@ -22,6 +22,22 @@ prepares an NF4 checkpoint, then starts Uvicorn. An already prepared managed
 checkpoint skips network and quantization. Full uses the same command with `--full`.
 `--model full` and `CLEF_PROFILE=full` are equivalent model selectors.
 
+Before HTTP serving becomes available, the service warms a short text request
+and a synthetic 256×256 image request on its actual GPU worker. Both Flash and
+Full use the same startup gate, including the experimental ROCm path. The
+requests exercise choice, boolean and score outputs with input/prefix caches
+disabled. They are excluded from user queue counters and retain no synthetic
+prefix/image cache entries. Temporary GPU workspace is released afterward.
+Warmup failures stop startup rather than publishing a healthy service.
+
+Watch `Startup warmup complete` and `Application startup complete` in the logs.
+`/health.startup_warmup` reports status and per-request timing; `/readyz` is ready
+only after loading and warmup finish. GPU compilation can extend the first
+startup; keep the `/data` volume to retain compiled kernel caches. The warmup
+covers common small requests, not every possible image size, schema, batch size,
+or extended-context path, so unseen shapes can still initialize on first use.
+For troubleshooting, add `--no-warmup` or set `CLEF_WARMUP=0` to opt out.
+
 To pre-download Full without starting a second inference service, run
 `docker run --rm -v clef-cache:/data clef:local download --full`. The `download`
 action does not require a GPU; `prepare --full` also creates the NF4 checkpoint
@@ -230,3 +246,30 @@ the single path. Use `--batch-size 1` to disable or `--batch-size 4` for an expl
 experiment. RX 580 stays at one and other CUDA families default to one.
 [Admission, cache isolation and fallbacks](runtime-optimizations.md#opportunistic-cuda-text-batching).
 [100-email comparison](../benchmarks/nvidia-batching/summary-2026-10-05.json).
+
+## Image-boundary prefix reuse
+
+Flash and Full retain language-state checkpoints after each complete still image,
+using the existing radix index and GPU/CPU RAM cache tiers. `[A, B, C, D, E]` can
+branch to `[A, B, C, D, F]` by restoring the checkpoint through D and computing F
+and the following text/schema. Removing E can reuse D; appending F can reuse E.
+The decision head still evaluates the current questions using all retained and
+new hidden vectors; this does not cache final answers.
+
+Reuse requires the same leading text, image order, exact uploaded image bytes,
+processor options, grids, pooling setting and model instance. Changing the first
+image invalidates later language state. Different image beginnings cannot be
+blended. A checkpoint never ends inside an image. Global multimodal rotary
+positions are computed for the current request and sliced without resetting.
+
+`usage.reused_prefix_tokens` includes the restored leading image tokens.
+`usage.vision_images_reused` reports complete images skipped because their
+language state was restored; those images do not need the independent vision
+feature cache. `image_feature_cache_hits/misses` refer only to images that still
+need language processing. `prefix_cache_tier` identifies GPU or CPU RAM restore.
+
+Each image checkpoint retains hybrid attention state plus hidden vectors, so
+cold requests can incur extra snapshot work. Existing memory limits, admission,
+eviction and RAM spill policies apply: a checkpoint may be evicted or rejected
+under pressure, and such requests recompute safely. `prefix_cache: false` disables
+these checkpoints. No additional runtime dependencies or compilers are required.

@@ -115,3 +115,13 @@ The final image now comes from a fresh runtime base, with compiler/SDK executabl
 confined to producer stages. Unused Triton and ONNX Runtime/MIGraphX packages are
 removed; HIPRTC/COMGR/LLVM shared libraries remain required by the HIP stack.
 [Runtime-only binary builds and validation](../../docs/runtime-packaging.md).
+
+## Email benchmark — October 6, 2026
+
+The RX 580 ran the same [100-email benchmark](../../benchmarks/email-sample/README.md)
+as the NVIDIA cards, one request at a time with GPU batching off. All 100
+requests succeeded in 2,261 s (median 16.6 s per email), and 96/100 matched the
+GPT Sol 6.1 reference labels, the same as Flash on NVIDIA. That is about 35 times
+slower than Flash on an RTX 3070 Ti. It confirms the path works end to end; it
+isn't fast enough for interactive use.
+[Results](email-100-results-2026-10-06.json).

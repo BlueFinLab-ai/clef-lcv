@@ -16,6 +16,7 @@ import torch.nn.functional as F
 import joint_schema_model as joint
 from host_prefix_cache import HostPrefixCache, copy_to_device
 from radix_index import PrefixRadixIndex, IndexedBank
+from media_prefix import MediaPrefix, remaining_images
 from async_restore import AsyncRestoreRuntime
 from chunked_prefill import forward_chunked, image_features
 
@@ -304,8 +305,8 @@ class InferenceEngine:
     @staticmethod
     def _namespace(model, input_key, pooling, position, media_start):
         # Prefixes before the first image are independent of all image bytes.
-        return (id(model), input_key if media_start is not None and position > media_start else 'text',
-                bool(pooling) if media_start is not None and position > media_start else False)
+        namespace = input_key.at(position) if isinstance(input_key, MediaPrefix) else input_key if media_start is not None and position > media_start else 'text'
+        return (id(model), namespace, bool(pooling) if namespace != 'text' else False)
 
     def _match(self, model, tokens, boundary, input_key, pooling, media_start, media_end):
         if self.prefix_index is None:
@@ -325,10 +326,15 @@ class InferenceEngine:
                 if left != right:
                     break
                 matched += 1
-            if media_start is not None and entry['media_key'] != (input_key, bool(pooling)):
-                matched = min(matched, media_start)
-            if media_start is not None and media_start < matched < media_end:
-                matched = media_start
+            if isinstance(input_key, MediaPrefix):
+                compatible = [min(matched, stop) for namespace, image, lower, stop in input_key.intervals(boundary)
+                              if entry['media_key'] == (namespace, bool(pooling) if image else False) and matched >= lower]
+                matched = max([min(matched, media_start), *compatible])
+            else:
+                if media_start is not None and entry['media_key'] != (input_key, bool(pooling)):
+                    matched = min(matched, media_start)
+                if media_start is not None and media_start < matched < media_end:
+                    matched = media_start
             common = max(common, matched)
             length = len(entry['ids'])
             if 'cache' in entry and length <= matched and key[:3] == self._namespace(model, input_key, pooling, length, media_start):
@@ -432,7 +438,7 @@ class InferenceEngine:
     def _remember(self, key, tokens, boundary, input_key, pooling):
         # CPU token metadata identifies repeated branches without spending VRAM
         # or introducing a separate language forward for every unique suffix.
-        self.observations[key] = {'ids': tuple(tokens[:boundary]), 'media_key': (input_key, bool(pooling))}
+        self.observations[key] = {'ids': tuple(tokens[:boundary]), 'media_key': key[1:3] if isinstance(input_key, MediaPrefix) else (input_key, bool(pooling))}
         self.observations.move_to_end(key)
         while len(self.observations) > self.max_entries:
             self.observations.popitem(last=False)
@@ -447,7 +453,7 @@ class InferenceEngine:
         if self.max_entries == 0:
             return self._reject_retention('entry_limit_disabled', size)
         if size > self._budget():
-            if self.host.put(key, {'cache': past, 'chunks': tuple(chunks), 'ids': tuple(tokens[:end]), 'media_key': (input_key, bool(pooling)), 'parent_key':parent_key,'media_start':media_start}, tensor_bytes):
+            if self.host.put(key, {'cache': past, 'chunks': tuple(chunks), 'ids': tuple(tokens[:end]), 'media_key': key[1:3], 'parent_key':parent_key,'media_start':media_start}, tensor_bytes):
                 return True
             return self._reject_retention('checkpoint_exceeds_memory_budget', size)
         while (self.entries or self.features) and (len(self.entries) >= self.max_entries
@@ -455,11 +461,11 @@ class InferenceEngine:
                 or available_cuda_memory() < self._required_free(size)):
             self._drop()
         if available_cuda_memory() < self._required_free(size):
-            if self.host.put(key, {'cache': past, 'chunks': tuple(chunks), 'ids': tuple(tokens[:end]), 'media_key': (input_key, bool(pooling)), 'parent_key':parent_key,'media_start':media_start}, tensor_bytes):
+            if self.host.put(key, {'cache': past, 'chunks': tuple(chunks), 'ids': tuple(tokens[:end]), 'media_key': key[1:3], 'parent_key':parent_key,'media_start':media_start}, tensor_bytes):
                 return True
             return self._reject_retention('insufficient_snapshot_headroom', size)
         snapshot = {'cache': copy.deepcopy(past), 'chunks': tuple(c.clone() for c in chunks) if copy_chunks else tuple(chunks), 'ids': tuple(tokens[:end]),
-                    'media_key': (input_key, bool(pooling)), 'uses': 0,'parent_key':parent_key,'media_start':media_start}
+                    'media_key': key[1:3], 'uses': 0,'parent_key':parent_key,'media_start':media_start}
         snapshot['bytes'] = tensor_bytes((snapshot['cache'], snapshot['chunks']))
         self.entries[key] = snapshot
         return True
@@ -504,7 +510,7 @@ class InferenceEngine:
         """
         image_keys = encoded.media.get('image_cache_keys', ())
         if not enabled or not image_keys or not self.feature_limit or not self.feature_entries:
-            return base.visual(media['pixel_values'].to(base.visual.dtype), grid_thw=grid, return_dict=True).pooler_output, 0, len(grid)
+            return base.visual(media['pixel_values'].to(device=grid.device, dtype=base.visual.dtype), grid_thw=grid, return_dict=True).pooler_output, 0, len(grid)
         grids = grid.tolist()
         pixels = torch.split(media['pixel_values'], [math.prod(g) for g in grids])
         keys = [(id(base.visual), str(grid.device), str(base.visual.dtype), k, tuple(g)) for k,g in zip(image_keys, grids)]
@@ -524,7 +530,7 @@ class InferenceEngine:
         self.feature_misses += misses
         if missing:
             indices = list(missing.values())
-            computed = base.visual(torch.cat([pixels[i] for i in indices]).to(base.visual.dtype),
+            computed = base.visual(torch.cat([pixels[i] for i in indices]).to(device=grid.device, dtype=base.visual.dtype),
                 grid_thw=grid[indices], return_dict=True).pooler_output
             chunks = computed.split([math.prod(grids[i]) // 4 for i in indices])
             for key,chunk in zip(missing, chunks):
@@ -546,6 +552,8 @@ class InferenceEngine:
                 checkpoint_boundaries=(), feature_cache_enabled=True,
                 prefill_chunk_tokens=0, prefill_initial_chunk_tokens=8192, prefill_images=False,
                 execution_plan=None):
+        if isinstance(input_key, MediaPrefix):
+            checkpoint_boundaries = tuple(sorted(set(checkpoint_boundaries) | set(input_key.checkpoints)))
         self.last_retention_rejection = None
         mode=execution_plan['mode'] if execution_plan is not None else self.active_context_offload
         if mode=='auto':mode='none'
@@ -578,7 +586,7 @@ class InferenceEngine:
                     self.hits += 1
                     self.reused_tokens += reused
             # Stable partitions preserve cold/warm numerical behavior. Never
-            # checkpoint a partly consumed image group, and avoid tiny snapshots.
+            # checkpoint a partly consumed image, and avoid tiny snapshots.
             points = sorted(set(p for p in checkpoint_boundaries if p >= self.min_prefix_tokens))
             whole_key = self._input_key(model, encoded.input_ids, boundary, input_key, pooling, media_start)
             # A repeated exact state can justify a second snapshot even when
@@ -595,7 +603,7 @@ class InferenceEngine:
                     if tiled:
                         checkpoint_key=self._input_key(model,encoded.input_ids,end,input_key,pooling,media_start)
                         retained=self.host.put(checkpoint_key,{'cache':past,'chunks':(hidden,),
-                            'ids':tuple(encoded.input_ids[:end]),'media_key':(input_key,bool(pooling)),
+                            'ids':tuple(encoded.input_ids[:end]),'media_key':checkpoint_key[1:3],
                             'parent_key':retained_parent,'media_start':media_start},tensor_bytes,
                             adopt_cpu=mode=='kv_stream' and end==boundary)
                         saved+=retained
@@ -677,7 +685,8 @@ class InferenceEngine:
         reused = len(entry['ids']) if hit else 0
         build_ms = 0.0
         saved = 0
-        vision_reused = bool(hit and media and reused >= media_end)
+        remaining, vision_images_reused = remaining_images(encoded, model.language_model.config.image_token_id, reused) if media else (encoded, 0)
+        vision_reused = bool(hit and media and vision_images_reused == len(encoded.media['image_grid_thw']))
         if hit:
             self.hits += 1
             self.reused_tokens += reused
@@ -687,11 +696,11 @@ class InferenceEngine:
         manual_vision = bool(media and not vision_reused and (enabled or pooling or feature_cache_enabled))
         inputs = {'input_ids': ids}
         if manual_vision:
-            original = encoded.media['original_grid_thw'].to(ids.device) if pooling else media['image_grid_thw']
-            vision, feature_hits, feature_misses = self._vision(base, encoded, media, original, feature_cache_enabled)
+            original = remaining.media['original_grid_thw'].to(ids.device) if pooling else remaining.media['image_grid_thw'].to(ids.device)
+            vision, feature_hits, feature_misses = self._vision(base, remaining, remaining.media, original, feature_cache_enabled)
             if pooling:
                 chunks, offset = [], 0
-                for old, new in zip(original.tolist(), media['image_grid_thw'].tolist()):
+                for old, new in zip(original.tolist(), remaining.media['image_grid_thw'].tolist()):
                     h, w = old[1] // 2, old[2] // 2
                     ph, pw = new[1] // 2, new[2] // 2
                     features = vision[offset:offset + h*w].reshape(h, w, -1).permute(2, 0, 1).unsqueeze(0)
@@ -701,8 +710,11 @@ class InferenceEngine:
             else:
                 features = vision
             embeddings = base.get_input_embeddings()(ids)
-            image_mask, _ = base.get_placeholder_mask(ids, inputs_embeds=embeddings, image_features=features)
-            inputs = {'inputs_embeds': embeddings.masked_scatter(image_mask, features.to(embeddings.dtype))}
+            suffix_ids = ids[:, reused:]
+            suffix_embeddings = embeddings[:, reused:]
+            image_mask, _ = base.get_placeholder_mask(suffix_ids, inputs_embeds=suffix_embeddings, image_features=features)
+            embeddings[:, reused:] = suffix_embeddings.masked_scatter(image_mask, features.to(embeddings.dtype))
+            inputs = {'inputs_embeds': embeddings}
         if not enabled:
             if manual_vision:
                 output = base.language_model(**inputs, attention_mask=mask, position_ids=positions, use_cache=False, return_dict=True)
@@ -724,11 +736,11 @@ class InferenceEngine:
                 points.add(common)
             if self.checkpoint_tokens:
                 points.update(range(self.checkpoint_tokens, boundary, self.checkpoint_tokens))
-            # Never checkpoint midway through an image: its rotary positions and
-            # embeddings must be consumed as one media region.
+            # Retain only complete-image boundaries. Global rotary positions
+            # remain unchanged when the following image sequence branches.
             points = sorted(p for p in points if reused < p <= boundary
                             and (p >= self.min_prefix_tokens or p == boundary or p in checkpoint_boundaries)
-                            and not (media_start is not None and media_start < p < media_end))
+                            and (input_key.safe(p) == p if isinstance(input_key, MediaPrefix) else not (media_start is not None and media_start < p < media_end)))
             prior = max([reused, *[p for p in points if p < boundary]])
             if boundary in points and prior and boundary - prior < self.min_prefix_tokens:
                 points.remove(boundary)
@@ -761,7 +773,7 @@ class InferenceEngine:
                         'prefix_cache': status, 'prefix_tokens': boundary,
                         'reused_prefix_tokens': reused, 'new_prefix_tokens': boundary - reused if enabled else boundary,
                         'prefix_build_ms': round(build_ms, 1), 'prefix_checkpoints_saved': saved,
-                        'vision_prefix_reused': vision_reused, 'image_feature_cache_hits': feature_hits,
+                        'vision_prefix_reused': vision_reused, 'vision_images_reused': vision_images_reused, 'image_feature_cache_hits': feature_hits,
                         'image_feature_cache_misses': feature_misses}
 
     def plan_text_batch(self, model, records, boundaries, input_key, cache_enabled=True):
