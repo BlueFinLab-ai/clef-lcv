@@ -1,0 +1,11 @@
+--- a/csrc/common.cuh
++++ b/csrc/common.cuh
+@@ -33,6 +33,6 @@
+ #if BNB_HIP
+-// All of gfx9 is Wave64, including the GCN5 parts IS_CDNA omits.
+-#if defined(__GFX9__)
++// Polaris gfx803 and all of gfx9 are Wave64.
++#if defined(__GFX9__) || defined(__gfx803__)
+ #define BNB_WARP_SIZE 64 // GCN5 / CDNA
+ #else
+ #define BNB_WARP_SIZE 32 // RDNA

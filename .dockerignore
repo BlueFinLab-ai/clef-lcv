@@ -1,5 +1,8 @@
 *
 !Dockerfile
+!Dockerfile.runtime
+!artifacts/
+!artifacts/**
 !requirements/
 !requirements/**
 !clef_service/
@@ -15,12 +18,20 @@
 !scripts/
 !scripts/build_container_kernel.py
 !scripts/kernel_smoke.py
+!scripts/assert_runtime_tools.py
 !README.md
 !THIRD_PARTY.md
 !LICENSE
+!experimental/
+!experimental/rocm/
+!experimental/rocm/**
 **/__pycache__
 **/*.pyc
 
 **/._*
 **/.DS_Store
 clef_service/kernel-build.json
+
+# Never send developer-only assets to Docker, even if allowlists change.
+.dev
+.dev/**

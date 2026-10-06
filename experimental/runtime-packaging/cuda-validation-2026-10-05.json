@@ -1,0 +1,2175 @@
+{
+  "completed": true,
+  "profiles": [
+    {
+      "profile": "flash",
+      "health": {
+        "queue": {
+          "enabled": true,
+          "policy": "fifo",
+          "gpu_workers": 1,
+          "active_requests": 0,
+          "waiting_requests": 0,
+          "max_waiting_requests": 64,
+          "wait_timeout_seconds": 300.0,
+          "admitted_requests": 0,
+          "admitted_payload_mib": 0.0,
+          "payload_limit_mib": 256.0,
+          "request_body_limit_mib": 224.0,
+          "completed": 12,
+          "failed": 1,
+          "cancelled": 0,
+          "timed_out": 0,
+          "rejected": 0,
+          "accepting": true
+        },
+        "status": "ok",
+        "model": "Cloudflare/clef-flash",
+        "startup_strategy": {
+          "gpu_name": "NVIDIA GeForce RTX 3090",
+          "capability": "8.6",
+          "total_mib": 24123,
+          "profile": "flash",
+          "compute_dtype": "float16",
+          "linear_prefill_backend": "fla",
+          "fla_max_chunk_tokens": 512,
+          "tested_family": true,
+          "kernel_arch_supported": true,
+          "compiled_kernel_arches": [
+            "75",
+            "80",
+            "86",
+            "89",
+            "90",
+            "120"
+          ],
+          "runtime_backend": "cuda",
+          "strategy_id": "cuda-fla-flash",
+          "experimental": false,
+          "runtime_options": {
+            "CLEF_LINEAR_PREFILL_BACKEND": "fla",
+            "CLEF_FLA_MAX_CHUNK_TOKENS": "512",
+            "CLEF_REQUIRE_FAST_LINEAR_ATTENTION": "1",
+            "CLEF_ATTENTION_BACKEND": "efficient",
+            "CLEF_IMAGE_PREFILL": "1",
+            "CLEF_PREFILL_INITIAL_CHUNK_TOKENS": "8192",
+            "CLEF_PREFILL_CHUNK_TOKENS": "4096",
+            "CLEF_PREFIX_CACHE": "1",
+            "CLEF_INPUT_CACHE": "1",
+            "CLEF_IMAGE_POOLING": "0",
+            "CLEF_MAX_IMAGE_LENGTH": "24576",
+            "PYTORCH_ALLOC_CONF": "expandable_segments:True"
+          },
+          "overrides": {},
+          "prebuilt_host_launchers": {
+            "enabled": true,
+            "modules": 19,
+            "triton_version": "3.6.0",
+            "runtime_host_compilation": false,
+            "gpu_jit_compilation": true
+          }
+        },
+        "quantization": "nf4",
+        "compact_embeddings": true,
+        "source_revision": "17f0b0ad64efb65d273590632833508766b2aae6",
+        "gpu": "NVIDIA GeForce RTX 3090",
+        "compute_dtype": "float16",
+        "nf4_layers": 358,
+        "linear_attention": {
+          "fast_path_available": true,
+          "layers": 24,
+          "native_gdn_block_tokens": 64,
+          "prefill_override": "fla",
+          "fla_max_chunk_tokens": null,
+          "chunk_kernels": [
+            "fla.ops.gated_delta_rule.chunk.chunk_gated_delta_rule"
+          ],
+          "optimized_prefill": true,
+          "recurrent_kernels": [
+            "fla.ops.gated_delta_rule.fused_recurrent.fused_recurrent_gated_delta_rule"
+          ],
+          "optimized_recurrence": true
+        },
+        "vision_attention": {
+          "query_tiling": false
+        },
+        "matrix_tuning": {
+          "enabled": false
+        },
+        "max_input_tokens": 245760,
+        "max_input_tokens_with_images": 24576,
+        "context_limit": {
+          "mode": "memory_estimate",
+          "estimated": true,
+          "computed_max_input_tokens": 245760,
+          "configured_max_input_tokens": 8192,
+          "configured_cap_applied": false,
+          "model_max_position_embeddings": 262144,
+          "image_limit_basis": "configured_chunked_ceiling",
+          "configured_max_input_tokens_with_images": 24576,
+          "available_request_mib": 18821.9,
+          "safety_reserve_mib": 512.0,
+          "full_attention_kv_bytes_per_token": 32768,
+          "retained_hidden_bytes_per_token": 8192,
+          "projected_growth_bytes_per_token": 76840,
+          "calibration_reference_tokens": 24576,
+          "calibration_workspace_mib": 2000.0,
+          "rounding_tokens": 4096,
+          "fallback_reason": null,
+          "snapshot_unix_seconds": 1791205708
+        },
+        "context_snapshot_status": "idle",
+        "input": [
+          "text",
+          "json",
+          "images"
+        ],
+        "image_input": {
+          "format": "base64 data URL",
+          "max_images": 16,
+          "max_processed_pixels_per_image": 16777216,
+          "max_vision_patch_tokens_per_image": null,
+          "resize_location": "client_for_gui",
+          "processor_defaults_for_api": true,
+          "legacy_fidelity_max_pixels": 1048576,
+          "default_fidelity": "standard",
+          "fidelities": {
+            "standard": 65536,
+            "low": 16384,
+            "medium": 262144,
+            "high": 1048576
+          },
+          "pooling_default": false,
+          "pooling_factor": 2
+        },
+        "attention_backend": "efficient",
+        "optimizations": {
+          "compact_schema": true,
+          "single_pass_preprocessing": true,
+          "observed_chunked_workspace_admission": false,
+          "chunked_prefill": {
+            "enabled": true,
+            "text_only": false,
+            "images_enabled": true,
+            "vision_batch_images": 1,
+            "initial_chunk_tokens": 8192,
+            "chunk_tokens": 4096,
+            "rocm_long_prompt_threshold": null,
+            "rocm_long_chunk_tokens": null
+          },
+          "prefix_cache_enabled": true,
+          "image_feature_cache_enabled": true,
+          "promote_repeated_boundary": false,
+          "input_cache_enabled": true,
+          "prefix_cache": {
+            "entries": 4,
+            "mib": 153.7,
+            "limit_mib": 18575.1,
+            "budget_mode": "auto",
+            "elastic": true,
+            "phase": "idle",
+            "request_workspace_mib": 0.0,
+            "retention_rejections": {},
+            "last_retention_rejection": null,
+            "last_rejected_checkpoint_mib": 0.0,
+            "max_entries": 32,
+            "reserve_mib": 256.0,
+            "prefill_reserve_mib": 512.0,
+            "effective_reserve_mib": 256.0,
+            "observed_prefixes": 9,
+            "observed_workspace_mib": 341.8,
+            "observed_chunked_workspace_mib": 1387.4,
+            "gpu_utilization_target": 1.0,
+            "checkpoint_tokens": 0,
+            "hits": 6,
+            "misses": 4,
+            "evictions": 0,
+            "reused_tokens": 343,
+            "image_features": {
+              "entries": 2,
+              "mib": 1.0,
+              "limit_mib": 256.0,
+              "max_entries": 64,
+              "hits": 1,
+              "misses": 2,
+              "evictions": 0
+            }
+          },
+          "input_cache": {
+            "image_entries": 2,
+            "image_mib": 3.01,
+            "image_limit_mib": 256.0,
+            "image_max_entries": 128,
+            "image_hits": 17,
+            "image_misses": 2,
+            "image_evictions": 0,
+            "token_entries": 29,
+            "token_mib": 0.3,
+            "token_limit_mib": 8.0,
+            "token_max_entries": 1024,
+            "token_hits": 238,
+            "token_misses": 30,
+            "token_evictions": 0
+          }
+        },
+        "allocated_mib": 5124.1,
+        "reserved_mib": 6586.0,
+        "free_device_mib": 17206.3
+      },
+      "tools": "PASS: no general compiler/build executables",
+      "api_result": {
+        "health": {
+          "queue": {
+            "enabled": true,
+            "policy": "fifo",
+            "gpu_workers": 1,
+            "active_requests": 0,
+            "waiting_requests": 0,
+            "max_waiting_requests": 64,
+            "wait_timeout_seconds": 300.0,
+            "admitted_requests": 0,
+            "admitted_payload_mib": 0.0,
+            "payload_limit_mib": 256.0,
+            "request_body_limit_mib": 224.0,
+            "completed": 12,
+            "failed": 1,
+            "cancelled": 0,
+            "timed_out": 0,
+            "rejected": 0,
+            "accepting": true
+          },
+          "status": "ok",
+          "model": "Cloudflare/clef-flash",
+          "startup_strategy": {
+            "gpu_name": "NVIDIA GeForce RTX 3090",
+            "capability": "8.6",
+            "total_mib": 24123,
+            "profile": "flash",
+            "compute_dtype": "float16",
+            "linear_prefill_backend": "fla",
+            "fla_max_chunk_tokens": 512,
+            "tested_family": true,
+            "kernel_arch_supported": true,
+            "compiled_kernel_arches": [
+              "75",
+              "80",
+              "86",
+              "89",
+              "90",
+              "120"
+            ],
+            "runtime_backend": "cuda",
+            "strategy_id": "cuda-fla-flash",
+            "experimental": false,
+            "runtime_options": {
+              "CLEF_LINEAR_PREFILL_BACKEND": "fla",
+              "CLEF_FLA_MAX_CHUNK_TOKENS": "512",
+              "CLEF_REQUIRE_FAST_LINEAR_ATTENTION": "1",
+              "CLEF_ATTENTION_BACKEND": "efficient",
+              "CLEF_IMAGE_PREFILL": "1",
+              "CLEF_PREFILL_INITIAL_CHUNK_TOKENS": "8192",
+              "CLEF_PREFILL_CHUNK_TOKENS": "4096",
+              "CLEF_PREFIX_CACHE": "1",
+              "CLEF_INPUT_CACHE": "1",
+              "CLEF_IMAGE_POOLING": "0",
+              "CLEF_MAX_IMAGE_LENGTH": "24576",
+              "PYTORCH_ALLOC_CONF": "expandable_segments:True"
+            },
+            "overrides": {},
+            "prebuilt_host_launchers": {
+              "enabled": true,
+              "modules": 19,
+              "triton_version": "3.6.0",
+              "runtime_host_compilation": false,
+              "gpu_jit_compilation": true
+            }
+          },
+          "quantization": "nf4",
+          "compact_embeddings": true,
+          "source_revision": "17f0b0ad64efb65d273590632833508766b2aae6",
+          "gpu": "NVIDIA GeForce RTX 3090",
+          "compute_dtype": "float16",
+          "nf4_layers": 358,
+          "linear_attention": {
+            "fast_path_available": true,
+            "layers": 24,
+            "native_gdn_block_tokens": 64,
+            "prefill_override": "fla",
+            "fla_max_chunk_tokens": null,
+            "chunk_kernels": [
+              "fla.ops.gated_delta_rule.chunk.chunk_gated_delta_rule"
+            ],
+            "optimized_prefill": true,
+            "recurrent_kernels": [
+              "fla.ops.gated_delta_rule.fused_recurrent.fused_recurrent_gated_delta_rule"
+            ],
+            "optimized_recurrence": true
+          },
+          "vision_attention": {
+            "query_tiling": false
+          },
+          "matrix_tuning": {
+            "enabled": false
+          },
+          "max_input_tokens": 245760,
+          "max_input_tokens_with_images": 24576,
+          "context_limit": {
+            "mode": "memory_estimate",
+            "estimated": true,
+            "computed_max_input_tokens": 245760,
+            "configured_max_input_tokens": 8192,
+            "configured_cap_applied": false,
+            "model_max_position_embeddings": 262144,
+            "image_limit_basis": "configured_chunked_ceiling",
+            "configured_max_input_tokens_with_images": 24576,
+            "available_request_mib": 18821.9,
+            "safety_reserve_mib": 512.0,
+            "full_attention_kv_bytes_per_token": 32768,
+            "retained_hidden_bytes_per_token": 8192,
+            "projected_growth_bytes_per_token": 76840,
+            "calibration_reference_tokens": 24576,
+            "calibration_workspace_mib": 2000.0,
+            "rounding_tokens": 4096,
+            "fallback_reason": null,
+            "snapshot_unix_seconds": 1791205708
+          },
+          "context_snapshot_status": "idle",
+          "input": [
+            "text",
+            "json",
+            "images"
+          ],
+          "image_input": {
+            "format": "base64 data URL",
+            "max_images": 16,
+            "max_processed_pixels_per_image": 16777216,
+            "max_vision_patch_tokens_per_image": null,
+            "resize_location": "client_for_gui",
+            "processor_defaults_for_api": true,
+            "legacy_fidelity_max_pixels": 1048576,
+            "default_fidelity": "standard",
+            "fidelities": {
+              "standard": 65536,
+              "low": 16384,
+              "medium": 262144,
+              "high": 1048576
+            },
+            "pooling_default": false,
+            "pooling_factor": 2
+          },
+          "attention_backend": "efficient",
+          "optimizations": {
+            "compact_schema": true,
+            "single_pass_preprocessing": true,
+            "observed_chunked_workspace_admission": false,
+            "chunked_prefill": {
+              "enabled": true,
+              "text_only": false,
+              "images_enabled": true,
+              "vision_batch_images": 1,
+              "initial_chunk_tokens": 8192,
+              "chunk_tokens": 4096,
+              "rocm_long_prompt_threshold": null,
+              "rocm_long_chunk_tokens": null
+            },
+            "prefix_cache_enabled": true,
+            "image_feature_cache_enabled": true,
+            "promote_repeated_boundary": false,
+            "input_cache_enabled": true,
+            "prefix_cache": {
+              "entries": 4,
+              "mib": 153.7,
+              "limit_mib": 18575.1,
+              "budget_mode": "auto",
+              "elastic": true,
+              "phase": "idle",
+              "request_workspace_mib": 0.0,
+              "retention_rejections": {},
+              "last_retention_rejection": null,
+              "last_rejected_checkpoint_mib": 0.0,
+              "max_entries": 32,
+              "reserve_mib": 256.0,
+              "prefill_reserve_mib": 512.0,
+              "effective_reserve_mib": 256.0,
+              "observed_prefixes": 9,
+              "observed_workspace_mib": 341.8,
+              "observed_chunked_workspace_mib": 1387.4,
+              "gpu_utilization_target": 1.0,
+              "checkpoint_tokens": 0,
+              "hits": 6,
+              "misses": 4,
+              "evictions": 0,
+              "reused_tokens": 343,
+              "image_features": {
+                "entries": 2,
+                "mib": 1.0,
+                "limit_mib": 256.0,
+                "max_entries": 64,
+                "hits": 1,
+                "misses": 2,
+                "evictions": 0
+              }
+            },
+            "input_cache": {
+              "image_entries": 2,
+              "image_mib": 3.01,
+              "image_limit_mib": 256.0,
+              "image_max_entries": 128,
+              "image_hits": 17,
+              "image_misses": 2,
+              "image_evictions": 0,
+              "token_entries": 29,
+              "token_mib": 0.3,
+              "token_limit_mib": 8.0,
+              "token_max_entries": 1024,
+              "token_hits": 238,
+              "token_misses": 30,
+              "token_evictions": 0
+            }
+          },
+          "allocated_mib": 5124.1,
+          "reserved_mib": 6586.0,
+          "free_device_mib": 17206.3
+        },
+        "discovery": {
+          "id": "clef-flash",
+          "object": "model",
+          "max_input_tokens": 245760,
+          "max_input_tokens_with_images": 24576,
+          "context_limit": {
+            "mode": "memory_estimate",
+            "estimated": true,
+            "computed_max_input_tokens": 245760,
+            "configured_max_input_tokens": 8192,
+            "configured_cap_applied": false,
+            "model_max_position_embeddings": 262144,
+            "image_limit_basis": "configured_chunked_ceiling",
+            "configured_max_input_tokens_with_images": 24576,
+            "available_request_mib": 18853.1,
+            "safety_reserve_mib": 512.0,
+            "full_attention_kv_bytes_per_token": 32768,
+            "retained_hidden_bytes_per_token": 8192,
+            "projected_growth_bytes_per_token": 76840,
+            "calibration_reference_tokens": 24576,
+            "calibration_workspace_mib": 2000.0,
+            "rounding_tokens": 4096,
+            "fallback_reason": null,
+            "snapshot_unix_seconds": 1791205646
+          },
+          "context_snapshot_status": "idle"
+        },
+        "trials": [
+          {
+            "name": "text-first",
+            "wall_seconds": 44.70940769906156,
+            "answers": {
+              "urgent": {
+                "type": "noul",
+                "noul": 0.9611
+              },
+              "action": {
+                "type": "choice",
+                "choice": "act",
+                "confidence": 0.9686,
+                "probabilities": {
+                  "act": 0.9686,
+                  "wait": 0.0314
+                }
+              },
+              "impact": {
+                "type": "score",
+                "score": 1.8843,
+                "confidence": 0.9154,
+                "legend": {
+                  "0": "None",
+                  "1": "Partial disruption",
+                  "2": "Complete outage"
+                },
+                "probabilities": {
+                  "0": 0.0311,
+                  "1": 0.0535,
+                  "2": 0.9154
+                }
+              }
+            },
+            "usage": {
+              "input_tokens": 215,
+              "output_tokens": 0,
+              "unpooled_input_tokens": 215,
+              "compact_schema": true,
+              "image_pooling": false,
+              "preprocessing_ms": 3.8,
+              "image_preprocess_cache_hits": 0,
+              "image_preprocess_cache_misses": 0,
+              "token_cache_hits": 9,
+              "token_cache_misses": 19,
+              "cache_prepare_ms": 0.3,
+              "cache_evicted_mib": 0.0,
+              "cache_headroom_mib": 256.0,
+              "cache_allocator_release_ms": 0.0,
+              "prefill_mode": "prefix_cache",
+              "prefix_cache": "miss",
+              "prefix_tokens": 60,
+              "reused_prefix_tokens": 0,
+              "new_prefix_tokens": 60,
+              "prefix_build_ms": 36180.6,
+              "prefix_checkpoints_saved": 1,
+              "vision_prefix_reused": false,
+              "image_feature_cache_hits": 0,
+              "image_feature_cache_misses": 0,
+              "accepted_max_input_tokens": 245760,
+              "context_limit_mode": "memory_estimate",
+              "latency_ms": 44704.8,
+              "peak_allocated_mib": 5303.1,
+              "queue_wait_ms": 0.1,
+              "server_total_ms": 44706.7
+            }
+          },
+          {
+            "name": "text-repeat",
+            "wall_seconds": 0.1276110338512808,
+            "answers": {
+              "urgent": {
+                "type": "noul",
+                "noul": 0.9611
+              },
+              "action": {
+                "type": "choice",
+                "choice": "act",
+                "confidence": 0.9686,
+                "probabilities": {
+                  "act": 0.9686,
+                  "wait": 0.0314
+                }
+              },
+              "impact": {
+                "type": "score",
+                "score": 1.8843,
+                "confidence": 0.9154,
+                "legend": {
+                  "0": "None",
+                  "1": "Partial disruption",
+                  "2": "Complete outage"
+                },
+                "probabilities": {
+                  "0": 0.0311,
+                  "1": 0.0535,
+                  "2": 0.9154
+                }
+              }
+            },
+            "usage": {
+              "input_tokens": 215,
+              "output_tokens": 0,
+              "unpooled_input_tokens": 215,
+              "compact_schema": true,
+              "image_pooling": false,
+              "preprocessing_ms": 0.2,
+              "image_preprocess_cache_hits": 0,
+              "image_preprocess_cache_misses": 0,
+              "token_cache_hits": 28,
+              "token_cache_misses": 0,
+              "cache_prepare_ms": 1.7,
+              "cache_evicted_mib": 0.0,
+              "cache_headroom_mib": 256.0,
+              "cache_allocator_release_ms": 0.0,
+              "prefill_mode": "prefix_cache",
+              "prefix_cache": "hit",
+              "prefix_tokens": 60,
+              "reused_prefix_tokens": 48,
+              "new_prefix_tokens": 12,
+              "prefix_build_ms": 0.0,
+              "prefix_checkpoints_saved": 0,
+              "vision_prefix_reused": false,
+              "image_feature_cache_hits": 0,
+              "image_feature_cache_misses": 0,
+              "accepted_max_input_tokens": 245760,
+              "context_limit_mode": "memory_estimate",
+              "latency_ms": 123.9,
+              "peak_allocated_mib": 5145.1,
+              "queue_wait_ms": 0.0,
+              "server_total_ms": 125.5
+            }
+          },
+          {
+            "name": "vision-first",
+            "wall_seconds": 0.43350845691747963,
+            "answers": {
+              "color": {
+                "type": "choice",
+                "choice": "red",
+                "confidence": 0.9954,
+                "probabilities": {
+                  "red": 0.9954,
+                  "blue": 0.0046
+                }
+              }
+            },
+            "usage": {
+              "input_tokens": 166,
+              "output_tokens": 0,
+              "unpooled_input_tokens": 166,
+              "compact_schema": true,
+              "image_pooling": false,
+              "preprocessing_ms": 29.2,
+              "image_preprocess_cache_hits": 0,
+              "image_preprocess_cache_misses": 1,
+              "token_cache_hits": 6,
+              "token_cache_misses": 5,
+              "cache_prepare_ms": 1.9,
+              "cache_evicted_mib": 0.0,
+              "cache_headroom_mib": 256.0,
+              "cache_allocator_release_ms": 0.0,
+              "prefill_mode": "prefix_cache",
+              "prefix_cache": "miss",
+              "prefix_tokens": 109,
+              "reused_prefix_tokens": 0,
+              "new_prefix_tokens": 109,
+              "prefix_build_ms": 108.7,
+              "prefix_checkpoints_saved": 1,
+              "vision_prefix_reused": false,
+              "image_feature_cache_hits": 0,
+              "image_feature_cache_misses": 1,
+              "accepted_max_input_tokens": 24576,
+              "context_limit_mode": "memory_estimate",
+              "latency_ms": 428.4,
+              "peak_allocated_mib": 5139.2,
+              "image_count": 1,
+              "image_fidelity": null,
+              "processed_images": [
+                {
+                  "width": 256,
+                  "height": 256
+                }
+              ],
+              "max_processed_pixels_per_image": 65536,
+              "processor_resize_enabled": true,
+              "queue_wait_ms": 0.0,
+              "server_total_ms": 430.6
+            }
+          },
+          {
+            "name": "vision-repeat",
+            "wall_seconds": 0.11882527801208198,
+            "answers": {
+              "color": {
+                "type": "choice",
+                "choice": "red",
+                "confidence": 0.9954,
+                "probabilities": {
+                  "red": 0.9954,
+                  "blue": 0.0046
+                }
+              }
+            },
+            "usage": {
+              "input_tokens": 166,
+              "output_tokens": 0,
+              "unpooled_input_tokens": 166,
+              "compact_schema": true,
+              "image_pooling": false,
+              "preprocessing_ms": 1.4,
+              "image_preprocess_cache_hits": 1,
+              "image_preprocess_cache_misses": 0,
+              "token_cache_hits": 11,
+              "token_cache_misses": 0,
+              "cache_prepare_ms": 2.9,
+              "cache_evicted_mib": 0.0,
+              "cache_headroom_mib": 256.0,
+              "cache_allocator_release_ms": 0.0,
+              "prefill_mode": "prefix_cache",
+              "prefix_cache": "hit",
+              "prefix_tokens": 109,
+              "reused_prefix_tokens": 103,
+              "new_prefix_tokens": 6,
+              "prefix_build_ms": 0.0,
+              "prefix_checkpoints_saved": 0,
+              "vision_prefix_reused": true,
+              "image_feature_cache_hits": 0,
+              "image_feature_cache_misses": 0,
+              "accepted_max_input_tokens": 24576,
+              "context_limit_mode": "memory_estimate",
+              "latency_ms": 114.6,
+              "peak_allocated_mib": 5124.1,
+              "image_count": 1,
+              "image_fidelity": null,
+              "processed_images": [
+                {
+                  "width": 256,
+                  "height": 256
+                }
+              ],
+              "max_processed_pixels_per_image": 65536,
+              "processor_resize_enabled": true,
+              "queue_wait_ms": 0.0,
+              "server_total_ms": 116.7
+            }
+          },
+          {
+            "name": "vision-pooled",
+            "wall_seconds": 0.20236380491405725,
+            "answers": {
+              "color": {
+                "type": "choice",
+                "choice": "red",
+                "confidence": 0.9954,
+                "probabilities": {
+                  "red": 0.9954,
+                  "blue": 0.0046
+                }
+              }
+            },
+            "usage": {
+              "input_tokens": 118,
+              "output_tokens": 0,
+              "unpooled_input_tokens": 166,
+              "compact_schema": true,
+              "image_pooling": true,
+              "preprocessing_ms": 1.1,
+              "image_preprocess_cache_hits": 1,
+              "image_preprocess_cache_misses": 0,
+              "token_cache_hits": 11,
+              "token_cache_misses": 0,
+              "cache_prepare_ms": 3.0,
+              "cache_evicted_mib": 0.0,
+              "cache_headroom_mib": 256.0,
+              "cache_allocator_release_ms": 0.0,
+              "prefill_mode": "prefix_cache",
+              "prefix_cache": "miss",
+              "prefix_tokens": 61,
+              "reused_prefix_tokens": 0,
+              "new_prefix_tokens": 61,
+              "prefix_build_ms": 91.8,
+              "prefix_checkpoints_saved": 1,
+              "vision_prefix_reused": false,
+              "image_feature_cache_hits": 1,
+              "image_feature_cache_misses": 0,
+              "accepted_max_input_tokens": 24576,
+              "context_limit_mode": "memory_estimate",
+              "latency_ms": 197.7,
+              "peak_allocated_mib": 5152.4,
+              "image_count": 1,
+              "image_fidelity": null,
+              "processed_images": [
+                {
+                  "width": 256,
+                  "height": 256
+                }
+              ],
+              "max_processed_pixels_per_image": 65536,
+              "processor_resize_enabled": true,
+              "queue_wait_ms": 0.0,
+              "server_total_ms": 200.5
+            }
+          },
+          {
+            "name": "sixteen-images",
+            "wall_seconds": 0.530470706988126,
+            "answers": {
+              "color": {
+                "type": "choice",
+                "choice": "red",
+                "confidence": 0.9956,
+                "probabilities": {
+                  "red": 0.9956,
+                  "blue": 0.0044
+                }
+              }
+            },
+            "usage": {
+              "input_tokens": 1156,
+              "output_tokens": 0,
+              "unpooled_input_tokens": 1156,
+              "compact_schema": true,
+              "image_pooling": false,
+              "preprocessing_ms": 29.3,
+              "image_preprocess_cache_hits": 15,
+              "image_preprocess_cache_misses": 1,
+              "token_cache_hits": 11,
+              "token_cache_misses": 0,
+              "cache_prepare_ms": 4.0,
+              "cache_evicted_mib": 0.0,
+              "cache_headroom_mib": 256.0,
+              "cache_allocator_release_ms": 0.0,
+              "prefill_mode": "prefix_cache",
+              "prefix_cache": "miss",
+              "prefix_tokens": 1099,
+              "reused_prefix_tokens": 0,
+              "new_prefix_tokens": 1099,
+              "prefix_build_ms": 328.7,
+              "prefix_checkpoints_saved": 1,
+              "vision_prefix_reused": false,
+              "image_feature_cache_hits": 0,
+              "image_feature_cache_misses": 1,
+              "accepted_max_input_tokens": 24576,
+              "context_limit_mode": "memory_estimate",
+              "latency_ms": 522.6,
+              "peak_allocated_mib": 5344.8,
+              "image_count": 16,
+              "image_fidelity": null,
+              "processed_images": [
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                }
+              ],
+              "max_processed_pixels_per_image": 65536,
+              "processor_resize_enabled": false,
+              "queue_wait_ms": 0.0,
+              "server_total_ms": 528.4
+            }
+          },
+          {
+            "name": "chunked-text",
+            "wall_seconds": 13.664108793018386,
+            "answers": {
+              "urgent": {
+                "type": "noul",
+                "noul": 0.9654
+              },
+              "action": {
+                "type": "choice",
+                "choice": "act",
+                "confidence": 0.9701,
+                "probabilities": {
+                  "act": 0.9701,
+                  "wait": 0.0299
+                }
+              },
+              "impact": {
+                "type": "score",
+                "score": 1.9196,
+                "confidence": 0.9421,
+                "legend": {
+                  "0": "None",
+                  "1": "Partial disruption",
+                  "2": "Complete outage"
+                },
+                "probabilities": {
+                  "0": 0.0224,
+                  "1": 0.0355,
+                  "2": 0.9421
+                }
+              }
+            },
+            "usage": {
+              "input_tokens": 8415,
+              "output_tokens": 0,
+              "unpooled_input_tokens": 8415,
+              "compact_schema": true,
+              "image_pooling": false,
+              "preprocessing_ms": 19.5,
+              "image_preprocess_cache_hits": 0,
+              "image_preprocess_cache_misses": 0,
+              "token_cache_hits": 27,
+              "token_cache_misses": 1,
+              "cache_prepare_ms": 5.9,
+              "cache_evicted_mib": 0.0,
+              "cache_headroom_mib": 512.0,
+              "cache_allocator_release_ms": 0.0,
+              "prefill_mode": "chunked",
+              "prefill_chunks": 3,
+              "prefill_initial_chunk_tokens": 8192,
+              "prefill_chunk_tokens": 4096,
+              "language_ms": 13603.7,
+              "head_ms": 14.5,
+              "prefix_cache": "disabled",
+              "prefix_tokens": 8260,
+              "reused_prefix_tokens": 0,
+              "cache_memory_budget_mib": 16319.1,
+              "cache_limit_reason": "disabled_by_request",
+              "new_prefix_tokens": 8260,
+              "prefix_build_ms": 0.0,
+              "prefix_checkpoints_saved": 0,
+              "image_feature_cache_hits": 0,
+              "image_feature_cache_misses": 0,
+              "accepted_max_input_tokens": 245760,
+              "context_limit_mode": "memory_estimate",
+              "latency_ms": 13657.8,
+              "peak_allocated_mib": 6502.4,
+              "queue_wait_ms": 0.0,
+              "server_total_ms": 13661.2
+            }
+          }
+        ],
+        "queued_usage": [
+          {
+            "input_tokens": 219,
+            "output_tokens": 0,
+            "unpooled_input_tokens": 219,
+            "compact_schema": true,
+            "image_pooling": false,
+            "preprocessing_ms": 1.2,
+            "image_preprocess_cache_hits": 0,
+            "image_preprocess_cache_misses": 0,
+            "token_cache_hits": 27,
+            "token_cache_misses": 1,
+            "cache_prepare_ms": 6.4,
+            "cache_evicted_mib": 0.0,
+            "cache_headroom_mib": 256.0,
+            "cache_allocator_release_ms": 0.0,
+            "prefill_mode": "prefix_cache",
+            "prefix_cache": "hit",
+            "prefix_tokens": 64,
+            "reused_prefix_tokens": 48,
+            "new_prefix_tokens": 16,
+            "prefix_build_ms": 0.0,
+            "prefix_checkpoints_saved": 0,
+            "vision_prefix_reused": false,
+            "image_feature_cache_hits": 0,
+            "image_feature_cache_misses": 0,
+            "accepted_max_input_tokens": 245760,
+            "context_limit_mode": "memory_estimate",
+            "latency_ms": 143.3,
+            "peak_allocated_mib": 5271.9,
+            "queue_wait_ms": 0.1,
+            "server_total_ms": 146.8
+          },
+          {
+            "input_tokens": 219,
+            "output_tokens": 0,
+            "unpooled_input_tokens": 219,
+            "compact_schema": true,
+            "image_pooling": false,
+            "preprocessing_ms": 0.7,
+            "image_preprocess_cache_hits": 0,
+            "image_preprocess_cache_misses": 0,
+            "token_cache_hits": 27,
+            "token_cache_misses": 1,
+            "cache_prepare_ms": 5.8,
+            "cache_evicted_mib": 0.0,
+            "cache_headroom_mib": 256.0,
+            "cache_allocator_release_ms": 0.0,
+            "prefill_mode": "prefix_cache",
+            "prefix_cache": "hit",
+            "prefix_tokens": 64,
+            "reused_prefix_tokens": 48,
+            "new_prefix_tokens": 16,
+            "prefix_build_ms": 0.0,
+            "prefix_checkpoints_saved": 0,
+            "vision_prefix_reused": false,
+            "image_feature_cache_hits": 0,
+            "image_feature_cache_misses": 0,
+            "accepted_max_input_tokens": 245760,
+            "context_limit_mode": "memory_estimate",
+            "latency_ms": 135.1,
+            "peak_allocated_mib": 5271.9,
+            "queue_wait_ms": 277.8,
+            "server_total_ms": 416.5
+          },
+          {
+            "input_tokens": 219,
+            "output_tokens": 0,
+            "unpooled_input_tokens": 219,
+            "compact_schema": true,
+            "image_pooling": false,
+            "preprocessing_ms": 0.7,
+            "image_preprocess_cache_hits": 0,
+            "image_preprocess_cache_misses": 0,
+            "token_cache_hits": 27,
+            "token_cache_misses": 1,
+            "cache_prepare_ms": 5.6,
+            "cache_evicted_mib": 0.0,
+            "cache_headroom_mib": 256.0,
+            "cache_allocator_release_ms": 0.0,
+            "prefill_mode": "prefix_cache",
+            "prefix_cache": "hit",
+            "prefix_tokens": 64,
+            "reused_prefix_tokens": 48,
+            "new_prefix_tokens": 16,
+            "prefix_build_ms": 0.0,
+            "prefix_checkpoints_saved": 0,
+            "vision_prefix_reused": false,
+            "image_feature_cache_hits": 0,
+            "image_feature_cache_misses": 0,
+            "accepted_max_input_tokens": 245760,
+            "context_limit_mode": "memory_estimate",
+            "latency_ms": 135.6,
+            "peak_allocated_mib": 5271.9,
+            "queue_wait_ms": 138.7,
+            "server_total_ms": 278.0
+          },
+          {
+            "input_tokens": 219,
+            "output_tokens": 0,
+            "unpooled_input_tokens": 219,
+            "compact_schema": true,
+            "image_pooling": false,
+            "preprocessing_ms": 0.8,
+            "image_preprocess_cache_hits": 0,
+            "image_preprocess_cache_misses": 0,
+            "token_cache_hits": 27,
+            "token_cache_misses": 1,
+            "cache_prepare_ms": 10.6,
+            "cache_evicted_mib": 0.0,
+            "cache_headroom_mib": 256.0,
+            "cache_allocator_release_ms": 0.0,
+            "prefill_mode": "prefix_cache",
+            "prefix_cache": "hit",
+            "prefix_tokens": 64,
+            "reused_prefix_tokens": 48,
+            "new_prefix_tokens": 16,
+            "prefix_build_ms": 0.0,
+            "prefix_checkpoints_saved": 0,
+            "vision_prefix_reused": false,
+            "image_feature_cache_hits": 0,
+            "image_feature_cache_misses": 0,
+            "accepted_max_input_tokens": 245760,
+            "context_limit_mode": "memory_estimate",
+            "latency_ms": 140.0,
+            "peak_allocated_mib": 5271.9,
+            "queue_wait_ms": 416.3,
+            "server_total_ms": 559.9
+          }
+        ],
+        "chunked_tested": true,
+        "passed": true
+      }
+    },
+    {
+      "profile": "full",
+      "health": {
+        "queue": {
+          "enabled": true,
+          "policy": "fifo",
+          "gpu_workers": 1,
+          "active_requests": 0,
+          "waiting_requests": 0,
+          "max_waiting_requests": 64,
+          "wait_timeout_seconds": 300.0,
+          "admitted_requests": 0,
+          "admitted_payload_mib": 0.0,
+          "payload_limit_mib": 256.0,
+          "request_body_limit_mib": 224.0,
+          "completed": 12,
+          "failed": 1,
+          "cancelled": 0,
+          "timed_out": 0,
+          "rejected": 0,
+          "accepting": true
+        },
+        "status": "ok",
+        "model": "Cloudflare/clef",
+        "startup_strategy": {
+          "gpu_name": "NVIDIA GeForce RTX 3090",
+          "capability": "8.6",
+          "total_mib": 24123,
+          "profile": "full",
+          "compute_dtype": "bfloat16",
+          "linear_prefill_backend": "fla",
+          "fla_max_chunk_tokens": 512,
+          "tested_family": true,
+          "kernel_arch_supported": true,
+          "compiled_kernel_arches": [
+            "75",
+            "80",
+            "86",
+            "89",
+            "90",
+            "120"
+          ],
+          "runtime_backend": "cuda",
+          "strategy_id": "cuda-fla-full",
+          "experimental": false,
+          "runtime_options": {
+            "CLEF_LINEAR_PREFILL_BACKEND": "fla",
+            "CLEF_FLA_MAX_CHUNK_TOKENS": "512",
+            "CLEF_REQUIRE_FAST_LINEAR_ATTENTION": "1",
+            "CLEF_ATTENTION_BACKEND": "efficient",
+            "CLEF_IMAGE_PREFILL": "1",
+            "CLEF_PREFILL_INITIAL_CHUNK_TOKENS": "8192",
+            "CLEF_PREFILL_CHUNK_TOKENS": "4096",
+            "CLEF_PREFIX_CACHE": "1",
+            "CLEF_INPUT_CACHE": "1",
+            "CLEF_IMAGE_POOLING": "0",
+            "CLEF_MAX_IMAGE_LENGTH": "auto",
+            "PYTORCH_ALLOC_CONF": "expandable_segments:True"
+          },
+          "overrides": {},
+          "prebuilt_host_launchers": {
+            "enabled": true,
+            "modules": 19,
+            "triton_version": "3.6.0",
+            "runtime_host_compilation": false,
+            "gpu_jit_compilation": true
+          }
+        },
+        "quantization": "nf4",
+        "compact_embeddings": false,
+        "source_revision": "2f3de3dd85f379784083b0814d997ab627200f0c",
+        "gpu": "NVIDIA GeForce RTX 3090",
+        "compute_dtype": "bfloat16",
+        "nf4_layers": 606,
+        "linear_attention": {
+          "fast_path_available": true,
+          "layers": 48,
+          "native_gdn_block_tokens": 64,
+          "prefill_override": "fla",
+          "fla_max_chunk_tokens": null,
+          "chunk_kernels": [
+            "fla.ops.gated_delta_rule.chunk.chunk_gated_delta_rule"
+          ],
+          "optimized_prefill": true,
+          "recurrent_kernels": [
+            "fla.ops.gated_delta_rule.fused_recurrent.fused_recurrent_gated_delta_rule"
+          ],
+          "optimized_recurrence": true
+        },
+        "vision_attention": {
+          "query_tiling": false
+        },
+        "matrix_tuning": {
+          "enabled": false
+        },
+        "max_input_tokens": 45056,
+        "max_input_tokens_with_images": 45056,
+        "context_limit": {
+          "mode": "memory_estimate",
+          "estimated": true,
+          "computed_max_input_tokens": 45056,
+          "configured_max_input_tokens": 16384,
+          "configured_cap_applied": false,
+          "model_max_position_embeddings": 262144,
+          "image_limit_basis": "computed_memory_estimate",
+          "configured_max_input_tokens_with_images": null,
+          "available_request_mib": 6469.2,
+          "safety_reserve_mib": 512.0,
+          "full_attention_kv_bytes_per_token": 65536,
+          "retained_hidden_bytes_per_token": 10240,
+          "projected_growth_bytes_per_token": 130600,
+          "calibration_reference_tokens": 16384,
+          "calibration_workspace_mib": 2210.0,
+          "rounding_tokens": 4096,
+          "fallback_reason": null,
+          "snapshot_unix_seconds": 1791205815
+        },
+        "context_snapshot_status": "idle",
+        "input": [
+          "text",
+          "json",
+          "images"
+        ],
+        "image_input": {
+          "format": "base64 data URL",
+          "max_images": 16,
+          "max_processed_pixels_per_image": 16777216,
+          "max_vision_patch_tokens_per_image": null,
+          "resize_location": "client_for_gui",
+          "processor_defaults_for_api": true,
+          "legacy_fidelity_max_pixels": 1048576,
+          "default_fidelity": "standard",
+          "fidelities": {
+            "standard": 65536,
+            "low": 16384,
+            "medium": 262144,
+            "high": 1048576
+          },
+          "pooling_default": false,
+          "pooling_factor": 2
+        },
+        "attention_backend": "efficient",
+        "optimizations": {
+          "compact_schema": true,
+          "single_pass_preprocessing": true,
+          "observed_chunked_workspace_admission": false,
+          "chunked_prefill": {
+            "enabled": true,
+            "text_only": false,
+            "images_enabled": true,
+            "vision_batch_images": 1,
+            "initial_chunk_tokens": 8192,
+            "chunk_tokens": 4096,
+            "rocm_long_prompt_threshold": null,
+            "rocm_long_chunk_tokens": null
+          },
+          "prefix_cache_enabled": true,
+          "image_feature_cache_enabled": true,
+          "promote_repeated_boundary": false,
+          "input_cache_enabled": true,
+          "prefix_cache": {
+            "entries": 4,
+            "mib": 398.1,
+            "limit_mib": 6222.3,
+            "budget_mode": "auto",
+            "elastic": true,
+            "phase": "idle",
+            "request_workspace_mib": 0.0,
+            "retention_rejections": {},
+            "last_retention_rejection": null,
+            "last_rejected_checkpoint_mib": 0.0,
+            "max_entries": 32,
+            "reserve_mib": 256.0,
+            "prefill_reserve_mib": 512.0,
+            "effective_reserve_mib": 256.0,
+            "observed_prefixes": 9,
+            "observed_workspace_mib": 495.9,
+            "observed_chunked_workspace_mib": 2176.9,
+            "gpu_utilization_target": 1.0,
+            "checkpoint_tokens": 0,
+            "hits": 6,
+            "misses": 4,
+            "evictions": 0,
+            "reused_tokens": 343,
+            "image_features": {
+              "entries": 2,
+              "mib": 1.25,
+              "limit_mib": 256.0,
+              "max_entries": 64,
+              "hits": 1,
+              "misses": 2,
+              "evictions": 0
+            }
+          },
+          "input_cache": {
+            "image_entries": 2,
+            "image_mib": 3.01,
+            "image_limit_mib": 256.0,
+            "image_max_entries": 128,
+            "image_hits": 17,
+            "image_misses": 2,
+            "image_evictions": 0,
+            "token_entries": 30,
+            "token_mib": 1.85,
+            "token_limit_mib": 8.0,
+            "token_max_entries": 1024,
+            "token_hits": 238,
+            "token_misses": 30,
+            "token_evictions": 0
+          }
+        },
+        "allocated_mib": 17721.3,
+        "reserved_mib": 20092.0,
+        "free_device_mib": 3700.3
+      },
+      "tools": "PASS: no general compiler/build executables",
+      "api_result": {
+        "health": {
+          "queue": {
+            "enabled": true,
+            "policy": "fifo",
+            "gpu_workers": 1,
+            "active_requests": 0,
+            "waiting_requests": 0,
+            "max_waiting_requests": 64,
+            "wait_timeout_seconds": 300.0,
+            "admitted_requests": 0,
+            "admitted_payload_mib": 0.0,
+            "payload_limit_mib": 256.0,
+            "request_body_limit_mib": 224.0,
+            "completed": 12,
+            "failed": 1,
+            "cancelled": 0,
+            "timed_out": 0,
+            "rejected": 0,
+            "accepting": true
+          },
+          "status": "ok",
+          "model": "Cloudflare/clef",
+          "startup_strategy": {
+            "gpu_name": "NVIDIA GeForce RTX 3090",
+            "capability": "8.6",
+            "total_mib": 24123,
+            "profile": "full",
+            "compute_dtype": "bfloat16",
+            "linear_prefill_backend": "fla",
+            "fla_max_chunk_tokens": 512,
+            "tested_family": true,
+            "kernel_arch_supported": true,
+            "compiled_kernel_arches": [
+              "75",
+              "80",
+              "86",
+              "89",
+              "90",
+              "120"
+            ],
+            "runtime_backend": "cuda",
+            "strategy_id": "cuda-fla-full",
+            "experimental": false,
+            "runtime_options": {
+              "CLEF_LINEAR_PREFILL_BACKEND": "fla",
+              "CLEF_FLA_MAX_CHUNK_TOKENS": "512",
+              "CLEF_REQUIRE_FAST_LINEAR_ATTENTION": "1",
+              "CLEF_ATTENTION_BACKEND": "efficient",
+              "CLEF_IMAGE_PREFILL": "1",
+              "CLEF_PREFILL_INITIAL_CHUNK_TOKENS": "8192",
+              "CLEF_PREFILL_CHUNK_TOKENS": "4096",
+              "CLEF_PREFIX_CACHE": "1",
+              "CLEF_INPUT_CACHE": "1",
+              "CLEF_IMAGE_POOLING": "0",
+              "CLEF_MAX_IMAGE_LENGTH": "auto",
+              "PYTORCH_ALLOC_CONF": "expandable_segments:True"
+            },
+            "overrides": {},
+            "prebuilt_host_launchers": {
+              "enabled": true,
+              "modules": 19,
+              "triton_version": "3.6.0",
+              "runtime_host_compilation": false,
+              "gpu_jit_compilation": true
+            }
+          },
+          "quantization": "nf4",
+          "compact_embeddings": false,
+          "source_revision": "2f3de3dd85f379784083b0814d997ab627200f0c",
+          "gpu": "NVIDIA GeForce RTX 3090",
+          "compute_dtype": "bfloat16",
+          "nf4_layers": 606,
+          "linear_attention": {
+            "fast_path_available": true,
+            "layers": 48,
+            "native_gdn_block_tokens": 64,
+            "prefill_override": "fla",
+            "fla_max_chunk_tokens": null,
+            "chunk_kernels": [
+              "fla.ops.gated_delta_rule.chunk.chunk_gated_delta_rule"
+            ],
+            "optimized_prefill": true,
+            "recurrent_kernels": [
+              "fla.ops.gated_delta_rule.fused_recurrent.fused_recurrent_gated_delta_rule"
+            ],
+            "optimized_recurrence": true
+          },
+          "vision_attention": {
+            "query_tiling": false
+          },
+          "matrix_tuning": {
+            "enabled": false
+          },
+          "max_input_tokens": 45056,
+          "max_input_tokens_with_images": 45056,
+          "context_limit": {
+            "mode": "memory_estimate",
+            "estimated": true,
+            "computed_max_input_tokens": 45056,
+            "configured_max_input_tokens": 16384,
+            "configured_cap_applied": false,
+            "model_max_position_embeddings": 262144,
+            "image_limit_basis": "computed_memory_estimate",
+            "configured_max_input_tokens_with_images": null,
+            "available_request_mib": 6469.2,
+            "safety_reserve_mib": 512.0,
+            "full_attention_kv_bytes_per_token": 65536,
+            "retained_hidden_bytes_per_token": 10240,
+            "projected_growth_bytes_per_token": 130600,
+            "calibration_reference_tokens": 16384,
+            "calibration_workspace_mib": 2210.0,
+            "rounding_tokens": 4096,
+            "fallback_reason": null,
+            "snapshot_unix_seconds": 1791205815
+          },
+          "context_snapshot_status": "idle",
+          "input": [
+            "text",
+            "json",
+            "images"
+          ],
+          "image_input": {
+            "format": "base64 data URL",
+            "max_images": 16,
+            "max_processed_pixels_per_image": 16777216,
+            "max_vision_patch_tokens_per_image": null,
+            "resize_location": "client_for_gui",
+            "processor_defaults_for_api": true,
+            "legacy_fidelity_max_pixels": 1048576,
+            "default_fidelity": "standard",
+            "fidelities": {
+              "standard": 65536,
+              "low": 16384,
+              "medium": 262144,
+              "high": 1048576
+            },
+            "pooling_default": false,
+            "pooling_factor": 2
+          },
+          "attention_backend": "efficient",
+          "optimizations": {
+            "compact_schema": true,
+            "single_pass_preprocessing": true,
+            "observed_chunked_workspace_admission": false,
+            "chunked_prefill": {
+              "enabled": true,
+              "text_only": false,
+              "images_enabled": true,
+              "vision_batch_images": 1,
+              "initial_chunk_tokens": 8192,
+              "chunk_tokens": 4096,
+              "rocm_long_prompt_threshold": null,
+              "rocm_long_chunk_tokens": null
+            },
+            "prefix_cache_enabled": true,
+            "image_feature_cache_enabled": true,
+            "promote_repeated_boundary": false,
+            "input_cache_enabled": true,
+            "prefix_cache": {
+              "entries": 4,
+              "mib": 398.1,
+              "limit_mib": 6222.3,
+              "budget_mode": "auto",
+              "elastic": true,
+              "phase": "idle",
+              "request_workspace_mib": 0.0,
+              "retention_rejections": {},
+              "last_retention_rejection": null,
+              "last_rejected_checkpoint_mib": 0.0,
+              "max_entries": 32,
+              "reserve_mib": 256.0,
+              "prefill_reserve_mib": 512.0,
+              "effective_reserve_mib": 256.0,
+              "observed_prefixes": 9,
+              "observed_workspace_mib": 495.9,
+              "observed_chunked_workspace_mib": 2176.9,
+              "gpu_utilization_target": 1.0,
+              "checkpoint_tokens": 0,
+              "hits": 6,
+              "misses": 4,
+              "evictions": 0,
+              "reused_tokens": 343,
+              "image_features": {
+                "entries": 2,
+                "mib": 1.25,
+                "limit_mib": 256.0,
+                "max_entries": 64,
+                "hits": 1,
+                "misses": 2,
+                "evictions": 0
+              }
+            },
+            "input_cache": {
+              "image_entries": 2,
+              "image_mib": 3.01,
+              "image_limit_mib": 256.0,
+              "image_max_entries": 128,
+              "image_hits": 17,
+              "image_misses": 2,
+              "image_evictions": 0,
+              "token_entries": 30,
+              "token_mib": 1.85,
+              "token_limit_mib": 8.0,
+              "token_max_entries": 1024,
+              "token_hits": 238,
+              "token_misses": 30,
+              "token_evictions": 0
+            }
+          },
+          "allocated_mib": 17721.3,
+          "reserved_mib": 20092.0,
+          "free_device_mib": 3700.3
+        },
+        "discovery": {
+          "id": "clef",
+          "object": "model",
+          "max_input_tokens": 45056,
+          "max_input_tokens_with_images": 45056,
+          "context_limit": {
+            "mode": "memory_estimate",
+            "estimated": true,
+            "computed_max_input_tokens": 45056,
+            "configured_max_input_tokens": 16384,
+            "configured_cap_applied": false,
+            "model_max_position_embeddings": 262144,
+            "image_limit_basis": "computed_memory_estimate",
+            "configured_max_input_tokens_with_images": null,
+            "available_request_mib": 6500.3,
+            "safety_reserve_mib": 512.0,
+            "full_attention_kv_bytes_per_token": 65536,
+            "retained_hidden_bytes_per_token": 10240,
+            "projected_growth_bytes_per_token": 130600,
+            "calibration_reference_tokens": 16384,
+            "calibration_workspace_mib": 2210.0,
+            "rounding_tokens": 4096,
+            "fallback_reason": null,
+            "snapshot_unix_seconds": 1791205743
+          },
+          "context_snapshot_status": "idle"
+        },
+        "trials": [
+          {
+            "name": "text-first",
+            "wall_seconds": 46.58106889296323,
+            "answers": {
+              "urgent": {
+                "type": "noul",
+                "noul": 0.9915
+              },
+              "action": {
+                "type": "choice",
+                "choice": "act",
+                "confidence": 0.9807,
+                "probabilities": {
+                  "act": 0.9807,
+                  "wait": 0.0193
+                }
+              },
+              "impact": {
+                "type": "score",
+                "score": 1.9551,
+                "confidence": 0.9668,
+                "legend": {
+                  "0": "None",
+                  "1": "Partial disruption",
+                  "2": "Complete outage"
+                },
+                "probabilities": {
+                  "0": 0.0117,
+                  "1": 0.0215,
+                  "2": 0.9668
+                }
+              }
+            },
+            "usage": {
+              "input_tokens": 215,
+              "output_tokens": 0,
+              "unpooled_input_tokens": 215,
+              "compact_schema": true,
+              "image_pooling": false,
+              "preprocessing_ms": 6.3,
+              "image_preprocess_cache_hits": 0,
+              "image_preprocess_cache_misses": 0,
+              "token_cache_hits": 9,
+              "token_cache_misses": 19,
+              "cache_prepare_ms": 0.3,
+              "cache_evicted_mib": 0.0,
+              "cache_headroom_mib": 256.0,
+              "cache_allocator_release_ms": 0.0,
+              "prefill_mode": "prefix_cache",
+              "prefix_cache": "miss",
+              "prefix_tokens": 60,
+              "reused_prefix_tokens": 0,
+              "new_prefix_tokens": 60,
+              "prefix_build_ms": 37972.2,
+              "prefix_checkpoints_saved": 1,
+              "vision_prefix_reused": false,
+              "image_feature_cache_hits": 0,
+              "image_feature_cache_misses": 0,
+              "accepted_max_input_tokens": 45056,
+              "context_limit_mode": "memory_estimate",
+              "latency_ms": 46575.1,
+              "peak_allocated_mib": 17769.6,
+              "queue_wait_ms": 0.1,
+              "server_total_ms": 46577.6
+            }
+          },
+          {
+            "name": "text-repeat",
+            "wall_seconds": 0.34450838598422706,
+            "answers": {
+              "urgent": {
+                "type": "noul",
+                "noul": 0.9915
+              },
+              "action": {
+                "type": "choice",
+                "choice": "act",
+                "confidence": 0.9807,
+                "probabilities": {
+                  "act": 0.9807,
+                  "wait": 0.0193
+                }
+              },
+              "impact": {
+                "type": "score",
+                "score": 1.9551,
+                "confidence": 0.9668,
+                "legend": {
+                  "0": "None",
+                  "1": "Partial disruption",
+                  "2": "Complete outage"
+                },
+                "probabilities": {
+                  "0": 0.0117,
+                  "1": 0.0215,
+                  "2": 0.9668
+                }
+              }
+            },
+            "usage": {
+              "input_tokens": 215,
+              "output_tokens": 0,
+              "unpooled_input_tokens": 215,
+              "compact_schema": true,
+              "image_pooling": false,
+              "preprocessing_ms": 0.2,
+              "image_preprocess_cache_hits": 0,
+              "image_preprocess_cache_misses": 0,
+              "token_cache_hits": 28,
+              "token_cache_misses": 0,
+              "cache_prepare_ms": 3.2,
+              "cache_evicted_mib": 0.0,
+              "cache_headroom_mib": 256.0,
+              "cache_allocator_release_ms": 0.0,
+              "prefill_mode": "prefix_cache",
+              "prefix_cache": "hit",
+              "prefix_tokens": 60,
+              "reused_prefix_tokens": 48,
+              "new_prefix_tokens": 12,
+              "prefix_build_ms": 0.0,
+              "prefix_checkpoints_saved": 0,
+              "vision_prefix_reused": false,
+              "image_feature_cache_hits": 0,
+              "image_feature_cache_misses": 0,
+              "accepted_max_input_tokens": 45056,
+              "context_limit_mode": "memory_estimate",
+              "latency_ms": 339.2,
+              "peak_allocated_mib": 17689.9,
+              "queue_wait_ms": 0.1,
+              "server_total_ms": 341.5
+            }
+          },
+          {
+            "name": "vision-first",
+            "wall_seconds": 0.751961519010365,
+            "answers": {
+              "color": {
+                "type": "choice",
+                "choice": "red",
+                "confidence": 0.9979,
+                "probabilities": {
+                  "red": 0.9979,
+                  "blue": 0.0021
+                }
+              }
+            },
+            "usage": {
+              "input_tokens": 166,
+              "output_tokens": 0,
+              "unpooled_input_tokens": 166,
+              "compact_schema": true,
+              "image_pooling": false,
+              "preprocessing_ms": 40.1,
+              "image_preprocess_cache_hits": 0,
+              "image_preprocess_cache_misses": 1,
+              "token_cache_hits": 6,
+              "token_cache_misses": 5,
+              "cache_prepare_ms": 2.8,
+              "cache_evicted_mib": 0.0,
+              "cache_headroom_mib": 256.0,
+              "cache_allocator_release_ms": 0.0,
+              "prefill_mode": "prefix_cache",
+              "prefix_cache": "miss",
+              "prefix_tokens": 109,
+              "reused_prefix_tokens": 0,
+              "new_prefix_tokens": 109,
+              "prefix_build_ms": 210.3,
+              "prefix_checkpoints_saved": 1,
+              "vision_prefix_reused": false,
+              "image_feature_cache_hits": 0,
+              "image_feature_cache_misses": 1,
+              "accepted_max_input_tokens": 45056,
+              "context_limit_mode": "memory_estimate",
+              "latency_ms": 746.0,
+              "peak_allocated_mib": 17678.7,
+              "image_count": 1,
+              "image_fidelity": null,
+              "processed_images": [
+                {
+                  "width": 256,
+                  "height": 256
+                }
+              ],
+              "max_processed_pixels_per_image": 65536,
+              "processor_resize_enabled": true,
+              "queue_wait_ms": 0.0,
+              "server_total_ms": 749.5
+            }
+          },
+          {
+            "name": "vision-repeat",
+            "wall_seconds": 0.2117245770059526,
+            "answers": {
+              "color": {
+                "type": "choice",
+                "choice": "red",
+                "confidence": 0.9979,
+                "probabilities": {
+                  "red": 0.9979,
+                  "blue": 0.0021
+                }
+              }
+            },
+            "usage": {
+              "input_tokens": 166,
+              "output_tokens": 0,
+              "unpooled_input_tokens": 166,
+              "compact_schema": true,
+              "image_pooling": false,
+              "preprocessing_ms": 1.1,
+              "image_preprocess_cache_hits": 1,
+              "image_preprocess_cache_misses": 0,
+              "token_cache_hits": 11,
+              "token_cache_misses": 0,
+              "cache_prepare_ms": 4.9,
+              "cache_evicted_mib": 0.0,
+              "cache_headroom_mib": 256.0,
+              "cache_allocator_release_ms": 0.0,
+              "prefill_mode": "prefix_cache",
+              "prefix_cache": "hit",
+              "prefix_tokens": 109,
+              "reused_prefix_tokens": 103,
+              "new_prefix_tokens": 6,
+              "prefix_build_ms": 0.0,
+              "prefix_checkpoints_saved": 0,
+              "vision_prefix_reused": true,
+              "image_feature_cache_hits": 0,
+              "image_feature_cache_misses": 0,
+              "accepted_max_input_tokens": 45056,
+              "context_limit_mode": "memory_estimate",
+              "latency_ms": 206.1,
+              "peak_allocated_mib": 17589.2,
+              "image_count": 1,
+              "image_fidelity": null,
+              "processed_images": [
+                {
+                  "width": 256,
+                  "height": 256
+                }
+              ],
+              "max_processed_pixels_per_image": 65536,
+              "processor_resize_enabled": true,
+              "queue_wait_ms": 0.1,
+              "server_total_ms": 209.5
+            }
+          },
+          {
+            "name": "vision-pooled",
+            "wall_seconds": 0.3793880098965019,
+            "answers": {
+              "color": {
+                "type": "choice",
+                "choice": "red",
+                "confidence": 0.9981,
+                "probabilities": {
+                  "red": 0.9981,
+                  "blue": 0.0019
+                }
+              }
+            },
+            "usage": {
+              "input_tokens": 118,
+              "output_tokens": 0,
+              "unpooled_input_tokens": 166,
+              "compact_schema": true,
+              "image_pooling": true,
+              "preprocessing_ms": 0.5,
+              "image_preprocess_cache_hits": 1,
+              "image_preprocess_cache_misses": 0,
+              "token_cache_hits": 11,
+              "token_cache_misses": 0,
+              "cache_prepare_ms": 5.3,
+              "cache_evicted_mib": 0.0,
+              "cache_headroom_mib": 256.0,
+              "cache_allocator_release_ms": 0.0,
+              "prefill_mode": "prefix_cache",
+              "prefix_cache": "miss",
+              "prefix_tokens": 61,
+              "reused_prefix_tokens": 0,
+              "new_prefix_tokens": 61,
+              "prefix_build_ms": 181.1,
+              "prefix_checkpoints_saved": 1,
+              "vision_prefix_reused": false,
+              "image_feature_cache_hits": 1,
+              "image_feature_cache_misses": 0,
+              "accepted_max_input_tokens": 45056,
+              "context_limit_mode": "memory_estimate",
+              "latency_ms": 372.8,
+              "peak_allocated_mib": 17669.0,
+              "image_count": 1,
+              "image_fidelity": null,
+              "processed_images": [
+                {
+                  "width": 256,
+                  "height": 256
+                }
+              ],
+              "max_processed_pixels_per_image": 65536,
+              "processor_resize_enabled": true,
+              "queue_wait_ms": 0.1,
+              "server_total_ms": 377.3
+            }
+          },
+          {
+            "name": "sixteen-images",
+            "wall_seconds": 1.4066336939577013,
+            "answers": {
+              "color": {
+                "type": "choice",
+                "choice": "red",
+                "confidence": 0.9984,
+                "probabilities": {
+                  "red": 0.9984,
+                  "blue": 0.0016
+                }
+              }
+            },
+            "usage": {
+              "input_tokens": 1156,
+              "output_tokens": 0,
+              "unpooled_input_tokens": 1156,
+              "compact_schema": true,
+              "image_pooling": false,
+              "preprocessing_ms": 9.7,
+              "image_preprocess_cache_hits": 15,
+              "image_preprocess_cache_misses": 1,
+              "token_cache_hits": 11,
+              "token_cache_misses": 0,
+              "cache_prepare_ms": 7.4,
+              "cache_evicted_mib": 0.0,
+              "cache_headroom_mib": 256.0,
+              "cache_allocator_release_ms": 0.0,
+              "prefill_mode": "prefix_cache",
+              "prefix_cache": "miss",
+              "prefix_tokens": 1099,
+              "reused_prefix_tokens": 0,
+              "new_prefix_tokens": 1099,
+              "prefix_build_ms": 1134.0,
+              "prefix_checkpoints_saved": 1,
+              "vision_prefix_reused": false,
+              "image_feature_cache_hits": 0,
+              "image_feature_cache_misses": 1,
+              "accepted_max_input_tokens": 45056,
+              "context_limit_mode": "memory_estimate",
+              "latency_ms": 1396.0,
+              "peak_allocated_mib": 18052.7,
+              "image_count": 16,
+              "image_fidelity": null,
+              "processed_images": [
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                },
+                {
+                  "width": 256,
+                  "height": 256
+                }
+              ],
+              "max_processed_pixels_per_image": 65536,
+              "processor_resize_enabled": false,
+              "queue_wait_ms": 0.0,
+              "server_total_ms": 1404.5
+            }
+          },
+          {
+            "name": "chunked-text",
+            "wall_seconds": 19.717394508887082,
+            "answers": {
+              "urgent": {
+                "type": "noul",
+                "noul": 0.9896
+              },
+              "action": {
+                "type": "choice",
+                "choice": "act",
+                "confidence": 0.9869,
+                "probabilities": {
+                  "act": 0.9869,
+                  "wait": 0.0131
+                }
+              },
+              "impact": {
+                "type": "score",
+                "score": 1.9566,
+                "confidence": 0.9671,
+                "legend": {
+                  "0": "None",
+                  "1": "Partial disruption",
+                  "2": "Complete outage"
+                },
+                "probabilities": {
+                  "0": 0.0105,
+                  "1": 0.0225,
+                  "2": 0.9671
+                }
+              }
+            },
+            "usage": {
+              "input_tokens": 8415,
+              "output_tokens": 0,
+              "unpooled_input_tokens": 8415,
+              "compact_schema": true,
+              "image_pooling": false,
+              "preprocessing_ms": 18.3,
+              "image_preprocess_cache_hits": 0,
+              "image_preprocess_cache_misses": 0,
+              "token_cache_hits": 27,
+              "token_cache_misses": 1,
+              "cache_prepare_ms": 10.7,
+              "cache_evicted_mib": 0.0,
+              "cache_headroom_mib": 512.0,
+              "cache_allocator_release_ms": 0.0,
+              "prefill_mode": "chunked",
+              "prefill_chunks": 3,
+              "prefill_initial_chunk_tokens": 8192,
+              "prefill_chunk_tokens": 4096,
+              "language_ms": 19646.5,
+              "head_ms": 12.8,
+              "prefix_cache": "disabled",
+              "prefix_tokens": 8260,
+              "reused_prefix_tokens": 0,
+              "cache_memory_budget_mib": 3756.3,
+              "cache_limit_reason": "disabled_by_request",
+              "new_prefix_tokens": 8260,
+              "prefix_build_ms": 0.0,
+              "prefix_checkpoints_saved": 0,
+              "image_feature_cache_hits": 0,
+              "image_feature_cache_misses": 0,
+              "accepted_max_input_tokens": 45056,
+              "context_limit_mode": "memory_estimate",
+              "latency_ms": 19709.3,
+              "peak_allocated_mib": 19889.1,
+              "queue_wait_ms": 0.0,
+              "server_total_ms": 19715.0
+            }
+          }
+        ],
+        "queued_usage": [
+          {
+            "input_tokens": 219,
+            "output_tokens": 0,
+            "unpooled_input_tokens": 219,
+            "compact_schema": true,
+            "image_pooling": false,
+            "preprocessing_ms": 1.0,
+            "image_preprocess_cache_hits": 0,
+            "image_preprocess_cache_misses": 0,
+            "token_cache_hits": 27,
+            "token_cache_misses": 1,
+            "cache_prepare_ms": 10.6,
+            "cache_evicted_mib": 0.0,
+            "cache_headroom_mib": 256.0,
+            "cache_allocator_release_ms": 0.0,
+            "prefill_mode": "prefix_cache",
+            "prefix_cache": "hit",
+            "prefix_tokens": 64,
+            "reused_prefix_tokens": 48,
+            "new_prefix_tokens": 16,
+            "prefix_build_ms": 0.0,
+            "prefix_checkpoints_saved": 0,
+            "vision_prefix_reused": false,
+            "image_feature_cache_hits": 0,
+            "image_feature_cache_misses": 0,
+            "accepted_max_input_tokens": 45056,
+            "context_limit_mode": "memory_estimate",
+            "latency_ms": 373.2,
+            "peak_allocated_mib": 18009.5,
+            "queue_wait_ms": 0.0,
+            "server_total_ms": 379.7
+          },
+          {
+            "input_tokens": 219,
+            "output_tokens": 0,
+            "unpooled_input_tokens": 219,
+            "compact_schema": true,
+            "image_pooling": false,
+            "preprocessing_ms": 0.6,
+            "image_preprocess_cache_hits": 0,
+            "image_preprocess_cache_misses": 0,
+            "token_cache_hits": 27,
+            "token_cache_misses": 1,
+            "cache_prepare_ms": 9.8,
+            "cache_evicted_mib": 0.0,
+            "cache_headroom_mib": 256.0,
+            "cache_allocator_release_ms": 0.0,
+            "prefill_mode": "prefix_cache",
+            "prefix_cache": "hit",
+            "prefix_tokens": 64,
+            "reused_prefix_tokens": 48,
+            "new_prefix_tokens": 16,
+            "prefix_build_ms": 0.0,
+            "prefix_checkpoints_saved": 0,
+            "vision_prefix_reused": false,
+            "image_feature_cache_hits": 0,
+            "image_feature_cache_misses": 0,
+            "accepted_max_input_tokens": 45056,
+            "context_limit_mode": "memory_estimate",
+            "latency_ms": 372.9,
+            "peak_allocated_mib": 18009.5,
+            "queue_wait_ms": 377.8,
+            "server_total_ms": 756.7
+          },
+          {
+            "input_tokens": 219,
+            "output_tokens": 0,
+            "unpooled_input_tokens": 219,
+            "compact_schema": true,
+            "image_pooling": false,
+            "preprocessing_ms": 0.6,
+            "image_preprocess_cache_hits": 0,
+            "image_preprocess_cache_misses": 0,
+            "token_cache_hits": 27,
+            "token_cache_misses": 1,
+            "cache_prepare_ms": 9.6,
+            "cache_evicted_mib": 0.0,
+            "cache_headroom_mib": 256.0,
+            "cache_allocator_release_ms": 0.0,
+            "prefill_mode": "prefix_cache",
+            "prefix_cache": "hit",
+            "prefix_tokens": 64,
+            "reused_prefix_tokens": 48,
+            "new_prefix_tokens": 16,
+            "prefix_build_ms": 0.0,
+            "prefix_checkpoints_saved": 0,
+            "vision_prefix_reused": false,
+            "image_feature_cache_hits": 0,
+            "image_feature_cache_misses": 0,
+            "accepted_max_input_tokens": 45056,
+            "context_limit_mode": "memory_estimate",
+            "latency_ms": 367.0,
+            "peak_allocated_mib": 18009.5,
+            "queue_wait_ms": 756.5,
+            "server_total_ms": 1130.6
+          },
+          {
+            "input_tokens": 219,
+            "output_tokens": 0,
+            "unpooled_input_tokens": 219,
+            "compact_schema": true,
+            "image_pooling": false,
+            "preprocessing_ms": 0.9,
+            "image_preprocess_cache_hits": 0,
+            "image_preprocess_cache_misses": 0,
+            "token_cache_hits": 27,
+            "token_cache_misses": 1,
+            "cache_prepare_ms": 10.4,
+            "cache_evicted_mib": 0.0,
+            "cache_headroom_mib": 256.0,
+            "cache_allocator_release_ms": 0.0,
+            "prefill_mode": "prefix_cache",
+            "prefix_cache": "hit",
+            "prefix_tokens": 64,
+            "reused_prefix_tokens": 48,
+            "new_prefix_tokens": 16,
+            "prefix_build_ms": 0.0,
+            "prefix_checkpoints_saved": 0,
+            "vision_prefix_reused": false,
+            "image_feature_cache_hits": 0,
+            "image_feature_cache_misses": 0,
+            "accepted_max_input_tokens": 45056,
+            "context_limit_mode": "memory_estimate",
+            "latency_ms": 370.0,
+            "peak_allocated_mib": 18009.5,
+            "queue_wait_ms": 1130.2,
+            "server_total_ms": 1506.5
+          }
+        ],
+        "chunked_tested": true,
+        "passed": true
+      }
+    }
+  ]
+}

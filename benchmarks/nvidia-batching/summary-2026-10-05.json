@@ -1,0 +1,199 @@
+{
+  "date": "2026-10-05",
+  "dataset": "clef-email-sample-v1",
+  "record_count": 100,
+  "collection_delay_ms": 0,
+  "cards": [
+    {
+      "target": "flash3090",
+      "label": "Flash 9B \u2014 RTX 3090, 400 W",
+      "arms": [
+        {
+          "max_batch_size": 1,
+          "client_concurrency": 4,
+          "seconds": 42.29496238310821,
+          "reduction_percent": 0.0,
+          "p95_seconds": 2.108398359734565,
+          "choices_matching_serial": 100,
+          "reference_matches": 96,
+          "max_probability_delta": 0.0,
+          "errors": 0,
+          "batch_size_counts": {
+            "1": 100
+          },
+          "oom_fallbacks": 0
+        },
+        {
+          "max_batch_size": 1,
+          "client_concurrency": 8,
+          "seconds": 42.63394613796845,
+          "reduction_percent": 0.0,
+          "p95_seconds": 4.0015870709787125,
+          "choices_matching_serial": 100,
+          "reference_matches": 96,
+          "max_probability_delta": 0.0,
+          "errors": 0,
+          "batch_size_counts": {
+            "1": 100
+          },
+          "oom_fallbacks": 0
+        },
+        {
+          "max_batch_size": 2,
+          "client_concurrency": 4,
+          "seconds": 39.54705680999905,
+          "reduction_percent": 6.49700441442318,
+          "p95_seconds": 2.2302550872671416,
+          "choices_matching_serial": 100,
+          "reference_matches": 96,
+          "max_probability_delta": 0.0014999999999999458,
+          "errors": 0,
+          "batch_size_counts": {
+            "1": 24,
+            "2": 76
+          },
+          "oom_fallbacks": 0
+        },
+        {
+          "max_batch_size": 2,
+          "client_concurrency": 8,
+          "seconds": 40.77671075100079,
+          "reduction_percent": 4.356236180806317,
+          "p95_seconds": 4.01712744050892,
+          "choices_matching_serial": 100,
+          "reference_matches": 96,
+          "max_probability_delta": 0.0010000000000000009,
+          "errors": 0,
+          "batch_size_counts": {
+            "1": 20,
+            "2": 80
+          },
+          "oom_fallbacks": 0
+        },
+        {
+          "max_batch_size": 4,
+          "client_concurrency": 4,
+          "seconds": 40.22459045890719,
+          "reduction_percent": 4.895079242410894,
+          "p95_seconds": 2.394718544301577,
+          "choices_matching_serial": 100,
+          "reference_matches": 96,
+          "max_probability_delta": 0.0010000000000000009,
+          "errors": 0,
+          "batch_size_counts": {
+            "1": 24,
+            "3": 18,
+            "2": 54,
+            "4": 4
+          },
+          "oom_fallbacks": 0
+        },
+        {
+          "max_batch_size": 4,
+          "client_concurrency": 8,
+          "seconds": 41.40657932404429,
+          "reduction_percent": 2.8788487229220117,
+          "p95_seconds": 4.3289125834475275,
+          "choices_matching_serial": 100,
+          "reference_matches": 96,
+          "max_probability_delta": 0.0014999999999999458,
+          "errors": 0,
+          "batch_size_counts": {
+            "1": 24,
+            "2": 44,
+            "4": 32
+          },
+          "oom_fallbacks": 0
+        }
+      ]
+    },
+    {
+      "target": "full3090",
+      "label": "Full 27B \u2014 RTX 3090, 250 W",
+      "arms": [
+        {
+          "max_batch_size": 1,
+          "client_concurrency": 4,
+          "seconds": 150.1960486790631,
+          "reduction_percent": 0.0,
+          "p95_seconds": 7.983620572439394,
+          "choices_matching_serial": 100,
+          "reference_matches": 100,
+          "max_probability_delta": 0.0,
+          "errors": 0,
+          "batch_size_counts": {
+            "1": 100
+          },
+          "oom_fallbacks": 0
+        },
+        {
+          "max_batch_size": 2,
+          "client_concurrency": 4,
+          "seconds": 141.93494003801607,
+          "reduction_percent": 5.500217025481979,
+          "p95_seconds": 7.718139929918107,
+          "choices_matching_serial": 100,
+          "reference_matches": 100,
+          "max_probability_delta": 0.00770000000000004,
+          "errors": 0,
+          "batch_size_counts": {
+            "1": 48,
+            "2": 52
+          },
+          "oom_fallbacks": 0
+        }
+      ]
+    },
+    {
+      "target": "flash3070",
+      "label": "Flash 9B \u2014 RTX 3070 Ti, 290 W",
+      "arms": [
+        {
+          "max_batch_size": 1,
+          "client_concurrency": 4,
+          "seconds": 62.501627198187634,
+          "reduction_percent": 0.0,
+          "p95_seconds": 3.3134071207838134,
+          "choices_matching_serial": 100,
+          "reference_matches": 96,
+          "max_probability_delta": 0.0,
+          "errors": 0,
+          "batch_size_counts": {
+            "1": 100
+          },
+          "oom_fallbacks": 0
+        },
+        {
+          "max_batch_size": 2,
+          "client_concurrency": 4,
+          "seconds": 61.086404968984425,
+          "reduction_percent": 2.2642966153755495,
+          "p95_seconds": 3.360590029449668,
+          "choices_matching_serial": 100,
+          "reference_matches": 96,
+          "max_probability_delta": 0.0011999999999999789,
+          "errors": 0,
+          "batch_size_counts": {
+            "1": 44,
+            "2": 56
+          },
+          "oom_fallbacks": 0
+        }
+      ]
+    }
+  ],
+  "rollout": {
+    "nvidia_endpoints": [
+      8082,
+      8083,
+      8084
+    ],
+    "batch_cap": 2,
+    "single_gpu_per_service": true,
+    "collection_delay_ms": 0,
+    "prebuilt_host_modules": 24,
+    "mixed_question_types_cached_and_uncached_passed": true,
+    "images_and_long_prompts_single_request": true,
+    "rx580_unchanged": true
+  }
+}

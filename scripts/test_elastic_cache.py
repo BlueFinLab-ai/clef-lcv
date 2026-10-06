@@ -74,6 +74,21 @@ try:
     adaptive.finish_request()
     assert adaptive.stats()['effective_reserve_mib']==256
     assert adaptive._budget()==2372*M
+    # Fixed-limit ROCm has no calibrated projection. A short-call observation
+    # must not override the larger measured chunked peak on the next prefill.
+    adaptive.workspace_bytes=224*M
+    adaptive.chunked_workspace_bytes=2000*M
+    adaptive.entries['branch']={'simulated_bytes':343*M}
+    adaptive.prepare_request()
+    assert adaptive.request_workspace_bytes is None and len(adaptive.entries)==1
+    prep=adaptive.prepare_request(observed_chunked=True)
+    assert adaptive.request_workspace_bytes==2000*M
+    assert prep['cache_headroom_mib']==512 and prep['cache_evicted_mib']==343
+    assert not adaptive.entries
+    adaptive.prepare_request(2100*M, observed_chunked=True)
+    assert adaptive.request_workspace_bytes==2100*M
+    adaptive.finish_request()
+    assert adaptive.request_workspace_bytes==0 and adaptive._reserve()==256*M
     # A caller's larger minimum is never reduced by the prefill override.
     assert elastic.prefill_reserve_bytes==1024*M
 finally:

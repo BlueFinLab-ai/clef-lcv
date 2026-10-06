@@ -3,6 +3,41 @@
 Dated summaries of notable changes. Measurements and test details are in the
 [validation record](docs/validation.md) and the linked documents.
 
+## 2026-10-06
+
+### Benchmarks
+- Reran the 100-email benchmark on the October 5 runtime: Flash on the RTX 3070 Ti
+  and RTX 3090, and Full on the RTX 3090. With four clients after restoring
+  cooling, 100 emails took 62.6 s, 40.2 s and 119.2 s respectively. All 2,600
+  measured requests succeeded. See
+  [queue batching results](benchmarks/nvidia-batching/README.md).
+
+## 2026-10-05
+
+### Caching and long context
+- Exact-prefix cache indexed with a compressed radix tree, following SGLang's
+  RadixAttention approach.
+- Checkpoints evicted from GPU memory move to an automatically sized system-RAM
+  tier (25% of available memory kept free, least-frequently-used eviction) instead
+  of being dropped. Processed images share the same RAM allowance. There is no
+  disk tier.
+- Memory-adaptive context routing for Flash and Full: GPU native, then GPU tiled,
+  then CPU-streamed attention, chosen per request. 131K-token requests were
+  tested on both models. See [adaptive context](benchmarks/adaptive-context/README.md).
+
+### Serving
+- Opportunistic batching of small text requests, two at a time by default on SM86.
+- Optional API keys, an automatic portal session, and a demo mode that masks
+  server addresses in generated code.
+- Runtime-only Docker image and prebuilt Triton host helpers.
+- Experimental AMD RX 580 (ROCm) build. See [the ROCm experiment](experimental/rocm/README.md).
+
+### Portal
+- Reusable context and request input stay a steady size with long text, showing
+  their size with Expand and Clear.
+- Fixed-height timing area with Server, Queue wait, Input tokens, Cached input
+  and Peak GPU tiles; JSON response tab.
+
 ## 2026-10-04
 
 ### Portal

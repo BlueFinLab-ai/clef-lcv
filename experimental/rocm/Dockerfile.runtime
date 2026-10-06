@@ -1,0 +1,32 @@
+# syntax=docker/dockerfile:1
+ARG CLEF_BINARIES_IMAGE=clef:rocm-binaries
+FROM ${CLEF_BINARIES_IMAGE} AS rocm-binaries
+FROM ubuntu:26.04@sha256:f144425ff09be612d6d9ad965196e9cdc23dae1f42110a8a11a3e9a8198759f7 AS runtime
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates libstdc++6 libgcc-s1 libgomp1 libnuma1 libdrm2 libdrm-amdgpu1 \
+    libelf1 libzstd1 zlib1g libopenblas0-pthread libgfortran5 libssl3t64 libffi8 \
+    libsqlite3-0 libbz2-1.0 liblzma5 libcrypt1 \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=rocm-binaries /opt/rocm /opt/rocm
+COPY --from=rocm-binaries /opt/venv /opt/venv
+COPY --from=rocm-binaries /opt/python /opt/python
+COPY --from=rocm-binaries /runtime-payload.json /runtime-payload.json
+WORKDIR /app
+COPY clef_service/ clef_service/
+COPY runtime/ runtime/
+COPY profiles/ profiles/
+COPY vendor/ vendor/
+COPY web/ web/
+COPY experimental/rocm/probe.py /app/probe.py
+COPY experimental/rocm/tunable-rx580-2026-10-04.csv /app/tuning/gfx803.csv
+COPY scripts/assert_runtime_tools.py scripts/assert_runtime_tools.py
+ENV PATH=/opt/venv/bin:/opt/python/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+    PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 CLEF_EXPERIMENTAL_ROCM=1 CLEF_CACHE_DIR=/data \
+    ROCM_PATH=/opt/rocm HSA_OVERRIDE_GFX_VERSION=8.0.3 TORCH_BLAS_PREFER_HIPBLASLT=0 \
+    LD_PRELOAD=/opt/rocm/lib/libgfx803_sgemm_shim.so \
+    LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/lib/llvm/lib:/opt/rocm/lib/host-math/lib:/opt/rocm/lib/rocm_sysdeps/lib
+RUN printf '/opt/rocm/lib\n/opt/rocm/lib/llvm/lib\n/opt/rocm/lib/host-math/lib\n/opt/rocm/lib/rocm_sysdeps/lib\n' > /etc/ld.so.conf.d/clef-rocm.conf \
+    && ldconfig && python scripts/assert_runtime_tools.py \
+    && python -c "import torch,bitsandbytes; assert torch.version.hip"
+EXPOSE 8080
+ENTRYPOINT ["python","-m","clef_service"]

@@ -28,3 +28,6 @@ benchmark-data/
 
 ._*
 clef_service/kernel-build.json
+
+# Developer-only captures, checkouts, toolchains and scratch work
+/.dev/

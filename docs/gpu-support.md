@@ -1,5 +1,17 @@
 # GPU support
 
+The shared entry point detects the installed CUDA/HIP Torch build before GPU
+initialization, then selects by architecture, model and capacity. Run `inspect`
+to review the hardware policy, effective options and explicit overrides. A CUDA
+image cannot run AMD cards; use the separate community HIP build.
+
+An [RX 580 8GB / Linux community ROCm experiment](amd-rx580.md) passed Flash,
+text, vision, prefix/feature caching and queue checks with SDMA disabled.
+Its separate image admits 8192 text tokens, 4096 tokens with images and 8192
+unmerged vision patches per image. The larger-photo GPU VM fault remains
+unresolved and is guarded before inference. This is experimental support;
+see the measured workload limits and historical failures before use.
+
 The unified Linux x86_64 container includes native convolution code for six CUDA
 targets. Selection uses device compute capability, available model capacity and
 the installed wheel manifest, rather than GPU name matching. Flash remains the
@@ -57,7 +69,8 @@ writes the same manifest in the selected environment's `causal_conv1d` package,
 so different Full/Flash virtual environments cannot overwrite each other's coverage. `inspect` and
 `/health.startup_strategy` expose `compiled_kernel_arches`, `kernel_arch_supported`
 and `tested_family`. The last field indicates architecture-family hardware testing
-(SM75/86); it does not claim every SKU in that family was tested.
+(SM75/86 for CUDA, gfx803 for experimental HIP); it does not claim every SKU
+in that family was tested.
 
 A reduced build selects native fallback on an uncovered architecture; forcing
 FLA on it fails before model loading. Unknown architectures are not automatically

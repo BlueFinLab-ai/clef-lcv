@@ -15,8 +15,9 @@ docker run -d --name clef --gpus device=GPU-YOUR-UUID -p 8080:8080 \
 docker logs -f clef
 ```
 
-Default startup selects Flash, masks CUDA to a single visible GPU before Torch
-initialization, checks capability and model capacity, downloads the pinned release,
+Default startup selects Flash, detects the installed CUDA/HIP Torch build without
+importing Torch, masks the corresponding runtime to a single GPU, checks capability
+and model capacity, downloads the pinned release,
 prepares an NF4 checkpoint, then starts Uvicorn. An already prepared managed
 checkpoint skips network and quantization. Full uses the same command with `--full`.
 `--model full` and `CLEF_PROFILE=full` are equivalent model selectors.
@@ -55,7 +56,8 @@ using Docker's `--gpus device=...` and leaving the app's GPU flag unset.
 The service defaults to local index 0 when no mask is supplied. A multi-device
 `CUDA_VISIBLE_DEVICES` mask is rejected.
 
-`/health.startup_strategy` records detection and policy defaults. The adjacent
+`inspect` and `/health.startup_strategy` record detection, `strategy_id`,
+`runtime_options` and overrides relative to hardware defaults. The adjacent
 `linear_attention` object records actual selected kernels and explicit overrides.
 Use `--linear-prefill-backend torch|fla|adaptive|auto` for experiments.
 `--allow-slow-kernels` permits the native fallback on a covered architecture if
@@ -66,6 +68,24 @@ A smaller image can be built with `--build-arg CLEF_CUDA_ARCHES=89` (4090),
 `120` (5090), `80` (A100), or `90` (H100). Comma-separated subsets also work.
 The build checks native cubin coverage and ships `clef_service/kernel-build.json`;
 startup reports `compiled_kernel_arches` and uses that manifest for kernel selection.
+
+## Experimental ROCm startup
+
+Use the separate [community RX 580 image](../experimental/rocm/README.md), built
+with patched HIP Torch and gfx803 bitsandbytes. The shared launcher requires
+`--experimental-rocm` or `CLEF_EXPERIMENTAL_ROCM=1` (provided by that image),
+selects `HIP_VISIBLE_DEVICES`, and rejects combined HIP/ROCR masks. `--gpu`
+selects one HIP-visible device on this route. Flash remains the default; only
+gfx803 with at least 8GB is admitted. Full and other AMD architectures are rejected.
+
+The measured `gfx803-flash-native` policy selects math attention, native GDN,
+1024-token outer chunks (512 above 4096 tokens), GPU prefix and image-feature
+reuse, tiled vision attention and SDMA off. It replays the packaged validated
+rocBLAS table without live tuning. Text admission cannot exceed 8192 tokens,
+image requests 4096 language tokens, or an individual image 8192 raw patches.
+There is no automatic CUDA context calibration on HIP. Slower experimental
+GEMM/GEMV routes, batching and observed-workspace reservation are not defaults.
+See [the complete settings and validation boundaries](amd-rx580.md#startup-strategy).
 
 ## Persistent storage and first preparation
 
@@ -138,8 +158,9 @@ Use Linux x86_64 and NVIDIA Container Toolkit with a driver compatible with
 CUDA 12.8 Torch and the CUDA 12.9-built extension. Build stages download pinned
 Python dependencies and checksum-verified causal-conv1d source. The final image
 contains no model weights, CUDA compiler, private test inputs or access credentials.
-A small host C compiler is retained because Triton builds its CUDA driver stub
-at runtime. CUDA kernels and their JIT caches are supported without the full
+Prebuilt, ABI-bound Triton host driver/launcher modules replace runtime GCC
+builds. General compiler/build executables are excluded from the serving image.
+Triton GPU JIT and its PTX assembler remain; see [runtime packaging](runtime-packaging.md). CUDA kernels and their JIT caches are supported without the full
 CUDA development toolkit.
 It runs as a non-root user. `/data` stores weights and compiler caches. Model
 downloads/preparation happen before the HTTP service is ready, so the healthcheck
@@ -151,6 +172,11 @@ Compose exposes a single configurable GPU, not all GPUs:
 CLEF_GPU=GPU-YOUR-UUID CLEF_PORT=8080 docker compose up --build -d
 CLEF_GPU=GPU-YOUR-UUID CLEF_PROFILE=full docker compose up -d
 ```
+
+It listens on all interfaces by default; set `CLEF_BIND=127.0.0.1` for this machine only.
+`CLEF_API_KEY_FILE` takes a host path to a key file, which Compose mounts
+read-only at `/run/secrets/clef-api-key`. All settings are listed at the top of
+`compose.yaml`.
 
 After startup check `/health`, then `/v1/models` for the current computed context
 budget before sending requests. Oversized encoded input returns 413. Queued work
@@ -193,3 +219,14 @@ reuse downloaded/prepared weights and compiler caches; in-memory request caches
 reset at service restart. Other GPU families remain untested on physical hardware.
 The existing Flash long-context retrieval artifact remains recorded and unresolved.
 
+
+
+## Opportunistic text batches
+
+Validated SM86 builds use a maximum of two compatible already-waiting text
+requests per GPU operation. A lone request begins immediately; there is no batch
+collection delay. Images, long inputs and stronger individual prefix hits keep
+the single path. Use `--batch-size 1` to disable or `--batch-size 4` for an explicit
+experiment. RX 580 stays at one and other CUDA families default to one.
+[Admission, cache isolation and fallbacks](runtime-optimizations.md#opportunistic-cuda-text-batching).
+[100-email comparison](../benchmarks/nvidia-batching/summary-2026-10-05.json).

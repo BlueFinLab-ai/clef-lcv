@@ -1,0 +1,68 @@
+{
+  "rx580": {
+    "previous_image_bytes": 15964141304,
+    "runtime_image_bytes": 7400484101,
+    "tools_before": {
+      "gcc": "/usr/bin/gcc",
+      "g++": "/usr/bin/g++",
+      "cc": "/usr/bin/cc",
+      "c++": "/usr/bin/c++",
+      "clang": null,
+      "clang++": null,
+      "clang-23": null,
+      "hipcc": "/opt/rocm/bin/hipcc",
+      "cmake": "/usr/bin/cmake",
+      "make": "/usr/bin/make",
+      "ninja": "/opt/venv/bin/ninja",
+      "git": "/usr/bin/git",
+      "node": null,
+      "npm": null,
+      "rustc": null,
+      "nvcc": null,
+      "ld.lld": null
+    },
+    "tools_after": {
+      "gcc": null,
+      "g++": null,
+      "cc": null,
+      "c++": null,
+      "clang": null,
+      "clang++": null,
+      "clang-23": null,
+      "hipcc": null,
+      "cmake": null,
+      "make": null,
+      "ninja": null,
+      "git": null,
+      "node": null,
+      "npm": null,
+      "rustc": null,
+      "nvcc": null,
+      "ld.lld": null
+    },
+    "os_package_count_before": 715,
+    "os_package_count_after": 99,
+    "runtime_gpu_compiler_libraries_retained": [
+      "HIPRTC",
+      "COMGR",
+      "LLVM/Clang shared libraries"
+    ],
+    "deployed_container": "clef-rocm-rx580-runtime",
+    "validation_passed": true
+  },
+  "cuda": {
+    "precompiled_convolution_targets": [
+      "75",
+      "80",
+      "86",
+      "89",
+      "90",
+      "120"
+    ],
+    "prebuilt_host_modules": 19,
+    "general_compiler_executables_removed": true,
+    "gpu_triton_jit_retained": true,
+    "flash_full_api_regression_passed": true,
+    "physical_validation_gpu": "RTX 3090"
+  }
+}

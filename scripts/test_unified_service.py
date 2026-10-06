@@ -39,7 +39,10 @@ for name, major, minor, memory, profile, backend, dtype in [
     assert strategy.tested_family == ((major, minor) in {(7, 5), (8, 6)})
     with patch.dict(os.environ, {}, clear=True):
         configure_strategy(strategy)
+        assert os.environ["CLEF_BATCH_MAX_SIZE"] == ("2" if (major,minor)==(8,6) else "1")
         assert os.environ["CLEF_LINEAR_PREFILL_BACKEND"] == backend
+        assert os.environ["CLEF_ACTIVE_CONTEXT_OFFLOAD"] == "auto"
+        assert os.environ["CLEF_PREFIX_SHARED_HOST_BLOCKS"] == "1"
         assert (os.environ.get("CLEF_DISABLE_FUSED_KERNELS") == "1") == (not strategy.kernel_arch_supported)
 
 # A reduced/custom build must not advertise optimized kernels it doesn't contain.

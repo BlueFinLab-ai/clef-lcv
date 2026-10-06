@@ -1,0 +1,1861 @@
+{
+  "implementation": "Automatic CUDA context routing and universal prefix cache reuse",
+  "modes": {
+    "gpu_native": "Existing GPU inference/cache/batching",
+    "gpu_tiled": "KV in GPU VRAM, blockwise attention, CPU RAM hidden/head preparation",
+    "cpu_streamed": "KV in CPU RAM, bounded pinned transfer buffers, CPU RAM head preparation"
+  },
+  "measurements": [
+    {
+      "label": "flash3070-cached",
+      "kind": "cold",
+      "tokens": 32731,
+      "seconds": 17.12198891513981,
+      "tokens_per_second": 1911.6353924898413,
+      "mode": "gpu_tiled",
+      "reused_tokens": 0,
+      "peak_allocated_mib": 7020.2,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9936,
+          "probabilities": {
+            "orbit": 0.9936,
+            "ember": 0.0064
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9906,
+          "probabilities": {
+            "otter": 0.9906,
+            "fox": 0.0094
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9708,
+          "probabilities": {
+            "blue": 0.9708,
+            "red": 0.0292
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9632
+        }
+      }
+    },
+    {
+      "label": "flash3070-cached",
+      "kind": "warm",
+      "tokens": 32731,
+      "seconds": 1.1755399911198765,
+      "tokens_per_second": 27843.37431925124,
+      "mode": "gpu_tiled",
+      "reused_tokens": 32521,
+      "peak_allocated_mib": 6137.9,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9936,
+          "probabilities": {
+            "orbit": 0.9936,
+            "ember": 0.0064
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9906,
+          "probabilities": {
+            "otter": 0.9906,
+            "fox": 0.0094
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9708,
+          "probabilities": {
+            "blue": 0.9708,
+            "red": 0.0292
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9632
+        }
+      }
+    },
+    {
+      "label": "flash3070-cached",
+      "kind": "branch",
+      "tokens": 32788,
+      "seconds": 1.2240790608339012,
+      "tokens_per_second": 26785.85154267997,
+      "mode": "gpu_tiled",
+      "reused_tokens": 32521,
+      "peak_allocated_mib": 6144.2,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9926,
+          "probabilities": {
+            "orbit": 0.9926,
+            "ember": 0.0074
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.99,
+          "probabilities": {
+            "otter": 0.99,
+            "fox": 0.01
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9703,
+          "probabilities": {
+            "blue": 0.9703,
+            "red": 0.0297
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9635
+        },
+        "extra": {
+          "type": "noul",
+          "noul": 0.9766
+        }
+      }
+    },
+    {
+      "label": "flash3070-cached",
+      "kind": "cold",
+      "tokens": 40923,
+      "seconds": 22.25863209180534,
+      "tokens_per_second": 1838.522683299396,
+      "mode": "gpu_tiled",
+      "reused_tokens": 0,
+      "peak_allocated_mib": 7244.4,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9938,
+          "probabilities": {
+            "orbit": 0.9938,
+            "ember": 0.0062
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9902,
+          "probabilities": {
+            "otter": 0.9902,
+            "fox": 0.0098
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9724,
+          "probabilities": {
+            "blue": 0.9724,
+            "red": 0.0276
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9659
+        }
+      }
+    },
+    {
+      "label": "flash3070-cached",
+      "kind": "warm",
+      "tokens": 40923,
+      "seconds": 1.364433109993115,
+      "tokens_per_second": 29992.67585950512,
+      "mode": "gpu_tiled",
+      "reused_tokens": 40713,
+      "peak_allocated_mib": 6394.1,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9938,
+          "probabilities": {
+            "orbit": 0.9938,
+            "ember": 0.0062
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9902,
+          "probabilities": {
+            "otter": 0.9902,
+            "fox": 0.0098
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9724,
+          "probabilities": {
+            "blue": 0.9724,
+            "red": 0.0276
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9659
+        }
+      }
+    },
+    {
+      "label": "flash3070-cached",
+      "kind": "branch",
+      "tokens": 40980,
+      "seconds": 1.4427082450129092,
+      "tokens_per_second": 28404.91148619818,
+      "mode": "gpu_tiled",
+      "reused_tokens": 40713,
+      "peak_allocated_mib": 6400.4,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.993,
+          "probabilities": {
+            "orbit": 0.993,
+            "ember": 0.007
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9895,
+          "probabilities": {
+            "otter": 0.9895,
+            "fox": 0.0105
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9718,
+          "probabilities": {
+            "blue": 0.9718,
+            "red": 0.0282
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9661
+        },
+        "extra": {
+          "type": "noul",
+          "noul": 0.978
+        }
+      }
+    },
+    {
+      "label": "flash3070-cached",
+      "kind": "cold",
+      "tokens": 131196,
+      "seconds": 106.90899059409276,
+      "tokens_per_second": 1227.1746208709337,
+      "mode": "cpu_streamed",
+      "reused_tokens": 0,
+      "peak_allocated_mib": 6254.9,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9942,
+          "probabilities": {
+            "orbit": 0.9942,
+            "ember": 0.0058
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9891,
+          "probabilities": {
+            "otter": 0.9891,
+            "fox": 0.0109
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9772,
+          "probabilities": {
+            "blue": 0.9772,
+            "red": 0.0228
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9631
+        }
+      }
+    },
+    {
+      "label": "flash3070-cached",
+      "kind": "warm",
+      "tokens": 131196,
+      "seconds": 3.8815995808690786,
+      "tokens_per_second": 33799.46778812914,
+      "mode": "cpu_streamed",
+      "reused_tokens": 130986,
+      "peak_allocated_mib": 6254.9,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9942,
+          "probabilities": {
+            "orbit": 0.9942,
+            "ember": 0.0058
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9891,
+          "probabilities": {
+            "otter": 0.9891,
+            "fox": 0.0109
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9772,
+          "probabilities": {
+            "blue": 0.9772,
+            "red": 0.0228
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9631
+        }
+      }
+    },
+    {
+      "label": "flash3070-cached",
+      "kind": "branch",
+      "tokens": 131253,
+      "seconds": 3.982091994024813,
+      "tokens_per_second": 32960.81562077095,
+      "mode": "cpu_streamed",
+      "reused_tokens": 130986,
+      "peak_allocated_mib": 6255.5,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9938,
+          "probabilities": {
+            "orbit": 0.9938,
+            "ember": 0.0062
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9886,
+          "probabilities": {
+            "otter": 0.9886,
+            "fox": 0.0114
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9765,
+          "probabilities": {
+            "blue": 0.9765,
+            "red": 0.0235
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9615
+        },
+        "extra": {
+          "type": "noul",
+          "noul": 0.9757
+        }
+      }
+    },
+    {
+      "label": "flash3090-v1",
+      "kind": "cold",
+      "tokens": 16347,
+      "seconds": 5.335186484036967,
+      "tokens_per_second": 3063.9978656623716,
+      "mode": "gpu_native",
+      "reused_tokens": 0,
+      "peak_allocated_mib": 6570.7,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.993,
+          "probabilities": {
+            "orbit": 0.993,
+            "ember": 0.007
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9907,
+          "probabilities": {
+            "otter": 0.9907,
+            "fox": 0.0093
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9699,
+          "probabilities": {
+            "blue": 0.9699,
+            "red": 0.0301
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9612
+        }
+      }
+    },
+    {
+      "label": "flash3090-v1",
+      "kind": "warm",
+      "tokens": 16347,
+      "seconds": 0.2754424449522048,
+      "tokens_per_second": 59348.15167225427,
+      "mode": "gpu_native",
+      "reused_tokens": 16137,
+      "peak_allocated_mib": 6570.7,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.993,
+          "probabilities": {
+            "orbit": 0.993,
+            "ember": 0.007
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9907,
+          "probabilities": {
+            "otter": 0.9907,
+            "fox": 0.0093
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9699,
+          "probabilities": {
+            "blue": 0.9699,
+            "red": 0.0301
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9612
+        }
+      }
+    },
+    {
+      "label": "flash3090-v1",
+      "kind": "branch",
+      "tokens": 16404,
+      "seconds": 0.2769178149756044,
+      "tokens_per_second": 59237.79227221311,
+      "mode": "gpu_native",
+      "reused_tokens": 16137,
+      "peak_allocated_mib": 6580.6,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9923,
+          "probabilities": {
+            "orbit": 0.9923,
+            "ember": 0.0077
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9901,
+          "probabilities": {
+            "otter": 0.9901,
+            "fox": 0.0099
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.97,
+          "probabilities": {
+            "blue": 0.97,
+            "red": 0.03
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9622
+        },
+        "extra": {
+          "type": "noul",
+          "noul": 0.975
+        }
+      }
+    },
+    {
+      "label": "flash3090-v1",
+      "kind": "cold",
+      "tokens": 65499,
+      "seconds": 31.66101809591055,
+      "tokens_per_second": 2068.758490380323,
+      "mode": "gpu_native",
+      "reused_tokens": 0,
+      "peak_allocated_mib": 11884.9,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9938,
+          "probabilities": {
+            "orbit": 0.9938,
+            "ember": 0.0062
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9899,
+          "probabilities": {
+            "otter": 0.9899,
+            "fox": 0.0101
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9743,
+          "probabilities": {
+            "blue": 0.9743,
+            "red": 0.0257
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9631
+        }
+      }
+    },
+    {
+      "label": "flash3090-v1",
+      "kind": "warm",
+      "tokens": 65499,
+      "seconds": 0.6865756411571056,
+      "tokens_per_second": 95399.5395024686,
+      "mode": "gpu_native",
+      "reused_tokens": 65289,
+      "peak_allocated_mib": 11884.9,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9938,
+          "probabilities": {
+            "orbit": 0.9938,
+            "ember": 0.0062
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9899,
+          "probabilities": {
+            "otter": 0.9899,
+            "fox": 0.0101
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9743,
+          "probabilities": {
+            "blue": 0.9743,
+            "red": 0.0257
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9631
+        }
+      }
+    },
+    {
+      "label": "flash3090-v1",
+      "kind": "branch",
+      "tokens": 65556,
+      "seconds": 0.6748919601086527,
+      "tokens_per_second": 97135.54742813348,
+      "mode": "gpu_native",
+      "reused_tokens": 65289,
+      "peak_allocated_mib": 11908.1,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9931,
+          "probabilities": {
+            "orbit": 0.9931,
+            "ember": 0.0069
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9892,
+          "probabilities": {
+            "otter": 0.9892,
+            "fox": 0.0108
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9746,
+          "probabilities": {
+            "blue": 0.9746,
+            "red": 0.0254
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9631
+        },
+        "extra": {
+          "type": "noul",
+          "noul": 0.9761
+        }
+      }
+    },
+    {
+      "label": "flash3090-v1",
+      "kind": "cold",
+      "tokens": 131196,
+      "seconds": 94.14749068184756,
+      "tokens_per_second": 1393.5156322259336,
+      "mode": "gpu_native",
+      "reused_tokens": 0,
+      "peak_allocated_mib": 20687.1,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9942,
+          "probabilities": {
+            "orbit": 0.9942,
+            "ember": 0.0058
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9892,
+          "probabilities": {
+            "otter": 0.9892,
+            "fox": 0.0108
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9776,
+          "probabilities": {
+            "blue": 0.9776,
+            "red": 0.0224
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.963
+        }
+      }
+    },
+    {
+      "label": "flash3090-v1",
+      "kind": "warm",
+      "tokens": 131196,
+      "seconds": 1.2735183611512184,
+      "tokens_per_second": 103018.53824973766,
+      "mode": "gpu_native",
+      "reused_tokens": 130986,
+      "peak_allocated_mib": 20687.1,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9942,
+          "probabilities": {
+            "orbit": 0.9942,
+            "ember": 0.0058
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9892,
+          "probabilities": {
+            "otter": 0.9892,
+            "fox": 0.0108
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9776,
+          "probabilities": {
+            "blue": 0.9776,
+            "red": 0.0224
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.963
+        }
+      }
+    },
+    {
+      "label": "flash3090-v1",
+      "kind": "branch",
+      "tokens": 131253,
+      "seconds": 1.2535888070706278,
+      "tokens_per_second": 104701.79636232596,
+      "mode": "gpu_native",
+      "reused_tokens": 130986,
+      "peak_allocated_mib": 20728.2,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9939,
+          "probabilities": {
+            "orbit": 0.9939,
+            "ember": 0.0061
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9887,
+          "probabilities": {
+            "otter": 0.9887,
+            "fox": 0.0112
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9771,
+          "probabilities": {
+            "blue": 0.9771,
+            "red": 0.0229
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9614
+        },
+        "extra": {
+          "type": "noul",
+          "noul": 0.9753
+        }
+      }
+    },
+    {
+      "label": "full3090-v1",
+      "kind": "cold",
+      "tokens": 16347,
+      "seconds": 17.21509308810346,
+      "tokens_per_second": 949.5737209400653,
+      "mode": "gpu_native",
+      "reused_tokens": 0,
+      "peak_allocated_mib": 20234.0,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9972,
+          "probabilities": {
+            "orbit": 0.9972,
+            "ember": 0.0028
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9969,
+          "probabilities": {
+            "otter": 0.9969,
+            "fox": 0.0031
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.993,
+          "probabilities": {
+            "blue": 0.993,
+            "red": 0.007
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9863
+        }
+      }
+    },
+    {
+      "label": "full3090-v1",
+      "kind": "warm",
+      "tokens": 16347,
+      "seconds": 0.6082199909724295,
+      "tokens_per_second": 26876.788403262144,
+      "mode": "gpu_native",
+      "reused_tokens": 16137,
+      "peak_allocated_mib": 20234.0,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9972,
+          "probabilities": {
+            "orbit": 0.9972,
+            "ember": 0.0028
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9969,
+          "probabilities": {
+            "otter": 0.9969,
+            "fox": 0.0031
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.993,
+          "probabilities": {
+            "blue": 0.993,
+            "red": 0.007
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9863
+        }
+      }
+    },
+    {
+      "label": "full3090-v1",
+      "kind": "branch",
+      "tokens": 16404,
+      "seconds": 0.7073432109318674,
+      "tokens_per_second": 23191.00508279292,
+      "mode": "gpu_native",
+      "reused_tokens": 16137,
+      "peak_allocated_mib": 20247.2,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9965,
+          "probabilities": {
+            "orbit": 0.9965,
+            "ember": 0.0035
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9957,
+          "probabilities": {
+            "otter": 0.9957,
+            "fox": 0.0043
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9912,
+          "probabilities": {
+            "blue": 0.9912,
+            "red": 0.0088
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9741
+        },
+        "extra": {
+          "type": "noul",
+          "noul": 0.974
+        }
+      }
+    },
+    {
+      "label": "full3090-v1",
+      "kind": "cold",
+      "tokens": 32731,
+      "seconds": 42.169826418859884,
+      "tokens_per_second": 776.1710867598332,
+      "mode": "gpu_native",
+      "reused_tokens": 0,
+      "peak_allocated_mib": 22556.8,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9973,
+          "probabilities": {
+            "orbit": 0.9973,
+            "ember": 0.0027
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9964,
+          "probabilities": {
+            "otter": 0.9964,
+            "fox": 0.0036
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9927,
+          "probabilities": {
+            "blue": 0.9927,
+            "red": 0.0073
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9854
+        }
+      }
+    },
+    {
+      "label": "full3090-v1",
+      "kind": "warm",
+      "tokens": 32731,
+      "seconds": 1.7927358348388225,
+      "tokens_per_second": 18257.570002187585,
+      "mode": "gpu_native",
+      "reused_tokens": 32521,
+      "peak_allocated_mib": 22135.5,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9973,
+          "probabilities": {
+            "orbit": 0.9973,
+            "ember": 0.0027
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9964,
+          "probabilities": {
+            "otter": 0.9964,
+            "fox": 0.0036
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9927,
+          "probabilities": {
+            "blue": 0.9927,
+            "red": 0.0073
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9854
+        }
+      }
+    },
+    {
+      "label": "full3090-v1",
+      "kind": "branch",
+      "tokens": 32788,
+      "seconds": 1.7508859450463206,
+      "tokens_per_second": 18726.519618690854,
+      "mode": "gpu_native",
+      "reused_tokens": 32521,
+      "peak_allocated_mib": 22153.0,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9968,
+          "probabilities": {
+            "orbit": 0.9968,
+            "ember": 0.0032
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9955,
+          "probabilities": {
+            "otter": 0.9955,
+            "fox": 0.0045
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9917,
+          "probabilities": {
+            "blue": 0.9917,
+            "red": 0.0083
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9761
+        },
+        "extra": {
+          "type": "noul",
+          "noul": 0.9775
+        }
+      }
+    },
+    {
+      "label": "full3090-v1",
+      "kind": "cold",
+      "tokens": 65499,
+      "seconds": 96.08363265893422,
+      "tokens_per_second": 681.6873819966845,
+      "mode": "gpu_tiled",
+      "reused_tokens": 0,
+      "peak_allocated_mib": 22850.1,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9972,
+          "probabilities": {
+            "orbit": 0.9972,
+            "ember": 0.0028
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.996,
+          "probabilities": {
+            "otter": 0.996,
+            "fox": 0.004
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9932,
+          "probabilities": {
+            "blue": 0.9932,
+            "red": 0.0068
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9854
+        }
+      }
+    },
+    {
+      "label": "full3090-v1",
+      "kind": "warm",
+      "tokens": 65499,
+      "seconds": 3.721154103986919,
+      "tokens_per_second": 17601.79723001073,
+      "mode": "gpu_tiled",
+      "reused_tokens": 65289,
+      "peak_allocated_mib": 21696.9,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9972,
+          "probabilities": {
+            "orbit": 0.9972,
+            "ember": 0.0028
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.996,
+          "probabilities": {
+            "otter": 0.996,
+            "fox": 0.004
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9932,
+          "probabilities": {
+            "blue": 0.9932,
+            "red": 0.0068
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9854
+        }
+      }
+    },
+    {
+      "label": "full3090-v1",
+      "kind": "branch",
+      "tokens": 65556,
+      "seconds": 3.7726632179692388,
+      "tokens_per_second": 17376.584182695133,
+      "mode": "gpu_tiled",
+      "reused_tokens": 65289,
+      "peak_allocated_mib": 21706.5,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9967,
+          "probabilities": {
+            "orbit": 0.9967,
+            "ember": 0.0033
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9952,
+          "probabilities": {
+            "otter": 0.9952,
+            "fox": 0.0048
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9927,
+          "probabilities": {
+            "blue": 0.9927,
+            "red": 0.0073
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9772
+        },
+        "extra": {
+          "type": "noul",
+          "noul": 0.9778
+        }
+      }
+    },
+    {
+      "label": "full3090-cached",
+      "kind": "cold",
+      "tokens": 131196,
+      "seconds": 243.6041007458698,
+      "tokens_per_second": 538.5623624491649,
+      "mode": "cpu_streamed",
+      "reused_tokens": 0,
+      "peak_allocated_mib": 19045.7,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9971,
+          "probabilities": {
+            "orbit": 0.9971,
+            "ember": 0.0029
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9964,
+          "probabilities": {
+            "otter": 0.9964,
+            "fox": 0.0036
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9938,
+          "probabilities": {
+            "blue": 0.9938,
+            "red": 0.0062
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9866
+        }
+      }
+    },
+    {
+      "label": "full3090-cached",
+      "kind": "warm",
+      "tokens": 131196,
+      "seconds": 5.39347615186125,
+      "tokens_per_second": 24324.94300632537,
+      "mode": "cpu_streamed",
+      "reused_tokens": 130986,
+      "peak_allocated_mib": 18607.7,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9971,
+          "probabilities": {
+            "orbit": 0.9971,
+            "ember": 0.0029
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9964,
+          "probabilities": {
+            "otter": 0.9964,
+            "fox": 0.0036
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9938,
+          "probabilities": {
+            "blue": 0.9938,
+            "red": 0.0062
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9866
+        }
+      }
+    },
+    {
+      "label": "full3090-cached",
+      "kind": "branch",
+      "tokens": 131253,
+      "seconds": 6.171824679011479,
+      "tokens_per_second": 21266.482252218215,
+      "mode": "cpu_streamed",
+      "reused_tokens": 130986,
+      "peak_allocated_mib": 18608.3,
+      "correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9961,
+          "probabilities": {
+            "orbit": 0.9961,
+            "ember": 0.0039
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9959,
+          "probabilities": {
+            "otter": 0.9959,
+            "fox": 0.0041
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9923,
+          "probabilities": {
+            "blue": 0.9923,
+            "red": 0.0077
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9757
+        },
+        "extra": {
+          "type": "noul",
+          "noul": 0.9774
+        }
+      }
+    }
+  ],
+  "vision": {
+    "rows": [
+      {
+        "kind": "cold",
+        "seconds": 28.97052196203731,
+        "model": "Cloudflare/clef-flash",
+        "answers": {
+          "count": {
+            "type": "choice",
+            "choice": "two",
+            "confidence": 0.9889,
+            "probabilities": {
+              "one": 0.0111,
+              "two": 0.9889
+            }
+          },
+          "fish": {
+            "type": "noul",
+            "noul": 0.9033
+          }
+        },
+        "usage": {
+          "batch_size": 1,
+          "input_tokens": 48297,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 48297,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 283.9,
+          "image_preprocess_cache_hits": 0,
+          "image_preprocess_cache_misses": 2,
+          "token_cache_hits": 5,
+          "token_cache_misses": 13,
+          "cpu_preparation_overlapped": false,
+          "cache_prepare_ms": 1.6,
+          "cache_offload_ms": 0.0,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 512.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "chunked",
+          "prefill_chunks": 14,
+          "prefill_initial_chunk_tokens": 8192,
+          "prefill_chunk_tokens": 4096,
+          "language_ms": 27372.0,
+          "head_ms": 749.2,
+          "head_cpu_prepared": true,
+          "head_prepare_chunk_tokens": 4096,
+          "head_cpu_prepare_ms": 644.6,
+          "head_projected_memory_mib": 94.3,
+          "head_normalized_cpu_mib": 377.3,
+          "head_span_upload_mib": 0.562,
+          "active_context_offload": "kv_stream",
+          "hidden_offload_ms": 736.2,
+          "hidden_restore_ms": 0.0,
+          "active_hidden_mib": 377.3,
+          "kv_stream_layout": "token_major",
+          "kv_stream_block_tokens": 4096,
+          "kv_stream_history_blocks": 720,
+          "kv_uploaded_mib": 10021.7,
+          "kv_offloaded_mib": 1509.3,
+          "kv_offload_ms": 6719.4,
+          "kv_storage": "cpu",
+          "active_cpu_kv_mib": 1509.3,
+          "active_gpu_kv_mib": 0.0,
+          "kv_cpu_allocated_mib": 1509.3,
+          "kv_pinned_allocated_mib": 48.0,
+          "kv_gpu_staging_mib": 32.0,
+          "prefix_seed_ms": 0.0,
+          "multimodal_prefill": true,
+          "vision_ms": 444.7,
+          "vision_batch_images": 1,
+          "image_chunk_splits": 0,
+          "vision_prefix_reused": false,
+          "prefix_cache_tier": "miss",
+          "prefix_restore_ms": 0.0,
+          "prefix_offload_ms": 56.5,
+          "prefix_cache": "miss",
+          "prefix_tokens": 48186,
+          "reused_prefix_tokens": 0,
+          "cache_memory_budget_mib": 786.5,
+          "cache_limit_reason": null,
+          "new_prefix_tokens": 48186,
+          "prefix_build_ms": 27372.0,
+          "prefix_checkpoints_saved": 2,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 2,
+          "execution_strategy": "cpu_streamed",
+          "context_switch_reason": "resident_memory_exceeded",
+          "context_fallbacks": [],
+          "accepted_max_input_tokens": 176128,
+          "context_limit_mode": "memory_adaptive",
+          "latency_ms": 28958.8,
+          "peak_allocated_mib": 5597.1,
+          "image_count": 2,
+          "image_fidelity": null,
+          "processed_images": [
+            {
+              "width": 320,
+              "height": 224
+            },
+            {
+              "width": 224,
+              "height": 320
+            }
+          ],
+          "max_processed_pixels_per_image": 71680,
+          "processor_resize_enabled": true,
+          "queue_wait_ms": 0.1,
+          "server_total_ms": 28962.3
+        }
+      },
+      {
+        "kind": "warm",
+        "seconds": 1.7652750019915402,
+        "model": "Cloudflare/clef-flash",
+        "answers": {
+          "count": {
+            "type": "choice",
+            "choice": "two",
+            "confidence": 0.9889,
+            "probabilities": {
+              "one": 0.0111,
+              "two": 0.9889
+            }
+          },
+          "fish": {
+            "type": "noul",
+            "noul": 0.9033
+          }
+        },
+        "usage": {
+          "batch_size": 1,
+          "input_tokens": 48297,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 48297,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 7.3,
+          "image_preprocess_cache_hits": 2,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 18,
+          "token_cache_misses": 0,
+          "cpu_preparation_overlapped": false,
+          "cache_prepare_ms": 2.8,
+          "cache_offload_ms": 0.0,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 512.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "chunked",
+          "prefill_chunks": 1,
+          "prefill_initial_chunk_tokens": 8192,
+          "prefill_chunk_tokens": 4096,
+          "language_ms": 779.8,
+          "head_ms": 599.4,
+          "head_cpu_prepared": true,
+          "head_prepare_chunk_tokens": 4096,
+          "head_cpu_prepare_ms": 484.2,
+          "head_projected_memory_mib": 94.3,
+          "head_normalized_cpu_mib": 377.3,
+          "head_span_upload_mib": 0.562,
+          "active_context_offload": "kv_stream",
+          "hidden_offload_ms": 1.9,
+          "hidden_restore_ms": 0.0,
+          "active_hidden_mib": 377.3,
+          "kv_stream_layout": "token_major",
+          "kv_stream_block_tokens": 4096,
+          "kv_stream_history_blocks": 96,
+          "kv_uploaded_mib": 1505.8,
+          "kv_offloaded_mib": 3.5,
+          "kv_offload_ms": 32.3,
+          "kv_storage": "cpu",
+          "active_cpu_kv_mib": 1509.3,
+          "active_gpu_kv_mib": 0.0,
+          "kv_cpu_allocated_mib": 3.5,
+          "kv_pinned_allocated_mib": 32.4,
+          "kv_gpu_staging_mib": 32.0,
+          "prefix_seed_ms": 24.7,
+          "multimodal_prefill": true,
+          "vision_ms": 0.0,
+          "vision_batch_images": 1,
+          "image_chunk_splits": 0,
+          "vision_prefix_reused": true,
+          "prefix_cache_tier": "cpu",
+          "prefix_restore_ms": 24.7,
+          "prefix_offload_ms": 0.0,
+          "prefix_cache": "hit",
+          "prefix_tokens": 48186,
+          "reused_prefix_tokens": 48186,
+          "cache_memory_budget_mib": 786.5,
+          "cache_limit_reason": null,
+          "new_prefix_tokens": 0,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 0,
+          "execution_strategy": "cpu_streamed",
+          "context_switch_reason": "resident_memory_exceeded",
+          "context_fallbacks": [],
+          "accepted_max_input_tokens": 176128,
+          "context_limit_mode": "memory_adaptive",
+          "latency_ms": 1752.1,
+          "peak_allocated_mib": 5445.5,
+          "image_count": 2,
+          "image_fidelity": null,
+          "processed_images": [
+            {
+              "width": 320,
+              "height": 224
+            },
+            {
+              "width": 224,
+              "height": 320
+            }
+          ],
+          "max_processed_pixels_per_image": 71680,
+          "processor_resize_enabled": true,
+          "queue_wait_ms": 0.1,
+          "server_total_ms": 1757.4
+        }
+      },
+      {
+        "kind": "branch",
+        "seconds": 1.622655238956213,
+        "model": "Cloudflare/clef-flash",
+        "answers": {
+          "count": {
+            "type": "choice",
+            "choice": "two",
+            "confidence": 0.989,
+            "probabilities": {
+              "one": 0.011,
+              "two": 0.989
+            }
+          },
+          "fish": {
+            "type": "noul",
+            "noul": 0.9017
+          },
+          "extra": {
+            "type": "noul",
+            "noul": 0.943
+          }
+        },
+        "usage": {
+          "batch_size": 1,
+          "input_tokens": 48350,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 48350,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 7.0,
+          "image_preprocess_cache_hits": 2,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 23,
+          "token_cache_misses": 2,
+          "cpu_preparation_overlapped": false,
+          "cache_prepare_ms": 2.1,
+          "cache_offload_ms": 0.0,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 512.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "chunked",
+          "prefill_chunks": 1,
+          "prefill_initial_chunk_tokens": 8192,
+          "prefill_chunk_tokens": 4096,
+          "language_ms": 696.9,
+          "head_ms": 520.3,
+          "head_cpu_prepared": true,
+          "head_prepare_chunk_tokens": 4096,
+          "head_cpu_prepare_ms": 427.9,
+          "head_projected_memory_mib": 94.4,
+          "head_normalized_cpu_mib": 377.7,
+          "head_span_upload_mib": 0.906,
+          "active_context_offload": "kv_stream",
+          "hidden_offload_ms": 2.1,
+          "hidden_restore_ms": 0.0,
+          "active_hidden_mib": 377.7,
+          "kv_stream_layout": "token_major",
+          "kv_stream_block_tokens": 4096,
+          "kv_stream_history_blocks": 96,
+          "kv_uploaded_mib": 1505.8,
+          "kv_offloaded_mib": 5.1,
+          "kv_offload_ms": 26.7,
+          "kv_storage": "cpu",
+          "active_cpu_kv_mib": 1510.9,
+          "active_gpu_kv_mib": 0.0,
+          "kv_cpu_allocated_mib": 5.1,
+          "kv_pinned_allocated_mib": 32.6,
+          "kv_gpu_staging_mib": 32.0,
+          "prefix_seed_ms": 17.8,
+          "multimodal_prefill": true,
+          "vision_ms": 0.0,
+          "vision_batch_images": 1,
+          "image_chunk_splits": 0,
+          "vision_prefix_reused": true,
+          "prefix_cache_tier": "cpu",
+          "prefix_restore_ms": 17.8,
+          "prefix_offload_ms": 0.0,
+          "prefix_cache": "hit",
+          "prefix_tokens": 48186,
+          "reused_prefix_tokens": 48186,
+          "cache_memory_budget_mib": 786.5,
+          "cache_limit_reason": null,
+          "new_prefix_tokens": 0,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 0,
+          "execution_strategy": "cpu_streamed",
+          "context_switch_reason": "resident_memory_exceeded",
+          "context_fallbacks": [],
+          "accepted_max_input_tokens": 176128,
+          "context_limit_mode": "memory_adaptive",
+          "latency_ms": 1593.9,
+          "peak_allocated_mib": 5446.1,
+          "image_count": 2,
+          "image_fidelity": null,
+          "processed_images": [
+            {
+              "width": 320,
+              "height": 224
+            },
+            {
+              "width": 224,
+              "height": 320
+            }
+          ],
+          "max_processed_pixels_per_image": 71680,
+          "processor_resize_enabled": true,
+          "queue_wait_ms": 0.1,
+          "server_total_ms": 1598.6
+        }
+      }
+    ]
+  },
+  "deployment": [
+    {
+      "image": "clef:lcv-adaptive-context-20261005",
+      "model": "Cloudflare/clef-flash",
+      "gpu": "NVIDIA GeForce RTX 3070 Ti",
+      "url": "http://<HOST_NAME>:<PORT>/",
+      "context_limit": {
+        "mode": "memory_adaptive",
+        "estimated": true,
+        "computed_max_input_tokens": 180224,
+        "configured_max_input_tokens": 8192,
+        "configured_cap_applied": false,
+        "model_max_position_embeddings": 262144,
+        "image_limit_basis": "computed_memory_estimate",
+        "configured_max_input_tokens_with_images": null,
+        "available_request_mib": 2648.1,
+        "safety_reserve_mib": 512.0,
+        "full_attention_kv_bytes_per_token": 32768,
+        "retained_hidden_bytes_per_token": 8192,
+        "projected_growth_bytes_per_token": 76840,
+        "calibration_reference_tokens": 24576,
+        "calibration_workspace_mib": 2000.0,
+        "rounding_tokens": 4096,
+        "fallback_reason": null,
+        "snapshot_unix_seconds": 1791247750,
+        "routing_limits": {
+          "gpu_native": 28672,
+          "gpu_tiled": 40960,
+          "cpu_streamed": 180224
+        },
+        "cold_max_input_tokens": 180224,
+        "cached_max_input_tokens": 180224,
+        "routing_policy": {
+          "kind": "memory_adaptive",
+          "reserve_mib": 256.0,
+          "fingerprint": "d7b7774351d3933a513732fd4f4ccb0d96a3606f4a1127ab44f456330ea1d15b",
+          "cold_calibration": {
+            "kv_gpu": {
+              "observed_floor": 1086418944,
+              "floor": 1103196160,
+              "max_cold_tokens": 40923,
+              "samples": 8
+            },
+            "kv_stream": {
+              "observed_floor": 1356451328,
+              "floor": 1373228544,
+              "max_cold_tokens": 131196,
+              "samples": 7
+            }
+          },
+          "mode_oom_tokens": {},
+          "stream_kernel_available": true
+        }
+      },
+      "verified": true
+    },
+    {
+      "image": "clef:lcv-adaptive-context-20261005",
+      "model": "Cloudflare/clef-flash",
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "url": "http://<HOST_NAME>:<PORT>/",
+      "context_limit": {
+        "mode": "memory_adaptive",
+        "estimated": true,
+        "computed_max_input_tokens": 262144,
+        "configured_max_input_tokens": 8192,
+        "configured_cap_applied": false,
+        "model_max_position_embeddings": 262144,
+        "image_limit_basis": "computed_memory_estimate",
+        "configured_max_input_tokens_with_images": null,
+        "available_request_mib": 18853.1,
+        "safety_reserve_mib": 512.0,
+        "full_attention_kv_bytes_per_token": 32768,
+        "retained_hidden_bytes_per_token": 8192,
+        "projected_growth_bytes_per_token": 76840,
+        "calibration_reference_tokens": 24576,
+        "calibration_workspace_mib": 2000.0,
+        "rounding_tokens": 4096,
+        "fallback_reason": null,
+        "snapshot_unix_seconds": 1791247836,
+        "routing_limits": {
+          "gpu_native": 249856,
+          "gpu_tiled": 262144,
+          "cpu_streamed": 258048
+        },
+        "cold_max_input_tokens": 262144,
+        "cached_max_input_tokens": 262144,
+        "routing_policy": {
+          "kind": "memory_adaptive",
+          "reserve_mib": 256.0,
+          "fingerprint": "28a7f7e8e0bb6d0f85cc47180b9b8bdaa0f54a0de2ff594a134b89e4e6e88aa3",
+          "cold_calibration": {},
+          "mode_oom_tokens": {},
+          "stream_kernel_available": true
+        }
+      },
+      "verified": true
+    },
+    {
+      "image": "clef:lcv-adaptive-context-20261005",
+      "model": "Cloudflare/clef-flash",
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "url": "http://<HOST_NAME>:<PORT>/",
+      "context_limit": {
+        "mode": "memory_adaptive",
+        "estimated": true,
+        "computed_max_input_tokens": 262144,
+        "configured_max_input_tokens": 8192,
+        "configured_cap_applied": false,
+        "model_max_position_embeddings": 262144,
+        "image_limit_basis": "computed_memory_estimate",
+        "configured_max_input_tokens_with_images": null,
+        "available_request_mib": 18853.1,
+        "safety_reserve_mib": 512.0,
+        "full_attention_kv_bytes_per_token": 32768,
+        "retained_hidden_bytes_per_token": 8192,
+        "projected_growth_bytes_per_token": 76840,
+        "calibration_reference_tokens": 24576,
+        "calibration_workspace_mib": 2000.0,
+        "rounding_tokens": 4096,
+        "fallback_reason": null,
+        "snapshot_unix_seconds": 1791247923,
+        "routing_limits": {
+          "gpu_native": 249856,
+          "gpu_tiled": 262144,
+          "cpu_streamed": 262144
+        },
+        "cold_max_input_tokens": 262144,
+        "cached_max_input_tokens": 262144,
+        "routing_policy": {
+          "kind": "memory_adaptive",
+          "reserve_mib": 256.0,
+          "fingerprint": "6f29dbbe562c8915fdb4076b3811bcdcba415c1bcc8fdf02ded9c9fcf8152446",
+          "cold_calibration": {},
+          "mode_oom_tokens": {},
+          "stream_kernel_available": true
+        }
+      },
+      "verified": true
+    }
+  ],
+  "hardware_scope": "Physical tests: RTX 3070 Ti and RTX 3090, Flash and Full; hardware-policy checks: supported SM75+ Turing/Ampere/Ada/Hopper/Blackwell. Unavailable families are not physically benchmarked.",
+  "cache_rules": [
+    "Longest exact prefix, same model/media/pooling identity; total context controls routing even on warm hits.",
+    "Recurrent state independently cloned; CPU prefix KV borrowed immutable and only suffix storage allocated.",
+    "Final CPU-stream checkpoints adopt append-only CPU KV/hidden storage without duplicating full context.",
+    "Allocated-but-unpublished snapshot bytes credited once to RAM admission.",
+    "RAM pressure evicts unrelated LFU snapshots, protects the matched prefix; GPU eviction spills to RAM.",
+    "No unrelated-prefix blending, truncation, activation quantization or multiple GPUs per service."
+  ],
+  "limits": [
+    "Estimated memory budgets and observed peaks, not allocation reservations or maximum-accuracy guarantees.",
+    "Full still requires enough GPU VRAM for its weights and BF16; package minimum is SM75, not every historical NVIDIA card.",
+    "Streaming/tiled requests use one worker; small compatible requests retain batching. No continuous interleaving of long streamed jobs yet.",
+    "ROCm keeps its existing separate policy; native compiled-kernel startup probe can disable tiled/stream paths on unsupported runtimes."
+  ]
+}

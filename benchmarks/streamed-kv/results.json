@@ -1,0 +1,1033 @@
+{
+  "pytorch_version": "2.11.0+cu128",
+  "cuda_version": "12.8",
+  "numerical_test_outputs": {
+    "extended-numerical-tests.txt": "PASS: blockwise CPU-history attention agrees with FP32 dense causal attention\n('torch.float16', 0, 17, 5, 4, 2, 64, 0.001953125)\n('torch.float16', 13, 7, 5, 4, 2, 64, 0.0009765625)\n('torch.float16', 61, 17, 16, 4, 2, 64, 0.00048828125)\n('torch.float16', 257, 63, 64, 4, 2, 64, 0.000244140625)\n('torch.float16', 33, 1, 16, 4, 2, 64, 0.00048828125)\n('torch.float16', 257, 63, 64, 16, 4, 256, 0.00048828125)\n('torch.float16', 513, 128, 128, 16, 4, 256, 0.000244140625)\n('torch.bfloat16', 0, 17, 5, 4, 2, 64, 0.0078125)\n('torch.bfloat16', 13, 7, 5, 4, 2, 64, 0.0078125)\n('torch.bfloat16', 61, 17, 16, 4, 2, 64, 0.00390625)\n('torch.bfloat16', 257, 63, 64, 4, 2, 64, 0.001953125)\n('torch.bfloat16', 33, 1, 16, 4, 2, 64, 0.00390625)\n('torch.bfloat16', 257, 63, 64, 16, 4, 256, 0.00390625)\n('torch.bfloat16', 513, 128, 128, 16, 4, 256, 0.001953125)\nPASS: rejected batched request, original attention/config restored, idempotent cleanup\n",
+    "token-layout-numerical-tests.txt": "PASS: blockwise CPU-history attention agrees with FP32 dense causal attention\n('torch.float16', 0, 17, 5, 0.001953125)\n('torch.float16', 13, 7, 5, 0.0009765625)\n('torch.float16', 61, 17, 16, 0.00048828125)\n('torch.float16', 257, 63, 64, 0.000244140625)\n('torch.float16', 33, 1, 16, 0.00048828125)\n('torch.bfloat16', 0, 17, 5, 0.0078125)\n('torch.bfloat16', 13, 7, 5, 0.0078125)\n('torch.bfloat16', 61, 17, 16, 0.00390625)\n('torch.bfloat16', 257, 63, 64, 0.00390625)\n('torch.bfloat16', 33, 1, 16, 0.00390625)\n",
+    "stream_4k_b4k-numerical-tests.txt": "PASS: blockwise CPU-history attention agrees with FP32 dense causal attention\n('torch.float16', 0, 17, 5, 0.001953125)\n('torch.float16', 13, 7, 5, 0.0009765625)\n('torch.float16', 61, 17, 16, 0.00048828125)\n('torch.float16', 257, 63, 64, 0.000244140625)\n('torch.float16', 33, 1, 16, 0.00048828125)\n('torch.bfloat16', 0, 17, 5, 0.0078125)\n('torch.bfloat16', 13, 7, 5, 0.0078125)\n('torch.bfloat16', 61, 17, 16, 0.00390625)\n('torch.bfloat16', 257, 63, 64, 0.00390625)\n('torch.bfloat16', 33, 1, 16, 0.00390625)\n",
+    "stream_8k_long-numerical-tests.txt": "PASS: blockwise CPU-history attention agrees with FP32 dense causal attention\n('torch.float16', 0, 17, 5, 0.001953125)\n('torch.float16', 13, 7, 5, 0.0009765625)\n('torch.float16', 61, 17, 16, 0.00048828125)\n('torch.float16', 257, 63, 64, 0.000244140625)\n('torch.float16', 33, 1, 16, 0.00048828125)\n('torch.bfloat16', 0, 17, 5, 0.0078125)\n('torch.bfloat16', 13, 7, 5, 0.0078125)\n('torch.bfloat16', 61, 17, 16, 0.00390625)\n('torch.bfloat16', 257, 63, 64, 0.00390625)\n('torch.bfloat16', 33, 1, 16, 0.00390625)\n",
+    "stream_token_1k_b4k-numerical-tests.txt": "PASS: blockwise CPU-history attention agrees with FP32 dense causal attention\n('torch.float16', 0, 17, 5, 0.001953125)\n('torch.float16', 13, 7, 5, 0.0009765625)\n('torch.float16', 61, 17, 16, 0.00048828125)\n('torch.float16', 257, 63, 64, 0.000244140625)\n('torch.float16', 33, 1, 16, 0.00048828125)\n('torch.bfloat16', 0, 17, 5, 0.0078125)\n('torch.bfloat16', 13, 7, 5, 0.0078125)\n('torch.bfloat16', 61, 17, 16, 0.00390625)\n('torch.bfloat16', 257, 63, 64, 0.00390625)\n('torch.bfloat16', 33, 1, 16, 0.00390625)\n",
+    "stream_8k_b8k-numerical-tests.txt": "PASS: blockwise CPU-history attention agrees with FP32 dense causal attention\n('torch.float16', 0, 17, 5, 0.001953125)\n('torch.float16', 13, 7, 5, 0.0009765625)\n('torch.float16', 61, 17, 16, 0.00048828125)\n('torch.float16', 257, 63, 64, 0.000244140625)\n('torch.float16', 33, 1, 16, 0.00048828125)\n('torch.bfloat16', 0, 17, 5, 0.0078125)\n('torch.bfloat16', 13, 7, 5, 0.0078125)\n('torch.bfloat16', 61, 17, 16, 0.00390625)\n('torch.bfloat16', 257, 63, 64, 0.00390625)\n('torch.bfloat16', 33, 1, 16, 0.00390625)\n"
+  },
+  "production_restored": true,
+  "hardware": "RTX 3070 Ti 8GB, one GPU, Flash 9B compact NF4, FP16 activations",
+  "summaries": [
+    {
+      "label": "resident_1k",
+      "name": "GPU resident \u00b7 1K chunks",
+      "target": 16384,
+      "status": 200,
+      "samples": 3,
+      "tokens": 16350,
+      "median_seconds": 7.554980303160846,
+      "tokens_per_second": 2164.1353575944468,
+      "backbone_tokens_per_second": 2176.778368015337,
+      "min_seconds": 7.548703656997532,
+      "max_seconds": 7.619449035031721,
+      "peak_allocated_mib": 6348.8,
+      "kv_uploaded_mib": null,
+      "staging_mib": null,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9929,
+          "probabilities": {
+            "orbit": 0.9929,
+            "ember": 0.0071
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9919,
+          "probabilities": {
+            "otter": 0.9919,
+            "fox": 0.0081
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9717,
+          "probabilities": {
+            "blue": 0.9717,
+            "red": 0.0283
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9619
+        }
+      }
+    },
+    {
+      "label": "resident_1k",
+      "name": "GPU resident \u00b7 1K chunks",
+      "target": 32768,
+      "status": 200,
+      "samples": 3,
+      "tokens": 32734,
+      "median_seconds": 17.753230004105717,
+      "tokens_per_second": 1843.833487902187,
+      "backbone_tokens_per_second": 1852.266811525316,
+      "min_seconds": 17.748273591976613,
+      "max_seconds": 18.24139032093808,
+      "peak_allocated_mib": 6928.6,
+      "kv_uploaded_mib": null,
+      "staging_mib": null,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9934,
+          "probabilities": {
+            "orbit": 0.9934,
+            "ember": 0.0066
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9913,
+          "probabilities": {
+            "otter": 0.9913,
+            "fox": 0.0087
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9748,
+          "probabilities": {
+            "blue": 0.9748,
+            "red": 0.0252
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9641
+        }
+      }
+    },
+    {
+      "label": "whole_layer_1k",
+      "name": "Whole-layer CPU RAM offload \u00b7 1K chunks",
+      "target": 16384,
+      "status": 200,
+      "samples": 3,
+      "tokens": 16350,
+      "median_seconds": 9.45250366278924,
+      "tokens_per_second": 1729.7004670163174,
+      "backbone_tokens_per_second": 1771.6471442348327,
+      "min_seconds": 9.410191253991798,
+      "max_seconds": 9.47344580385834,
+      "peak_allocated_mib": 6124.8,
+      "kv_uploaded_mib": 3448.4,
+      "staging_mib": null,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9929,
+          "probabilities": {
+            "orbit": 0.9929,
+            "ember": 0.0071
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9919,
+          "probabilities": {
+            "otter": 0.9919,
+            "fox": 0.0081
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9717,
+          "probabilities": {
+            "blue": 0.9717,
+            "red": 0.0283
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9619
+        }
+      }
+    },
+    {
+      "label": "whole_layer_1k",
+      "name": "Whole-layer CPU RAM offload \u00b7 1K chunks",
+      "target": 32768,
+      "status": 200,
+      "samples": 3,
+      "tokens": 32734,
+      "median_seconds": 25.11363794701174,
+      "tokens_per_second": 1303.4352119381017,
+      "backbone_tokens_per_second": 1321.6727029002184,
+      "min_seconds": 24.891906844917685,
+      "max_seconds": 25.277719618054107,
+      "peak_allocated_mib": 6125.2,
+      "kv_uploaded_mib": 15992.4,
+      "staging_mib": null,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9934,
+          "probabilities": {
+            "orbit": 0.9934,
+            "ember": 0.0066
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9913,
+          "probabilities": {
+            "otter": 0.9913,
+            "fox": 0.0087
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9748,
+          "probabilities": {
+            "blue": 0.9748,
+            "red": 0.0252
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9641
+        }
+      }
+    },
+    {
+      "label": "whole_layer_1k",
+      "name": "Whole-layer CPU RAM offload \u00b7 1K chunks",
+      "target": 65536,
+      "status": 200,
+      "samples": 3,
+      "tokens": 65502,
+      "median_seconds": 73.08616865007207,
+      "tokens_per_second": 896.2297683658289,
+      "backbone_tokens_per_second": 902.7934747253111,
+      "min_seconds": 73.04965281416662,
+      "max_seconds": 73.31976680783555,
+      "peak_allocated_mib": 6635.3,
+      "kv_uploaded_mib": 65656.4,
+      "staging_mib": null,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9941,
+          "probabilities": {
+            "orbit": 0.9941,
+            "ember": 0.0059
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9909,
+          "probabilities": {
+            "otter": 0.9909,
+            "fox": 0.0091
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9794,
+          "probabilities": {
+            "blue": 0.9794,
+            "red": 0.0206
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9672
+        }
+      }
+    },
+    {
+      "label": "stream_1k_b4k",
+      "name": "Streaming v1 \u00b7 1K chunks / 4K blocks",
+      "target": 16384,
+      "status": 200,
+      "samples": 3,
+      "tokens": 16350,
+      "median_seconds": 8.82798056001775,
+      "tokens_per_second": 1852.0657005124995,
+      "backbone_tokens_per_second": 1870.6879783984166,
+      "min_seconds": 8.790758006973192,
+      "max_seconds": 8.869238601066172,
+      "peak_allocated_mib": 6156.8,
+      "kv_uploaded_mib": 3448.4,
+      "staging_mib": 32.0,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9929,
+          "probabilities": {
+            "orbit": 0.9929,
+            "ember": 0.0071
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9919,
+          "probabilities": {
+            "otter": 0.9919,
+            "fox": 0.0081
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9718,
+          "probabilities": {
+            "blue": 0.9718,
+            "red": 0.0282
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9619
+        }
+      }
+    },
+    {
+      "label": "stream_1k_b4k",
+      "name": "Streaming v1 \u00b7 1K chunks / 4K blocks",
+      "target": 32768,
+      "status": 200,
+      "samples": 3,
+      "tokens": 32734,
+      "median_seconds": 22.859516119817272,
+      "tokens_per_second": 1431.9638188501456,
+      "backbone_tokens_per_second": 1442.401328979779,
+      "min_seconds": 22.50795629294589,
+      "max_seconds": 23.023322127992287,
+      "peak_allocated_mib": 6157.2,
+      "kv_uploaded_mib": 15992.4,
+      "staging_mib": 32.0,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9934,
+          "probabilities": {
+            "orbit": 0.9934,
+            "ember": 0.0066
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9914,
+          "probabilities": {
+            "otter": 0.9914,
+            "fox": 0.0086
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9748,
+          "probabilities": {
+            "blue": 0.9748,
+            "red": 0.0252
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9641
+        }
+      }
+    },
+    {
+      "label": "stream_1k_b4k",
+      "name": "Streaming v1 \u00b7 1K chunks / 4K blocks",
+      "target": 65536,
+      "status": 200,
+      "samples": 3,
+      "tokens": 65502,
+      "median_seconds": 62.87637867592275,
+      "tokens_per_second": 1041.7584692275332,
+      "backbone_tokens_per_second": 1057.0345518713782,
+      "min_seconds": 62.14634572993964,
+      "max_seconds": 63.19875346519984,
+      "peak_allocated_mib": 6635.3,
+      "kv_uploaded_mib": 65656.4,
+      "staging_mib": 32.0,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9941,
+          "probabilities": {
+            "orbit": 0.9941,
+            "ember": 0.0059
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9909,
+          "probabilities": {
+            "otter": 0.9909,
+            "fox": 0.0091
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9795,
+          "probabilities": {
+            "blue": 0.9795,
+            "red": 0.0205
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.967
+        }
+      }
+    },
+    {
+      "label": "stream_token_1k_b4k",
+      "name": "Streaming contiguous \u00b7 1K chunks / 4K blocks",
+      "target": 16384,
+      "status": 200,
+      "samples": 3,
+      "tokens": 16350,
+      "median_seconds": 8.029767313972116,
+      "tokens_per_second": 2036.1735727447976,
+      "backbone_tokens_per_second": 2094.32802172465,
+      "min_seconds": 7.93952240399085,
+      "max_seconds": 8.130331289954484,
+      "peak_allocated_mib": 6156.8,
+      "kv_uploaded_mib": 3448.4,
+      "staging_mib": 32.0,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9929,
+          "probabilities": {
+            "orbit": 0.9929,
+            "ember": 0.0071
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9919,
+          "probabilities": {
+            "otter": 0.9919,
+            "fox": 0.0081
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9718,
+          "probabilities": {
+            "blue": 0.9718,
+            "red": 0.0282
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9619
+        }
+      }
+    },
+    {
+      "label": "stream_token_1k_b4k",
+      "name": "Streaming contiguous \u00b7 1K chunks / 4K blocks",
+      "target": 32768,
+      "status": 200,
+      "samples": 3,
+      "tokens": 32734,
+      "median_seconds": 18.27717102598399,
+      "tokens_per_second": 1790.9773866788937,
+      "backbone_tokens_per_second": 1805.2767421852595,
+      "min_seconds": 18.274028110085055,
+      "max_seconds": 18.53254164196551,
+      "peak_allocated_mib": 6157.2,
+      "kv_uploaded_mib": 15992.4,
+      "staging_mib": 32.0,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9934,
+          "probabilities": {
+            "orbit": 0.9934,
+            "ember": 0.0066
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9914,
+          "probabilities": {
+            "otter": 0.9914,
+            "fox": 0.0086
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9748,
+          "probabilities": {
+            "blue": 0.9748,
+            "red": 0.0252
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9641
+        }
+      }
+    },
+    {
+      "label": "stream_token_1k_b4k",
+      "name": "Streaming contiguous \u00b7 1K chunks / 4K blocks",
+      "target": 65536,
+      "status": 200,
+      "samples": 3,
+      "tokens": 65502,
+      "median_seconds": 44.833230478921905,
+      "tokens_per_second": 1461.0145042034258,
+      "backbone_tokens_per_second": 1473.3456295829772,
+      "min_seconds": 44.82043000613339,
+      "max_seconds": 45.1730781160295,
+      "peak_allocated_mib": 6635.3,
+      "kv_uploaded_mib": 65656.4,
+      "staging_mib": 32.0,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9941,
+          "probabilities": {
+            "orbit": 0.9941,
+            "ember": 0.0059
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9909,
+          "probabilities": {
+            "otter": 0.9909,
+            "fox": 0.0091
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9795,
+          "probabilities": {
+            "blue": 0.9795,
+            "red": 0.0205
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.967
+        }
+      }
+    },
+    {
+      "label": "stream_4k_b4k",
+      "name": "Streaming contiguous \u00b7 4K chunks / 4K blocks",
+      "target": 16384,
+      "status": 200,
+      "samples": 3,
+      "tokens": 16350,
+      "median_seconds": 7.348644055891782,
+      "tokens_per_second": 2224.9002503926386,
+      "backbone_tokens_per_second": 2257.5701089432914,
+      "min_seconds": 7.335049289977178,
+      "max_seconds": 7.638497740961611,
+      "peak_allocated_mib": 6156.8,
+      "kv_uploaded_mib": 1144.4,
+      "staging_mib": 32.0,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9929,
+          "probabilities": {
+            "orbit": 0.9929,
+            "ember": 0.0071
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9919,
+          "probabilities": {
+            "otter": 0.9919,
+            "fox": 0.0081
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9717,
+          "probabilities": {
+            "blue": 0.9717,
+            "red": 0.0283
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.962
+        }
+      }
+    },
+    {
+      "label": "stream_4k_b4k",
+      "name": "Streaming contiguous \u00b7 4K chunks / 4K blocks",
+      "target": 32768,
+      "status": 200,
+      "samples": 3,
+      "tokens": 32734,
+      "median_seconds": 16.472387711983174,
+      "tokens_per_second": 1987.2043186663816,
+      "backbone_tokens_per_second": 2010.6509093812767,
+      "min_seconds": 16.441856146091595,
+      "max_seconds": 16.82037708698772,
+      "peak_allocated_mib": 6157.2,
+      "kv_uploaded_mib": 4472.4,
+      "staging_mib": 32.0,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9934,
+          "probabilities": {
+            "orbit": 0.9934,
+            "ember": 0.0066
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9914,
+          "probabilities": {
+            "otter": 0.9914,
+            "fox": 0.0086
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9749,
+          "probabilities": {
+            "blue": 0.9749,
+            "red": 0.0251
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9643
+        }
+      }
+    },
+    {
+      "label": "stream_4k_b4k",
+      "name": "Streaming contiguous \u00b7 4K chunks / 4K blocks",
+      "target": 65536,
+      "status": 200,
+      "samples": 3,
+      "tokens": 65502,
+      "median_seconds": 39.76559124211781,
+      "tokens_per_second": 1647.2029700547598,
+      "backbone_tokens_per_second": 1662.234177536416,
+      "min_seconds": 39.760641515022144,
+      "max_seconds": 40.29810770181939,
+      "peak_allocated_mib": 6635.3,
+      "kv_uploaded_mib": 17272.4,
+      "staging_mib": 32.0,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9941,
+          "probabilities": {
+            "orbit": 0.9941,
+            "ember": 0.0059
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9909,
+          "probabilities": {
+            "otter": 0.9909,
+            "fox": 0.0091
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9794,
+          "probabilities": {
+            "blue": 0.9794,
+            "red": 0.0206
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9671
+        }
+      }
+    },
+    {
+      "label": "stream_8k_b8k",
+      "name": "Streaming contiguous \u00b7 8K chunks / 8K blocks",
+      "target": 32768,
+      "status": 200,
+      "samples": 3,
+      "tokens": 32734,
+      "median_seconds": 16.282729825004935,
+      "tokens_per_second": 2010.3508657210111,
+      "backbone_tokens_per_second": 2039.1839277371128,
+      "min_seconds": 16.250614371150732,
+      "max_seconds": 16.32200440694578,
+      "peak_allocated_mib": 6190.3,
+      "kv_uploaded_mib": 2552.4,
+      "staging_mib": 64.0,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9934,
+          "probabilities": {
+            "orbit": 0.9934,
+            "ember": 0.0066
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9914,
+          "probabilities": {
+            "otter": 0.9914,
+            "fox": 0.0086
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9748,
+          "probabilities": {
+            "blue": 0.9748,
+            "red": 0.0252
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9643
+        }
+      }
+    },
+    {
+      "label": "stream_8k_b8k",
+      "name": "Streaming contiguous \u00b7 8K chunks / 8K blocks",
+      "target": 65536,
+      "status": 200,
+      "samples": 3,
+      "tokens": 65502,
+      "median_seconds": 38.721702825976536,
+      "tokens_per_second": 1691.6094907907263,
+      "backbone_tokens_per_second": 1710.498484100684,
+      "min_seconds": 38.645203188061714,
+      "max_seconds": 39.014425709843636,
+      "peak_allocated_mib": 6635.3,
+      "kv_uploaded_mib": 9208.4,
+      "staging_mib": 64.0,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9941,
+          "probabilities": {
+            "orbit": 0.9941,
+            "ember": 0.0059
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9909,
+          "probabilities": {
+            "otter": 0.9909,
+            "fox": 0.0091
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9794,
+          "probabilities": {
+            "blue": 0.9794,
+            "red": 0.0206
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9671
+        }
+      }
+    },
+    {
+      "label": "stream_8k_long",
+      "name": "Streaming contiguous \u00b7 8K chunks / 8K blocks (long)",
+      "target": 98304,
+      "status": 200,
+      "samples": 1,
+      "tokens": 98270,
+      "median_seconds": 68.7961306180805,
+      "tokens_per_second": 1428.4233592372038,
+      "backbone_tokens_per_second": 1445.9465822278203,
+      "min_seconds": 68.7961306180805,
+      "max_seconds": 68.7961306180805,
+      "peak_allocated_mib": 7468.0,
+      "kv_uploaded_mib": 19960.4,
+      "staging_mib": 64.0,
+      "choices_correct": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9941,
+          "probabilities": {
+            "orbit": 0.9941,
+            "ember": 0.0059
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9894,
+          "probabilities": {
+            "otter": 0.9894,
+            "fox": 0.0106
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9811,
+          "probabilities": {
+            "blue": 0.9811,
+            "red": 0.0189
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9685
+        }
+      }
+    },
+    {
+      "label": "stream_8k_long",
+      "name": "Streaming contiguous \u00b7 8K chunks / 8K blocks (long)",
+      "target": 131072,
+      "status": 503,
+      "error": "{\"detail\":\"Insufficient GPU memory; shorten the request\"}"
+    }
+  ],
+  "comparisons": [
+    {
+      "label": "stream_1k_b4k",
+      "target": 16384,
+      "time_reduction_percent": 6.6069596484790605,
+      "throughput_increase_percent": 7.074359742022773
+    },
+    {
+      "label": "stream_token_1k_b4k",
+      "target": 16384,
+      "time_reduction_percent": 15.051423406667109,
+      "throughput_increase_percent": 17.718276173974633
+    },
+    {
+      "label": "stream_4k_b4k",
+      "target": 16384,
+      "time_reduction_percent": 22.25716785680306,
+      "throughput_increase_percent": 28.62922181148082
+    },
+    {
+      "label": "stream_1k_b4k",
+      "target": 32768,
+      "time_reduction_percent": 8.975688157767214,
+      "throughput_increase_percent": 9.860759148967002
+    },
+    {
+      "label": "stream_token_1k_b4k",
+      "target": 32768,
+      "time_reduction_percent": 27.22212900995181,
+      "throughput_increase_percent": 37.404404167956805
+    },
+    {
+      "label": "stream_4k_b4k",
+      "target": 32768,
+      "time_reduction_percent": 34.40859605152022,
+      "throughput_increase_percent": 52.45900221703932
+    },
+    {
+      "label": "stream_8k_b8k",
+      "target": 32768,
+      "time_reduction_percent": 35.163794829882825,
+      "throughput_increase_percent": 54.23481330781173
+    },
+    {
+      "label": "stream_1k_b4k",
+      "target": 65536,
+      "time_reduction_percent": 13.969524142156885,
+      "throughput_increase_percent": 16.237878499289195
+    },
+    {
+      "label": "stream_token_1k_b4k",
+      "target": 65536,
+      "time_reduction_percent": 38.65702456838569,
+      "throughput_increase_percent": 63.01785053038533
+    },
+    {
+      "label": "stream_4k_b4k",
+      "target": 65536,
+      "time_reduction_percent": 45.59081153574932,
+      "throughput_increase_percent": 83.79248583298494
+    },
+    {
+      "label": "stream_8k_b8k",
+      "target": 65536,
+      "time_reduction_percent": 47.019109715038596,
+      "throughput_increase_percent": 88.74730013433722
+    }
+  ],
+  "quality_comparisons": [
+    {
+      "label": "resident_1k",
+      "target": 16384,
+      "max_choice_probability_difference": 0.0,
+      "noul_difference": 0.0
+    },
+    {
+      "label": "stream_1k_b4k",
+      "target": 16384,
+      "max_choice_probability_difference": 9.99999999999994e-05,
+      "noul_difference": 0.0
+    },
+    {
+      "label": "stream_token_1k_b4k",
+      "target": 16384,
+      "max_choice_probability_difference": 9.99999999999994e-05,
+      "noul_difference": 0.0
+    },
+    {
+      "label": "stream_4k_b4k",
+      "target": 16384,
+      "max_choice_probability_difference": 0.0,
+      "noul_difference": 9.999999999998899e-05
+    },
+    {
+      "label": "resident_1k",
+      "target": 32768,
+      "max_choice_probability_difference": 0.0,
+      "noul_difference": 0.0
+    },
+    {
+      "label": "stream_1k_b4k",
+      "target": 32768,
+      "max_choice_probability_difference": 9.99999999999994e-05,
+      "noul_difference": 0.0
+    },
+    {
+      "label": "stream_token_1k_b4k",
+      "target": 32768,
+      "max_choice_probability_difference": 9.99999999999994e-05,
+      "noul_difference": 0.0
+    },
+    {
+      "label": "stream_4k_b4k",
+      "target": 32768,
+      "max_choice_probability_difference": 9.99999999999994e-05,
+      "noul_difference": 0.000200000000000089
+    },
+    {
+      "label": "stream_8k_b8k",
+      "target": 32768,
+      "max_choice_probability_difference": 9.99999999999994e-05,
+      "noul_difference": 0.000200000000000089
+    },
+    {
+      "label": "stream_1k_b4k",
+      "target": 65536,
+      "max_choice_probability_difference": 9.99999999999994e-05,
+      "noul_difference": 0.00019999999999997797
+    },
+    {
+      "label": "stream_token_1k_b4k",
+      "target": 65536,
+      "max_choice_probability_difference": 9.99999999999994e-05,
+      "noul_difference": 0.00019999999999997797
+    },
+    {
+      "label": "stream_4k_b4k",
+      "target": 65536,
+      "max_choice_probability_difference": 0.0,
+      "noul_difference": 9.999999999998899e-05
+    },
+    {
+      "label": "stream_8k_b8k",
+      "target": 65536,
+      "max_choice_probability_difference": 0.0,
+      "noul_difference": 9.999999999998899e-05
+    }
+  ],
+  "method": "Same uncached synthetic early/middle/late facts; 8192 initial chunk. Warmup excluded. Three repetitions per standard cell; long probes single observations.",
+  "notes": [
+    "No truncation, sparse token selection, activation quantization, or multi-GPU execution.",
+    "Streaming v1 uses head-major pinned CPU storage; contiguous version uses token-major CPU storage and an in-place FP32 accumulation.",
+    "Whole-layer baseline restores complete per-layer history and appends CPU tensors with cat.",
+    "Streaming changes both transfer/storage strategy and attention partitioning. Larger-chunk comparisons also include reduced transfer frequency.",
+    "End-to-end throughput includes preprocessing, transfers, hidden restoration and native head. Backbone throughput uses language_ms only.",
+    "Peak allocated GPU VRAM is PyTorch allocation, not nvidia-smi reservation. Staging buffers exclude GQA/query/output/head workspace.",
+    "Synthetic facts and numerical attention tests are not a broad model accuracy benchmark.",
+    "Full 27B, images, ROCm, other GPU families and concurrent streamed requests were not validated.",
+    "Production settings are restored; active offloading remains opt-in and normal discovery limits are not enlarged."
+  ]
+}

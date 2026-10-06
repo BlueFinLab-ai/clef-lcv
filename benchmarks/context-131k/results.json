@@ -1,0 +1,314 @@
+{
+  "hardware": "RTX 3070 Ti 8GB, one GPU; Flash 9B compact NF4; FP16 activations",
+  "experimental_image": "clef:lcv-head-cpu-20261005-final",
+  "experimental_image_id": "sha256:7e2c8bf2b75d781451547c405c4e5eb24f1d4634a47d317106caef165a4d7670",
+  "pytorch": "2.11.0+cu128",
+  "cuda": "12.8",
+  "production_restored": true,
+  "failure_diagnosis": {
+    "tokens": 131198,
+    "stage": "decision_head",
+    "operation": "EvidenceRoutingLayer.memory_norm",
+    "allocation_requested_mib": 258,
+    "free_mib": 253.38,
+    "backbone_completed": true
+  },
+  "implementation": [
+    "Full-attention KV streamed from CPU RAM through two bounded GPU VRAM buffers.",
+    "Full hidden and normalized vectors remain in CPU RAM; GPU-normalize/project every token in 4096-row chunks.",
+    "Full projected memory remains in GPU VRAM for the original native joint head.",
+    "Original question/option spans and final vector are copied to GPU VRAM; original mean reductions run on CUDA.",
+    "Vendor head.forward and all trained weights are unchanged. Scoped input adapters are restored on success/failure.",
+    "No truncation, sparse attention, activation quantization, model-weight offloading, compiler, or new dependency."
+  ],
+  "summaries": [
+    {
+      "label": "head_gpu_control",
+      "target": 16384,
+      "status": 200,
+      "tokens": 16350,
+      "runs": 1,
+      "median_seconds": 7.555996015900746,
+      "tokens_per_second": 2163.844444278856,
+      "peak_allocated_mib": 6188.8,
+      "correct_choices": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9929,
+          "probabilities": {
+            "orbit": 0.9929,
+            "ember": 0.0071
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9919,
+          "probabilities": {
+            "otter": 0.9919,
+            "fox": 0.0081
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9718,
+          "probabilities": {
+            "blue": 0.9718,
+            "red": 0.0282
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9619
+        }
+      },
+      "median_head_ms": 26.4,
+      "projected_memory_mib": null,
+      "normalized_cpu_mib": null
+    },
+    {
+      "label": "head_gpu_control",
+      "target": 65536,
+      "status": 200,
+      "tokens": 65502,
+      "runs": 1,
+      "median_seconds": 39.0930572450161,
+      "tokens_per_second": 1675.5404825328858,
+      "peak_allocated_mib": 6635.3,
+      "correct_choices": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9941,
+          "probabilities": {
+            "orbit": 0.9941,
+            "ember": 0.0059
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9909,
+          "probabilities": {
+            "otter": 0.9909,
+            "fox": 0.0091
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9794,
+          "probabilities": {
+            "blue": 0.9794,
+            "red": 0.0206
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9671
+        }
+      },
+      "median_head_ms": 87.4,
+      "projected_memory_mib": null,
+      "normalized_cpu_mib": null
+    },
+    {
+      "label": "head_gpu_control",
+      "target": 131232,
+      "status": 503,
+      "seconds": 108.68454861198552,
+      "error": "{\"detail\":\"Insufficient GPU memory; shorten the request\"}"
+    },
+    {
+      "label": "head_cpu_prepared",
+      "target": 16384,
+      "status": 200,
+      "tokens": 16350,
+      "runs": 3,
+      "median_seconds": 7.3851961579639465,
+      "tokens_per_second": 2213.888385668499,
+      "peak_allocated_mib": 6188.8,
+      "correct_choices": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9929,
+          "probabilities": {
+            "orbit": 0.9929,
+            "ember": 0.0071
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9919,
+          "probabilities": {
+            "otter": 0.9919,
+            "fox": 0.0081
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9718,
+          "probabilities": {
+            "blue": 0.9718,
+            "red": 0.0282
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9619
+        }
+      },
+      "median_head_ms": 137.9,
+      "projected_memory_mib": 31.9,
+      "normalized_cpu_mib": 127.7
+    },
+    {
+      "label": "head_cpu_prepared",
+      "target": 65536,
+      "status": 200,
+      "tokens": 65502,
+      "runs": 3,
+      "median_seconds": 39.32359773409553,
+      "tokens_per_second": 1665.7173751730882,
+      "peak_allocated_mib": 6191.0,
+      "correct_choices": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9941,
+          "probabilities": {
+            "orbit": 0.9941,
+            "ember": 0.0059
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9909,
+          "probabilities": {
+            "otter": 0.9909,
+            "fox": 0.0091
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9794,
+          "probabilities": {
+            "blue": 0.9794,
+            "red": 0.0206
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9671
+        }
+      },
+      "median_head_ms": 650.5,
+      "projected_memory_mib": 127.9,
+      "normalized_cpu_mib": 511.7
+    },
+    {
+      "label": "head_cpu_prepared",
+      "target": 131232,
+      "status": 200,
+      "tokens": 131198,
+      "runs": 3,
+      "median_seconds": 105.17462552897632,
+      "tokens_per_second": 1247.4301604606528,
+      "peak_allocated_mib": 6254.9,
+      "correct_choices": true,
+      "answers": {
+        "early": {
+          "type": "choice",
+          "choice": "orbit",
+          "confidence": 0.9944,
+          "probabilities": {
+            "orbit": 0.9944,
+            "ember": 0.0056
+          }
+        },
+        "middle": {
+          "type": "choice",
+          "choice": "otter",
+          "confidence": 0.9892,
+          "probabilities": {
+            "otter": 0.9892,
+            "fox": 0.0108
+          }
+        },
+        "late": {
+          "type": "choice",
+          "choice": "blue",
+          "confidence": 0.9799,
+          "probabilities": {
+            "blue": 0.9799,
+            "red": 0.0201
+          }
+        },
+        "blue": {
+          "type": "noul",
+          "noul": 0.9663
+        }
+      },
+      "median_head_ms": 1548.1,
+      "projected_memory_mib": 256.2,
+      "normalized_cpu_mib": 1025.0
+    }
+  ],
+  "quality": [
+    {
+      "target": 16384,
+      "repeat": 0,
+      "max_choice_probability_difference": 0.0,
+      "noul_difference": 0.0
+    },
+    {
+      "target": 16384,
+      "repeat": 1,
+      "max_choice_probability_difference": 0.0,
+      "noul_difference": 0.0
+    },
+    {
+      "target": 16384,
+      "repeat": 2,
+      "max_choice_probability_difference": 0.0,
+      "noul_difference": 0.0
+    },
+    {
+      "target": 65536,
+      "repeat": 0,
+      "max_choice_probability_difference": 0.0,
+      "noul_difference": 0.0
+    },
+    {
+      "target": 65536,
+      "repeat": 1,
+      "max_choice_probability_difference": 0.0,
+      "noul_difference": 0.0
+    },
+    {
+      "target": 65536,
+      "repeat": 2,
+      "max_choice_probability_difference": 0.0,
+      "noul_difference": 0.0
+    }
+  ],
+  "numerical_test": "PASS: native choice/noul/score head agreement; cross-chunk spans; unchanged CPU inputs; failure cleanup\nmaximum logit difference 0.000244140625\n",
+  "limitations": [
+    "Synthetic text, one GPU family and Flash only; images/Full/ROCm/concurrency not validated.",
+    "Native-head control uses one observation per length; prepared-head uses three repetitions.",
+    "No native integrated control above 131K fits this card. Small CUDA tests check all typed head operations.",
+    "This is a passing tested length, not the maximum capacity or a broad accuracy guarantee.",
+    "Production discovery and defaults remain unchanged; the isolated fixed ceiling was 140000."
+  ]
+}

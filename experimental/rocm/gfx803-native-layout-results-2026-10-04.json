@@ -1,0 +1,226 @@
+{
+  "completed": true,
+  "shape": [
+    12288,
+    4096
+  ],
+  "source": "Pinned community ROCm image, existing libgfx803gemv_m.so; native N\u00d7K weights, tiles of at most 16 input rows. No persistent FP16 cache.",
+  "rows": [
+    {
+      "tokens": 2,
+      "method": "bnb_nf4",
+      "ms": 0.4069613338894366,
+      "max_abs_error": 3.0517578125e-05,
+      "relative_l2_error": 0.0005102399154566228,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 2,
+      "method": "fp16_rocblas",
+      "ms": 2.2288039999693865,
+      "max_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 2,
+      "method": "native_layout_fp16",
+      "ms": 0.7846803334056555,
+      "max_abs_error": 1.52587890625e-05,
+      "relative_l2_error": 1.5932557289488614e-05,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 2,
+      "method": "native_layout_nf4",
+      "ms": 1.6485220003232826,
+      "max_abs_error": 1.52587890625e-05,
+      "relative_l2_error": 1.5932557289488614e-05,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 8,
+      "method": "bnb_nf4",
+      "ms": 3.091861000333059,
+      "max_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 8,
+      "method": "fp16_rocblas",
+      "ms": 2.214874333124802,
+      "max_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 8,
+      "method": "native_layout_fp16",
+      "ms": 0.9589016663085204,
+      "max_abs_error": 3.0517578125e-05,
+      "relative_l2_error": 2.2002212062943727e-05,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 8,
+      "method": "native_layout_nf4",
+      "ms": 1.8353323333334022,
+      "max_abs_error": 3.0517578125e-05,
+      "relative_l2_error": 2.2002212062943727e-05,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 16,
+      "method": "bnb_nf4",
+      "ms": 2.173867667200587,
+      "max_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 16,
+      "method": "fp16_rocblas",
+      "ms": 1.2935240004784039,
+      "max_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 16,
+      "method": "native_layout_fp16",
+      "ms": 2.1385083333977186,
+      "max_abs_error": 3.0517578125e-05,
+      "relative_l2_error": 2.5081701096496545e-05,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 16,
+      "method": "native_layout_nf4",
+      "ms": 3.007529666623062,
+      "max_abs_error": 3.0517578125e-05,
+      "relative_l2_error": 2.5081701096496545e-05,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 128,
+      "method": "bnb_nf4",
+      "ms": 6.833928333435324,
+      "max_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 128,
+      "method": "fp16_rocblas",
+      "ms": 6.16102599997248,
+      "max_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 128,
+      "method": "native_layout_fp16",
+      "ms": 16.917164999540546,
+      "max_abs_error": 3.0517578125e-05,
+      "relative_l2_error": 2.4303160898853093e-05,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 128,
+      "method": "native_layout_nf4",
+      "ms": 17.793111999708344,
+      "max_abs_error": 3.0517578125e-05,
+      "relative_l2_error": 2.4303160898853093e-05,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 512,
+      "method": "bnb_nf4",
+      "ms": 35.3579550004118,
+      "max_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 512,
+      "method": "fp16_rocblas",
+      "ms": 31.25897033351066,
+      "max_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 512,
+      "method": "native_layout_fp16",
+      "ms": 67.6272326666852,
+      "max_abs_error": 3.0517578125e-05,
+      "relative_l2_error": 2.3647815396543592e-05,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 512,
+      "method": "native_layout_nf4",
+      "ms": 68.46112499988521,
+      "max_abs_error": 3.0517578125e-05,
+      "relative_l2_error": 2.3647815396543592e-05,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 1024,
+      "method": "bnb_nf4",
+      "ms": 40.33607266683248,
+      "max_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 1024,
+      "method": "fp16_rocblas",
+      "ms": 39.55224133339167,
+      "max_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 1024,
+      "method": "native_layout_fp16",
+      "ms": 135.08986233379497,
+      "max_abs_error": 3.0517578125e-05,
+      "relative_l2_error": 2.388609755143989e-05,
+      "finite": true,
+      "passed": true
+    },
+    {
+      "tokens": 1024,
+      "method": "native_layout_nf4",
+      "ms": 136.17991833355822,
+      "max_abs_error": 3.0517578125e-05,
+      "relative_l2_error": 2.388609755143989e-05,
+      "finite": true,
+      "passed": true
+    }
+  ]
+}

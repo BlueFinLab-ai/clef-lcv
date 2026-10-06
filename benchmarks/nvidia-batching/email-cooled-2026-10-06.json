@@ -1,0 +1,3610 @@
+{
+  "date": "2026-10-06",
+  "dataset": {
+    "dataset_id": "clef-email-sample-v1",
+    "schema_version": 1,
+    "kind": "synthetic_adaptation",
+    "sample_count": 100,
+    "category_counts": {
+      "community": 10,
+      "events": 6,
+      "finance": 6,
+      "marketing": 41,
+      "newsletters": 26,
+      "orders": 3,
+      "personal": 4,
+      "recruiting": 1,
+      "security": 2,
+      "service": 1
+    },
+    "body_length_class_counts": {
+      "512": 18,
+      "1024": 26,
+      "2048": 30,
+      "4096": 11,
+      "8192": 15
+    },
+    "reference_labels": "Categories assigned by GPT Sol 6.1 under the frozen category policy; the quality baseline, not independently adjudicated human ground truth.",
+    "sha256": {
+      "dataset.json": "75786bb3e7895d6a7478c184579ffe4a4017749b72354a858a4ec6e4235bf59f",
+      "categories.json": "03ea7bf48b1c25b8f3bde2d413392c11a1e429a3ac5335a7b6340f0fbacedde0",
+      "category-guide.txt": "b4875911a27aceb802dab33ed3625ec98a79545a6119b3502e96c2c6bc99c1d9"
+    }
+  },
+  "commit": "October 5, 2026 runtime (first commit after e47478a)",
+  "methodology": "Each configuration uses a fresh in-process input/prefix cache and the same committed runtime. Persistent compiled GPU kernels are reused. One unrelated email warms the common guide/typed head before measurement. Four full passes: first serial, repeat serial, and two four-client passes. Labels never enter request payloads. Four clients are outstanding HTTP calls; actual GPU batches remain capped at two. Full and Flash use the same physical 400W 3090 sequentially. All original containers are restored.",
+  "completed": true,
+  "configurations": [
+    {
+      "label": "Flash 9B \u00b7 RTX 3070 Ti \u00b7 290W",
+      "profile": "flash",
+      "gpu_index": 1,
+      "first_serial_seconds": 64.64145467686467,
+      "warm_serial_seconds": 63.46990470192395,
+      "warm_c4_seconds": [
+        63.62179442984052,
+        61.590639624977484
+      ],
+      "warm_c4_mean_seconds": 62.606217027409,
+      "warm_c4_emails_per_second": 1.5972854573886808,
+      "warm_concurrency_reduction_percent": 1.3607830019142453,
+      "agreement_by_pass": [
+        96,
+        96,
+        96,
+        96
+      ],
+      "errors": 0,
+      "batch_size_counts_by_pass": [
+        {
+          "1": 100
+        },
+        {
+          "1": 100
+        },
+        {
+          "1": 44,
+          "2": 56
+        },
+        {
+          "1": 46,
+          "2": 54
+        }
+      ],
+      "stability": [
+        {
+          "kind": "warm-serial",
+          "choices_matching_first_serial": 100,
+          "max_probability_delta": 0.0
+        },
+        {
+          "kind": "warm-c4-a",
+          "choices_matching_first_serial": 100,
+          "max_probability_delta": 0.0011999999999999789
+        },
+        {
+          "kind": "warm-c4-b",
+          "choices_matching_first_serial": 100,
+          "max_probability_delta": 0.0011999999999999789
+        }
+      ],
+      "telemetry": {
+        "samples": 188,
+        "peak_temperature_c": 59.0,
+        "peak_memory_mib": 5919.0,
+        "mean_gpu_utilization_percent": 81.37234042553192,
+        "mean_power_w": 241.91739361702128,
+        "peak_power_w": 263.0,
+        "power_limit_w": 290.0,
+        "sw_thermal_samples": 0,
+        "hw_thermal_samples": 0,
+        "hw_power_brake_samples": 0,
+        "active_thermal_samples": 0
+      },
+      "trials": [
+        {
+          "kind": "first-serial",
+          "concurrency": 1,
+          "summary": {
+            "wall_seconds": 64.64145467686467,
+            "successful": 100,
+            "errors": 0,
+            "emails_per_second": 1.54699488895924,
+            "reference_matches": 96,
+            "reference_agreement_percent": 96.0,
+            "client_wall_ms": {
+              "mean": 646.2338099465705,
+              "median": 545.5838195048273,
+              "p95": 1240.643898525741,
+              "min": 437.0754479896277,
+              "max": 1367.9332479368895
+            },
+            "batch_size_counts": {
+              "1": 100
+            },
+            "batch_fallback_counts": {},
+            "prefix_status_counts": {
+              "hit": 100
+            },
+            "confusion_matrix": {
+              "work": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "recruiting": {
+                "work": 0,
+                "recruiting": 1,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "personal": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 4,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "community": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 10,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "finance": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 6,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "orders": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 3,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "security": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 2,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "service": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 1,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "events": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 6,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "newsletters": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 26,
+                "marketing": 0,
+                "other": 0
+              },
+              "marketing": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 4,
+                "marketing": 37,
+                "other": 0
+              },
+              "other": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              }
+            },
+            "mismatches": [
+              {
+                "id": "sample-026",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-065",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-071",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-084",
+                "reference": "marketing",
+                "choice": "newsletters"
+              }
+            ],
+            "latency_ms": {
+              "mean": 603.518,
+              "median": 538.6500000000001,
+              "p95": 1032.3149999999998,
+              "min": 432.0,
+              "max": 1353.3
+            },
+            "queue_wait_ms": {
+              "mean": 0.027000000000000003,
+              "median": 0.0,
+              "p95": 0.1,
+              "min": 0.0,
+              "max": 0.1
+            },
+            "server_total_ms": {
+              "mean": 643.999,
+              "median": 543.55,
+              "p95": 1238.03,
+              "min": 435.1,
+              "max": 1365.5
+            },
+            "preprocessing_ms": {
+              "mean": 3.438,
+              "median": 3.0,
+              "p95": 6.205,
+              "min": 2.0,
+              "max": 8.9
+            },
+            "language_ms": null,
+            "cache_prepare_ms": {
+              "mean": 6.6419999999999995,
+              "median": 3.1,
+              "p95": 5.005,
+              "min": 2.9,
+              "max": 328.2
+            },
+            "reused_prefix_tokens": {
+              "mean": 1536,
+              "median": 1536.0,
+              "p95": 1536.0,
+              "min": 1536,
+              "max": 1536
+            },
+            "input_tokens": {
+              "mean": 2772.83,
+              "median": 2653.0,
+              "p95": 3856.05,
+              "min": 2337,
+              "max": 3862
+            },
+            "peak_allocated_mib": {
+              "mean": 5374.912,
+              "median": 5356.700000000001,
+              "p95": 5523.610000000001,
+              "min": 5321.0,
+              "max": 5524.6
+            }
+          }
+        },
+        {
+          "kind": "warm-serial",
+          "concurrency": 1,
+          "summary": {
+            "wall_seconds": 63.46990470192395,
+            "successful": 100,
+            "errors": 0,
+            "emails_per_second": 1.5755498683924873,
+            "reference_matches": 96,
+            "reference_agreement_percent": 96.0,
+            "client_wall_ms": {
+              "mean": 634.5253034145571,
+              "median": 545.2744836220518,
+              "p95": 1034.1434052796103,
+              "min": 438.2523661479354,
+              "max": 1339.8464289493859
+            },
+            "batch_size_counts": {
+              "1": 100
+            },
+            "batch_fallback_counts": {},
+            "prefix_status_counts": {
+              "hit": 100
+            },
+            "confusion_matrix": {
+              "work": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "recruiting": {
+                "work": 0,
+                "recruiting": 1,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "personal": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 4,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "community": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 10,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "finance": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 6,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "orders": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 3,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "security": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 2,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "service": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 1,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "events": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 6,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "newsletters": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 26,
+                "marketing": 0,
+                "other": 0
+              },
+              "marketing": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 4,
+                "marketing": 37,
+                "other": 0
+              },
+              "other": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              }
+            },
+            "mismatches": [
+              {
+                "id": "sample-026",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-065",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-071",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-084",
+                "reference": "marketing",
+                "choice": "newsletters"
+              }
+            ],
+            "latency_ms": {
+              "mean": 602.575,
+              "median": 521.95,
+              "p95": 1024.22,
+              "min": 433.2,
+              "max": 1332.5
+            },
+            "queue_wait_ms": {
+              "mean": 0.024,
+              "median": 0.0,
+              "p95": 0.1,
+              "min": 0.0,
+              "max": 0.2
+            },
+            "server_total_ms": {
+              "mean": 632.332,
+              "median": 543.2,
+              "p95": 1031.895,
+              "min": 436.2,
+              "max": 1337.4
+            },
+            "preprocessing_ms": {
+              "mean": 1.244,
+              "median": 1.2,
+              "p95": 1.4049999999999996,
+              "min": 1.0,
+              "max": 3.0
+            },
+            "language_ms": null,
+            "cache_prepare_ms": {
+              "mean": 12.612,
+              "median": 3.4,
+              "p95": 5.205,
+              "min": 2.9,
+              "max": 314.7
+            },
+            "reused_prefix_tokens": {
+              "mean": 1536,
+              "median": 1536.0,
+              "p95": 1536.0,
+              "min": 1536,
+              "max": 1536
+            },
+            "input_tokens": {
+              "mean": 2772.83,
+              "median": 2653.0,
+              "p95": 3856.05,
+              "min": 2337,
+              "max": 3862
+            },
+            "peak_allocated_mib": {
+              "mean": 5374.912,
+              "median": 5356.700000000001,
+              "p95": 5523.610000000001,
+              "min": 5321.0,
+              "max": 5524.6
+            }
+          }
+        },
+        {
+          "kind": "warm-c4-a",
+          "concurrency": 4,
+          "summary": {
+            "wall_seconds": 63.62179442984052,
+            "successful": 100,
+            "errors": 0,
+            "emails_per_second": 1.5717884240168023,
+            "reference_matches": 96,
+            "reference_agreement_percent": 96.0,
+            "client_wall_ms": {
+              "mean": 2521.077563969884,
+              "median": 2372.97907541506,
+              "p95": 3737.8304785117502,
+              "min": 450.85565093904734,
+              "max": 4393.9333679154515
+            },
+            "batch_size_counts": {
+              "1": 44,
+              "2": 56
+            },
+            "batch_fallback_counts": {
+              "single_request": 42
+            },
+            "prefix_status_counts": {
+              "hit": 100
+            },
+            "confusion_matrix": {
+              "work": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "recruiting": {
+                "work": 0,
+                "recruiting": 1,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "personal": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 4,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "community": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 10,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "finance": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 6,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "orders": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 3,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "security": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 2,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "service": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 1,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "events": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 6,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "newsletters": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 26,
+                "marketing": 0,
+                "other": 0
+              },
+              "marketing": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 4,
+                "marketing": 37,
+                "other": 0
+              },
+              "other": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              }
+            },
+            "mismatches": [
+              {
+                "id": "sample-026",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-065",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-071",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-084",
+                "reference": "marketing",
+                "choice": "newsletters"
+              }
+            ],
+            "latency_ms": {
+              "mean": 858.764,
+              "median": 969.1,
+              "p95": 1266.72,
+              "min": 432.9,
+              "max": 1332.4
+            },
+            "queue_wait_ms": {
+              "mean": 1445.774,
+              "median": 1260.0,
+              "p95": 2598.365,
+              "min": 0.3,
+              "max": 3112.0
+            },
+            "server_total_ms": {
+              "mean": 2517.854,
+              "median": 2370.95,
+              "p95": 3733.4849999999997,
+              "min": 447.4,
+              "max": 4391.7
+            },
+            "preprocessing_ms": {
+              "mean": 1.344,
+              "median": 1.05,
+              "p95": 2.2,
+              "min": 0.9,
+              "max": 3.4
+            },
+            "language_ms": {
+              "mean": 885.5392857142857,
+              "median": 934.5999999999999,
+              "p95": 938.8,
+              "min": 715.7,
+              "max": 1033.2
+            },
+            "cache_prepare_ms": {
+              "mean": 9.706000000000001,
+              "median": 3.1,
+              "p95": 6.0,
+              "min": 2.8,
+              "max": 312.1
+            },
+            "reused_prefix_tokens": {
+              "mean": 1536,
+              "median": 1536.0,
+              "p95": 1536.0,
+              "min": 1536,
+              "max": 1536
+            },
+            "input_tokens": {
+              "mean": 2772.83,
+              "median": 2653.0,
+              "p95": 3856.05,
+              "min": 2337,
+              "max": 3862
+            },
+            "peak_allocated_mib": {
+              "mean": 5506.675,
+              "median": 5526.35,
+              "p95": 5600.1,
+              "min": 5322.6,
+              "max": 5600.4
+            }
+          }
+        },
+        {
+          "kind": "warm-c4-b",
+          "concurrency": 4,
+          "summary": {
+            "wall_seconds": 61.590639624977484,
+            "successful": 100,
+            "errors": 0,
+            "emails_per_second": 1.623623339664847,
+            "reference_matches": 96,
+            "reference_agreement_percent": 96.0,
+            "client_wall_ms": {
+              "mean": 2443.7954337894917,
+              "median": 2388.7199364835396,
+              "p95": 3431.204673775937,
+              "min": 460.932892980054,
+              "max": 4368.7532490585
+            },
+            "batch_size_counts": {
+              "1": 46,
+              "2": 54
+            },
+            "batch_fallback_counts": {
+              "single_request": 46
+            },
+            "prefix_status_counts": {
+              "hit": 100
+            },
+            "confusion_matrix": {
+              "work": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "recruiting": {
+                "work": 0,
+                "recruiting": 1,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "personal": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 4,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "community": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 10,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "finance": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 6,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "orders": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 3,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "security": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 2,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "service": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 1,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "events": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 6,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "newsletters": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 26,
+                "marketing": 0,
+                "other": 0
+              },
+              "marketing": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 4,
+                "marketing": 37,
+                "other": 0
+              },
+              "other": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              }
+            },
+            "mismatches": [
+              {
+                "id": "sample-026",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-065",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-071",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-084",
+                "reference": "marketing",
+                "choice": "newsletters"
+              }
+            ],
+            "latency_ms": {
+              "mean": 810.146,
+              "median": 803.7,
+              "p95": 1024.7450000000001,
+              "min": 433.1,
+              "max": 1106.5
+            },
+            "queue_wait_ms": {
+              "mean": 1424.473,
+              "median": 1268.9,
+              "p95": 2375.8799999999997,
+              "min": 0.7,
+              "max": 3255.8
+            },
+            "server_total_ms": {
+              "mean": 2440.431,
+              "median": 2385.8999999999996,
+              "p95": 3427.5149999999994,
+              "min": 455.4,
+              "max": 4363.7
+            },
+            "preprocessing_ms": {
+              "mean": 1.295,
+              "median": 1.0,
+              "p95": 2.2,
+              "min": 0.9,
+              "max": 3.5
+            },
+            "language_ms": {
+              "mean": 846.5222222222222,
+              "median": 903.6,
+              "p95": 939.4,
+              "min": 713.6,
+              "max": 940.4
+            },
+            "cache_prepare_ms": {
+              "mean": 3.381,
+              "median": 3.0,
+              "p95": 4.6,
+              "min": 2.9,
+              "max": 6.5
+            },
+            "reused_prefix_tokens": {
+              "mean": 1536,
+              "median": 1536.0,
+              "p95": 1536.0,
+              "min": 1536,
+              "max": 1536
+            },
+            "input_tokens": {
+              "mean": 2772.83,
+              "median": 2653.0,
+              "p95": 3856.05,
+              "min": 2337,
+              "max": 3862
+            },
+            "peak_allocated_mib": {
+              "mean": 5494.566,
+              "median": 5523.8,
+              "p95": 5599.1,
+              "min": 5322.9,
+              "max": 5600.4
+            }
+          }
+        }
+      ],
+      "runtime_options": {
+        "CLEF_LINEAR_PREFILL_BACKEND": "fla",
+        "CLEF_FLA_MAX_CHUNK_TOKENS": "512",
+        "CLEF_REQUIRE_FAST_LINEAR_ATTENTION": "1",
+        "CLEF_ATTENTION_BACKEND": "efficient",
+        "CLEF_IMAGE_PREFILL": "1",
+        "CLEF_PREFILL_INITIAL_CHUNK_TOKENS": "8192",
+        "CLEF_PREFILL_CHUNK_TOKENS": "4096",
+        "CLEF_BATCH_MAX_SIZE": "2",
+        "CLEF_BATCH_PADDED_TOKENS": "6000",
+        "CLEF_BATCH_RECORD_TOKENS": "4096",
+        "CLEF_PREFIX_CACHE": "1",
+        "CLEF_INPUT_CACHE": "1",
+        "CLEF_IMAGE_POOLING": "0",
+        "CLEF_MAX_IMAGE_LENGTH": "auto",
+        "CLEF_ACTIVE_CONTEXT_OFFLOAD": "auto",
+        "CLEF_PREFIX_SHARED_HOST_BLOCKS": "1",
+        "PYTORCH_ALLOC_CONF": "expandable_segments:True"
+      }
+    },
+    {
+      "label": "Flash 9B \u00b7 RTX 3090 \u00b7 400W",
+      "profile": "flash",
+      "gpu_index": 3,
+      "first_serial_seconds": 45.037272033980116,
+      "warm_serial_seconds": 42.37686770502478,
+      "warm_c4_seconds": [
+        40.53213893715292,
+        39.927943360991776
+      ],
+      "warm_c4_mean_seconds": 40.23004114907235,
+      "warm_c4_emails_per_second": 2.485704641202085,
+      "warm_concurrency_reduction_percent": 5.066034070512182,
+      "agreement_by_pass": [
+        96,
+        96,
+        96,
+        96
+      ],
+      "errors": 0,
+      "batch_size_counts_by_pass": [
+        {
+          "1": 100
+        },
+        {
+          "1": 100
+        },
+        {
+          "2": 82,
+          "1": 18
+        },
+        {
+          "1": 18,
+          "2": 82
+        }
+      ],
+      "stability": [
+        {
+          "kind": "warm-serial",
+          "choices_matching_first_serial": 100,
+          "max_probability_delta": 0.0
+        },
+        {
+          "kind": "warm-c4-a",
+          "choices_matching_first_serial": 100,
+          "max_probability_delta": 0.0014999999999999458
+        },
+        {
+          "kind": "warm-c4-b",
+          "choices_matching_first_serial": 100,
+          "max_probability_delta": 0.0014999999999999458
+        }
+      ],
+      "telemetry": {
+        "samples": 125,
+        "peak_temperature_c": 74.0,
+        "peak_memory_mib": 6422.0,
+        "mean_gpu_utilization_percent": 83.288,
+        "mean_power_w": 366.3152,
+        "peak_power_w": 397.14,
+        "power_limit_w": 400.0,
+        "sw_thermal_samples": 0,
+        "hw_thermal_samples": 0,
+        "hw_power_brake_samples": 0,
+        "active_thermal_samples": 0
+      },
+      "trials": [
+        {
+          "kind": "first-serial",
+          "concurrency": 1,
+          "summary": {
+            "wall_seconds": 45.037272033980116,
+            "successful": 100,
+            "errors": 0,
+            "emails_per_second": 2.220383151194218,
+            "reference_matches": 96,
+            "reference_agreement_percent": 96.0,
+            "client_wall_ms": {
+              "mean": 450.1974167418666,
+              "median": 363.1533699808642,
+              "p95": 716.2074559135363,
+              "min": 301.29359592683613,
+              "max": 975.6513140164316
+            },
+            "batch_size_counts": {
+              "1": 100
+            },
+            "batch_fallback_counts": {},
+            "prefix_status_counts": {
+              "hit": 100
+            },
+            "confusion_matrix": {
+              "work": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "recruiting": {
+                "work": 0,
+                "recruiting": 1,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "personal": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 4,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "community": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 10,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "finance": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 6,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "orders": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 3,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "security": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 2,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "service": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 1,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "events": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 6,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "newsletters": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 26,
+                "marketing": 0,
+                "other": 0
+              },
+              "marketing": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 4,
+                "marketing": 37,
+                "other": 0
+              },
+              "other": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              }
+            },
+            "mismatches": [
+              {
+                "id": "sample-026",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-065",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-071",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-084",
+                "reference": "marketing",
+                "choice": "newsletters"
+              }
+            ],
+            "latency_ms": {
+              "mean": 408.469,
+              "median": 355.5,
+              "p95": 663.8449999999999,
+              "min": 296.2,
+              "max": 970.1
+            },
+            "queue_wait_ms": {
+              "mean": 0.046,
+              "median": 0.0,
+              "p95": 0.1,
+              "min": 0.0,
+              "max": 0.1
+            },
+            "server_total_ms": {
+              "mean": 447.983,
+              "median": 361.0,
+              "p95": 714.005,
+              "min": 299.2,
+              "max": 973.3
+            },
+            "preprocessing_ms": {
+              "mean": 3.152,
+              "median": 2.8,
+              "p95": 5.7,
+              "min": 1.9,
+              "max": 6.2
+            },
+            "language_ms": null,
+            "cache_prepare_ms": {
+              "mean": 3.269,
+              "median": 3.1500000000000004,
+              "p95": 3.8199999999999985,
+              "min": 2.9,
+              "max": 5.1
+            },
+            "reused_prefix_tokens": {
+              "mean": 1536,
+              "median": 1536.0,
+              "p95": 1536.0,
+              "min": 1536,
+              "max": 1536
+            },
+            "input_tokens": {
+              "mean": 2772.83,
+              "median": 2653.0,
+              "p95": 3856.05,
+              "min": 2337,
+              "max": 3862
+            },
+            "peak_allocated_mib": {
+              "mean": 5374.912,
+              "median": 5356.700000000001,
+              "p95": 5523.610000000001,
+              "min": 5321.0,
+              "max": 5524.6
+            }
+          }
+        },
+        {
+          "kind": "warm-serial",
+          "concurrency": 1,
+          "summary": {
+            "wall_seconds": 42.37686770502478,
+            "successful": 100,
+            "errors": 0,
+            "emails_per_second": 2.3597779971864847,
+            "reference_matches": 96,
+            "reference_agreement_percent": 96.0,
+            "client_wall_ms": {
+              "mean": 423.59499615384266,
+              "median": 363.4322308935225,
+              "p95": 684.0235621668398,
+              "min": 301.8578910268843,
+              "max": 756.8405249621719
+            },
+            "batch_size_counts": {
+              "1": 100
+            },
+            "batch_fallback_counts": {},
+            "prefix_status_counts": {
+              "hit": 100
+            },
+            "confusion_matrix": {
+              "work": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "recruiting": {
+                "work": 0,
+                "recruiting": 1,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "personal": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 4,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "community": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 10,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "finance": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 6,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "orders": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 3,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "security": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 2,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "service": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 1,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "events": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 6,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "newsletters": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 26,
+                "marketing": 0,
+                "other": 0
+              },
+              "marketing": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 4,
+                "marketing": 37,
+                "other": 0
+              },
+              "other": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              }
+            },
+            "mismatches": [
+              {
+                "id": "sample-026",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-065",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-071",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-084",
+                "reference": "marketing",
+                "choice": "newsletters"
+              }
+            ],
+            "latency_ms": {
+              "mean": 394.191,
+              "median": 341.75,
+              "p95": 663.915,
+              "min": 296.8,
+              "max": 751.6
+            },
+            "queue_wait_ms": {
+              "mean": 0.031000000000000003,
+              "median": 0.0,
+              "p95": 0.1,
+              "min": 0.0,
+              "max": 0.1
+            },
+            "server_total_ms": {
+              "mean": 421.423,
+              "median": 361.45,
+              "p95": 681.885,
+              "min": 299.8,
+              "max": 754.7
+            },
+            "preprocessing_ms": {
+              "mean": 1.227,
+              "median": 1.2,
+              "p95": 1.5049999999999997,
+              "min": 1.1,
+              "max": 2.0
+            },
+            "language_ms": null,
+            "cache_prepare_ms": {
+              "mean": 3.435,
+              "median": 3.4,
+              "p95": 4.6049999999999995,
+              "min": 2.9,
+              "max": 5.8
+            },
+            "reused_prefix_tokens": {
+              "mean": 1536,
+              "median": 1536.0,
+              "p95": 1536.0,
+              "min": 1536,
+              "max": 1536
+            },
+            "input_tokens": {
+              "mean": 2772.83,
+              "median": 2653.0,
+              "p95": 3856.05,
+              "min": 2337,
+              "max": 3862
+            },
+            "peak_allocated_mib": {
+              "mean": 5374.912,
+              "median": 5356.700000000001,
+              "p95": 5523.610000000001,
+              "min": 5321.0,
+              "max": 5524.6
+            }
+          }
+        },
+        {
+          "kind": "warm-c4-a",
+          "concurrency": 4,
+          "summary": {
+            "wall_seconds": 40.53213893715292,
+            "successful": 100,
+            "errors": 0,
+            "emails_per_second": 2.4671779635181585,
+            "reference_matches": 96,
+            "reference_agreement_percent": 96.0,
+            "client_wall_ms": {
+              "mean": 1602.2308891732246,
+              "median": 1544.6111899800599,
+              "p95": 2443.5121353482828,
+              "min": 653.8771199993789,
+              "max": 2755.266074091196
+            },
+            "batch_size_counts": {
+              "2": 82,
+              "1": 18
+            },
+            "batch_fallback_counts": {
+              "single_request": 16
+            },
+            "prefix_status_counts": {
+              "hit": 100
+            },
+            "confusion_matrix": {
+              "work": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "recruiting": {
+                "work": 0,
+                "recruiting": 1,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "personal": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 4,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "community": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 10,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "finance": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 6,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "orders": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 3,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "security": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 2,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "service": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 1,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "events": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 6,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "newsletters": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 26,
+                "marketing": 0,
+                "other": 0
+              },
+              "marketing": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 4,
+                "marketing": 37,
+                "other": 0
+              },
+              "other": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              }
+            },
+            "mismatches": [
+              {
+                "id": "sample-026",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-065",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-071",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-084",
+                "reference": "marketing",
+                "choice": "newsletters"
+              }
+            ],
+            "latency_ms": {
+              "mean": 677.858,
+              "median": 632.3499999999999,
+              "p95": 1249.5,
+              "min": 303.6,
+              "max": 1259.7
+            },
+            "queue_wait_ms": {
+              "mean": 857.319,
+              "median": 810.25,
+              "p95": 1499.8,
+              "min": 0.1,
+              "max": 1804.7
+            },
+            "server_total_ms": {
+              "mean": 1599.202,
+              "median": 1541.1,
+              "p95": 2439.12,
+              "min": 651.4,
+              "max": 2750.1
+            },
+            "preprocessing_ms": {
+              "mean": 1.122,
+              "median": 1.0,
+              "p95": 2.005,
+              "min": 0.9,
+              "max": 2.4
+            },
+            "language_ms": {
+              "mean": 676.6243902439024,
+              "median": 595.3,
+              "p95": 1213.5,
+              "min": 458.2,
+              "max": 1216.6
+            },
+            "cache_prepare_ms": {
+              "mean": 3.297,
+              "median": 3.0,
+              "p95": 4.5299999999999985,
+              "min": 2.9,
+              "max": 5.3
+            },
+            "reused_prefix_tokens": {
+              "mean": 1536,
+              "median": 1536.0,
+              "p95": 1536.0,
+              "min": 1536,
+              "max": 1536
+            },
+            "input_tokens": {
+              "mean": 2772.83,
+              "median": 2653.0,
+              "p95": 3856.05,
+              "min": 2337,
+              "max": 3862
+            },
+            "peak_allocated_mib": {
+              "mean": 5610.845,
+              "median": 5597.75,
+              "p95": 6003.7,
+              "min": 5322.7,
+              "max": 6005.2
+            }
+          }
+        },
+        {
+          "kind": "warm-c4-b",
+          "concurrency": 4,
+          "summary": {
+            "wall_seconds": 39.927943360991776,
+            "successful": 100,
+            "errors": 0,
+            "emails_per_second": 2.5045116673276127,
+            "reference_matches": 96,
+            "reference_agreement_percent": 96.0,
+            "client_wall_ms": {
+              "mean": 1581.1421328410506,
+              "median": 1511.0604639630765,
+              "p95": 2091.3775480818003,
+              "min": 386.8567708414048,
+              "max": 2761.88045181334
+            },
+            "batch_size_counts": {
+              "1": 18,
+              "2": 82
+            },
+            "batch_fallback_counts": {
+              "single_request": 16
+            },
+            "prefix_status_counts": {
+              "hit": 100
+            },
+            "confusion_matrix": {
+              "work": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "recruiting": {
+                "work": 0,
+                "recruiting": 1,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "personal": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 4,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "community": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 10,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "finance": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 6,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "orders": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 3,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "security": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 2,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "service": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 1,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "events": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 6,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "newsletters": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 26,
+                "marketing": 0,
+                "other": 0
+              },
+              "marketing": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 4,
+                "marketing": 37,
+                "other": 0
+              },
+              "other": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              }
+            },
+            "mismatches": [
+              {
+                "id": "sample-026",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-065",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-071",
+                "reference": "marketing",
+                "choice": "newsletters"
+              },
+              {
+                "id": "sample-084",
+                "reference": "marketing",
+                "choice": "newsletters"
+              }
+            ],
+            "latency_ms": {
+              "mean": 672.121,
+              "median": 631.95,
+              "p95": 1250.5,
+              "min": 301.9,
+              "max": 1254.2
+            },
+            "queue_wait_ms": {
+              "mean": 852.238,
+              "median": 833.25,
+              "p95": 1405.37,
+              "min": 0.1,
+              "max": 1505.6
+            },
+            "server_total_ms": {
+              "mean": 1578.233,
+              "median": 1508.0,
+              "p95": 2088.085,
+              "min": 382.8,
+              "max": 2757.0
+            },
+            "preprocessing_ms": {
+              "mean": 1.1300000000000001,
+              "median": 1.0,
+              "p95": 2.0,
+              "min": 0.9,
+              "max": 3.2
+            },
+            "language_ms": {
+              "mean": 677.3780487804878,
+              "median": 595.5,
+              "p95": 1213.9,
+              "min": 459.0,
+              "max": 1217.5
+            },
+            "cache_prepare_ms": {
+              "mean": 3.246,
+              "median": 3.0,
+              "p95": 4.019999999999999,
+              "min": 2.9,
+              "max": 5.1
+            },
+            "reused_prefix_tokens": {
+              "mean": 1536,
+              "median": 1536.0,
+              "p95": 1536.0,
+              "min": 1536,
+              "max": 1536
+            },
+            "input_tokens": {
+              "mean": 2772.83,
+              "median": 2653.0,
+              "p95": 3856.05,
+              "min": 2337,
+              "max": 3862
+            },
+            "peak_allocated_mib": {
+              "mean": 5610.773,
+              "median": 5597.9,
+              "p95": 6003.7,
+              "min": 5322.7,
+              "max": 6005.2
+            }
+          }
+        }
+      ],
+      "runtime_options": {
+        "CLEF_LINEAR_PREFILL_BACKEND": "fla",
+        "CLEF_FLA_MAX_CHUNK_TOKENS": "512",
+        "CLEF_REQUIRE_FAST_LINEAR_ATTENTION": "1",
+        "CLEF_ATTENTION_BACKEND": "efficient",
+        "CLEF_IMAGE_PREFILL": "1",
+        "CLEF_PREFILL_INITIAL_CHUNK_TOKENS": "8192",
+        "CLEF_PREFILL_CHUNK_TOKENS": "4096",
+        "CLEF_BATCH_MAX_SIZE": "2",
+        "CLEF_BATCH_PADDED_TOKENS": "12000",
+        "CLEF_BATCH_RECORD_TOKENS": "4096",
+        "CLEF_PREFIX_CACHE": "1",
+        "CLEF_INPUT_CACHE": "1",
+        "CLEF_IMAGE_POOLING": "0",
+        "CLEF_MAX_IMAGE_LENGTH": "auto",
+        "CLEF_ACTIVE_CONTEXT_OFFLOAD": "auto",
+        "CLEF_PREFIX_SHARED_HOST_BLOCKS": "1",
+        "PYTORCH_ALLOC_CONF": "expandable_segments:True"
+      }
+    },
+    {
+      "label": "Full 27B \u00b7 RTX 3090 \u00b7 400W",
+      "profile": "full",
+      "gpu_index": 3,
+      "first_serial_seconds": 126.43602671404369,
+      "warm_serial_seconds": 123.4679179568775,
+      "warm_c4_seconds": [
+        119.20637208898552,
+        119.11036712001078
+      ],
+      "warm_c4_mean_seconds": 119.15836960449815,
+      "warm_c4_emails_per_second": 0.8392192703870721,
+      "warm_concurrency_reduction_percent": 3.490419554887536,
+      "agreement_by_pass": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "errors": 0,
+      "batch_size_counts_by_pass": [
+        {
+          "1": 100
+        },
+        {
+          "1": 100
+        },
+        {
+          "2": 54,
+          "1": 46
+        },
+        {
+          "2": 54,
+          "1": 46
+        }
+      ],
+      "stability": [
+        {
+          "kind": "warm-serial",
+          "choices_matching_first_serial": 100,
+          "max_probability_delta": 0.0
+        },
+        {
+          "kind": "warm-c4-a",
+          "choices_matching_first_serial": 100,
+          "max_probability_delta": 0.00770000000000004
+        },
+        {
+          "kind": "warm-c4-b",
+          "choices_matching_first_serial": 100,
+          "max_probability_delta": 0.00770000000000004
+        }
+      ],
+      "telemetry": {
+        "samples": 362,
+        "peak_temperature_c": 75.0,
+        "peak_memory_mib": 18942.0,
+        "mean_gpu_utilization_percent": 92.2513812154696,
+        "mean_power_w": 385.36259668508285,
+        "peak_power_w": 399.78,
+        "power_limit_w": 400.0,
+        "sw_thermal_samples": 1,
+        "hw_thermal_samples": 0,
+        "hw_power_brake_samples": 0,
+        "active_thermal_samples": 0
+      },
+      "trials": [
+        {
+          "kind": "first-serial",
+          "concurrency": 1,
+          "summary": {
+            "wall_seconds": 126.43602671404369,
+            "successful": 100,
+            "errors": 0,
+            "emails_per_second": 0.7909138130872049,
+            "reference_matches": 100,
+            "reference_agreement_percent": 100.0,
+            "client_wall_ms": {
+              "mean": 1264.1746826004237,
+              "median": 1115.3977314243093,
+              "p95": 2118.241933407262,
+              "min": 875.3903359174728,
+              "max": 2413.193219108507
+            },
+            "batch_size_counts": {
+              "1": 100
+            },
+            "batch_fallback_counts": {},
+            "prefix_status_counts": {
+              "hit": 100
+            },
+            "confusion_matrix": {
+              "work": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "recruiting": {
+                "work": 0,
+                "recruiting": 1,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "personal": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 4,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "community": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 10,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "finance": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 6,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "orders": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 3,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "security": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 2,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "service": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 1,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "events": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 6,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "newsletters": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 26,
+                "marketing": 0,
+                "other": 0
+              },
+              "marketing": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 41,
+                "other": 0
+              },
+              "other": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              }
+            },
+            "mismatches": [],
+            "latency_ms": {
+              "mean": 1209.217,
+              "median": 1102.5,
+              "p95": 2104.65,
+              "min": 869.8,
+              "max": 2407.0
+            },
+            "queue_wait_ms": {
+              "mean": 0.043000000000000003,
+              "median": 0.0,
+              "p95": 0.1,
+              "min": 0.0,
+              "max": 0.1
+            },
+            "server_total_ms": {
+              "mean": 1261.835,
+              "median": 1113.1,
+              "p95": 2116.045,
+              "min": 873.4,
+              "max": 2410.9
+            },
+            "preprocessing_ms": {
+              "mean": 3.375,
+              "median": 2.9,
+              "p95": 6.114999999999998,
+              "min": 1.8,
+              "max": 9.9
+            },
+            "language_ms": null,
+            "cache_prepare_ms": {
+              "mean": 7.503,
+              "median": 4.2,
+              "p95": 6.119999999999998,
+              "min": 4.0,
+              "max": 304.3
+            },
+            "reused_prefix_tokens": {
+              "mean": 1536,
+              "median": 1536.0,
+              "p95": 1536.0,
+              "min": 1536,
+              "max": 1536
+            },
+            "input_tokens": {
+              "mean": 2772.83,
+              "median": 2653.0,
+              "p95": 3856.05,
+              "min": 2337,
+              "max": 3862
+            },
+            "peak_allocated_mib": {
+              "mean": 18077.686999999998,
+              "median": 18053.050000000003,
+              "p95": 18286.515,
+              "min": 17998.9,
+              "max": 18288.0
+            }
+          }
+        },
+        {
+          "kind": "warm-serial",
+          "concurrency": 1,
+          "summary": {
+            "wall_seconds": 123.4679179568775,
+            "successful": 100,
+            "errors": 0,
+            "emails_per_second": 0.8099269968650972,
+            "reference_matches": 100,
+            "reference_agreement_percent": 100.0,
+            "client_wall_ms": {
+              "mean": 1234.5021690265276,
+              "median": 1104.9411509884521,
+              "p95": 2098.236348212231,
+              "min": 875.2618520520627,
+              "max": 2102.5682000909
+            },
+            "batch_size_counts": {
+              "1": 100
+            },
+            "batch_fallback_counts": {},
+            "prefix_status_counts": {
+              "hit": 100
+            },
+            "confusion_matrix": {
+              "work": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "recruiting": {
+                "work": 0,
+                "recruiting": 1,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "personal": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 4,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "community": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 10,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "finance": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 6,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "orders": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 3,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "security": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 2,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "service": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 1,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "events": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 6,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "newsletters": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 26,
+                "marketing": 0,
+                "other": 0
+              },
+              "marketing": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 41,
+                "other": 0
+              },
+              "other": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              }
+            },
+            "mismatches": [],
+            "latency_ms": {
+              "mean": 1194.218,
+              "median": 1097.75,
+              "p95": 2091.55,
+              "min": 869.6,
+              "max": 2096.8
+            },
+            "queue_wait_ms": {
+              "mean": 0.027000000000000003,
+              "median": 0.0,
+              "p95": 0.1,
+              "min": 0.0,
+              "max": 0.1
+            },
+            "server_total_ms": {
+              "mean": 1232.371,
+              "median": 1102.85,
+              "p95": 2095.915,
+              "min": 873.2,
+              "max": 2100.5
+            },
+            "preprocessing_ms": {
+              "mean": 1.161,
+              "median": 1.15,
+              "p95": 1.2049999999999996,
+              "min": 1.1,
+              "max": 1.6
+            },
+            "language_ms": null,
+            "cache_prepare_ms": {
+              "mean": 4.294,
+              "median": 4.1,
+              "p95": 5.1049999999999995,
+              "min": 4.0,
+              "max": 6.3
+            },
+            "reused_prefix_tokens": {
+              "mean": 1536,
+              "median": 1536.0,
+              "p95": 1536.0,
+              "min": 1536,
+              "max": 1536
+            },
+            "input_tokens": {
+              "mean": 2772.83,
+              "median": 2653.0,
+              "p95": 3856.05,
+              "min": 2337,
+              "max": 3862
+            },
+            "peak_allocated_mib": {
+              "mean": 18077.686999999998,
+              "median": 18053.050000000003,
+              "p95": 18286.515,
+              "min": 17998.9,
+              "max": 18288.0
+            }
+          }
+        },
+        {
+          "kind": "warm-c4-a",
+          "concurrency": 4,
+          "summary": {
+            "wall_seconds": 119.20637208898552,
+            "successful": 100,
+            "errors": 0,
+            "emails_per_second": 0.8388813303147227,
+            "reference_matches": 100,
+            "reference_agreement_percent": 100.0,
+            "client_wall_ms": {
+              "mean": 4728.269634211902,
+              "median": 4870.908354991116,
+              "p95": 6605.0220634788275,
+              "min": 1975.1338970381767,
+              "max": 7978.79227809608
+            },
+            "batch_size_counts": {
+              "2": 54,
+              "1": 46
+            },
+            "batch_fallback_counts": {
+              "single_request": 46
+            },
+            "prefix_status_counts": {
+              "hit": 100
+            },
+            "confusion_matrix": {
+              "work": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "recruiting": {
+                "work": 0,
+                "recruiting": 1,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "personal": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 4,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "community": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 10,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "finance": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 6,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "orders": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 3,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "security": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 2,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "service": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 1,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "events": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 6,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "newsletters": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 26,
+                "marketing": 0,
+                "other": 0
+              },
+              "marketing": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 41,
+                "other": 0
+              },
+              "other": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              }
+            },
+            "mismatches": [],
+            "latency_ms": {
+              "mean": 1649.202,
+              "median": 1674.6,
+              "p95": 2094.005,
+              "min": 870.0,
+              "max": 2101.6
+            },
+            "queue_wait_ms": {
+              "mean": 2718.252,
+              "median": 2459.6000000000004,
+              "p95": 4478.714999999999,
+              "min": 0.3,
+              "max": 6296.4
+            },
+            "server_total_ms": {
+              "mean": 4724.6,
+              "median": 4867.200000000001,
+              "p95": 6600.7,
+              "min": 1971.2,
+              "max": 7974.9
+            },
+            "preprocessing_ms": {
+              "mean": 1.328,
+              "median": 1.0,
+              "p95": 2.2099999999999995,
+              "min": 0.9,
+              "max": 3.1
+            },
+            "language_ms": {
+              "mean": 1790.5666666666666,
+              "median": 1936.9,
+              "p95": 1952.6,
+              "min": 1534.0,
+              "max": 1952.8
+            },
+            "cache_prepare_ms": {
+              "mean": 4.77,
+              "median": 4.5,
+              "p95": 6.41,
+              "min": 4.1,
+              "max": 11.2
+            },
+            "reused_prefix_tokens": {
+              "mean": 1536,
+              "median": 1536.0,
+              "p95": 1536.0,
+              "min": 1536,
+              "max": 1536
+            },
+            "input_tokens": {
+              "mean": 2772.83,
+              "median": 2653.0,
+              "p95": 3856.05,
+              "min": 2337,
+              "max": 3862
+            },
+            "peak_allocated_mib": {
+              "mean": 18283.441,
+              "median": 18346.85,
+              "p95": 18459.2,
+              "min": 18001.8,
+              "max": 18461.1
+            }
+          }
+        },
+        {
+          "kind": "warm-c4-b",
+          "concurrency": 4,
+          "summary": {
+            "wall_seconds": 119.11036712001078,
+            "successful": 100,
+            "errors": 0,
+            "emails_per_second": 0.8395574828448312,
+            "reference_matches": 100,
+            "reference_agreement_percent": 100.0,
+            "client_wall_ms": {
+              "mean": 4724.444718349259,
+              "median": 4812.16809747275,
+              "p95": 6699.885004910175,
+              "min": 1973.6197730526328,
+              "max": 8002.188659040257
+            },
+            "batch_size_counts": {
+              "2": 54,
+              "1": 46
+            },
+            "batch_fallback_counts": {
+              "single_request": 46
+            },
+            "prefix_status_counts": {
+              "hit": 100
+            },
+            "confusion_matrix": {
+              "work": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "recruiting": {
+                "work": 0,
+                "recruiting": 1,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "personal": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 4,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "community": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 10,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "finance": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 6,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "orders": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 3,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "security": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 2,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "service": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 1,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "events": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 6,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              },
+              "newsletters": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 26,
+                "marketing": 0,
+                "other": 0
+              },
+              "marketing": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 41,
+                "other": 0
+              },
+              "other": {
+                "work": 0,
+                "recruiting": 0,
+                "personal": 0,
+                "community": 0,
+                "finance": 0,
+                "orders": 0,
+                "security": 0,
+                "service": 0,
+                "events": 0,
+                "newsletters": 0,
+                "marketing": 0,
+                "other": 0
+              }
+            },
+            "mismatches": [],
+            "latency_ms": {
+              "mean": 1656.388,
+              "median": 1675.1,
+              "p95": 2094.035,
+              "min": 871.9,
+              "max": 2103.6
+            },
+            "queue_wait_ms": {
+              "mean": 2693.112,
+              "median": 2375.1499999999996,
+              "p95": 4322.955,
+              "min": 0.2,
+              "max": 6327.8
+            },
+            "server_total_ms": {
+              "mean": 4720.665,
+              "median": 4808.65,
+              "p95": 6697.15,
+              "min": 1969.6,
+              "max": 7996.6
+            },
+            "preprocessing_ms": {
+              "mean": 1.368,
+              "median": 1.2,
+              "p95": 2.105,
+              "min": 0.9,
+              "max": 3.9
+            },
+            "language_ms": {
+              "mean": 1790.7148148148149,
+              "median": 1935.4,
+              "p95": 1952.1,
+              "min": 1535.5,
+              "max": 1952.8
+            },
+            "cache_prepare_ms": {
+              "mean": 4.861,
+              "median": 4.6,
+              "p95": 6.7,
+              "min": 4.1,
+              "max": 7.3
+            },
+            "reused_prefix_tokens": {
+              "mean": 1536,
+              "median": 1536.0,
+              "p95": 1536.0,
+              "min": 1536,
+              "max": 1536
+            },
+            "input_tokens": {
+              "mean": 2772.83,
+              "median": 2653.0,
+              "p95": 3856.05,
+              "min": 2337,
+              "max": 3862
+            },
+            "peak_allocated_mib": {
+              "mean": 18283.441,
+              "median": 18346.85,
+              "p95": 18459.2,
+              "min": 18001.8,
+              "max": 18461.1
+            }
+          }
+        }
+      ],
+      "runtime_options": {
+        "CLEF_LINEAR_PREFILL_BACKEND": "fla",
+        "CLEF_FLA_MAX_CHUNK_TOKENS": "512",
+        "CLEF_REQUIRE_FAST_LINEAR_ATTENTION": "1",
+        "CLEF_ATTENTION_BACKEND": "efficient",
+        "CLEF_IMAGE_PREFILL": "1",
+        "CLEF_PREFILL_INITIAL_CHUNK_TOKENS": "8192",
+        "CLEF_PREFILL_CHUNK_TOKENS": "4096",
+        "CLEF_BATCH_MAX_SIZE": "2",
+        "CLEF_BATCH_PADDED_TOKENS": "6000",
+        "CLEF_BATCH_RECORD_TOKENS": "4096",
+        "CLEF_PREFIX_CACHE": "1",
+        "CLEF_INPUT_CACHE": "1",
+        "CLEF_IMAGE_POOLING": "0",
+        "CLEF_MAX_IMAGE_LENGTH": "auto",
+        "CLEF_ACTIVE_CONTEXT_OFFLOAD": "auto",
+        "CLEF_PREFIX_SHARED_HOST_BLOCKS": "1",
+        "PYTORCH_ALLOC_CONF": "expandable_segments:True"
+      }
+    }
+  ],
+  "total_requests": 1200,
+  "comparison": {
+    "flash_3090_vs_3070_c4_speedup": 1.5562056423313555,
+    "flash_vs_full_3090_c4_speedup": 2.961925123639745
+  },
+  "cooling_comparison": [
+    {
+      "label": "Flash 9B \u00b7 RTX 3070 Ti \u00b7 290W",
+      "before_seconds": 63.453578578075394,
+      "after_seconds": 62.606217027409,
+      "time_reduction_percent": 1.3354038805294066,
+      "before_peak_temperature_c": 79.0,
+      "after_peak_temperature_c": 59.0,
+      "before_active_thermal_samples": 0,
+      "after_active_thermal_samples": 0
+    },
+    {
+      "label": "Flash 9B \u00b7 RTX 3090 \u00b7 400W",
+      "before_seconds": 41.55877324414905,
+      "after_seconds": 40.23004114907235,
+      "time_reduction_percent": 3.1972360860381577,
+      "before_peak_temperature_c": 75.0,
+      "after_peak_temperature_c": 74.0,
+      "before_active_thermal_samples": 0,
+      "after_active_thermal_samples": 0
+    },
+    {
+      "label": "Full 27B \u00b7 RTX 3090 \u00b7 400W",
+      "before_seconds": 119.3135564494878,
+      "after_seconds": 119.15836960449815,
+      "time_reduction_percent": 0.13006639782409124,
+      "before_peak_temperature_c": 76.0,
+      "after_peak_temperature_c": 75.0,
+      "before_active_thermal_samples": 0,
+      "after_active_thermal_samples": 0
+    }
+  ]
+}

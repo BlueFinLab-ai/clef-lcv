@@ -1,0 +1,170 @@
+{
+  "format_version": 1,
+  "python_ext_suffix": ".cpython-311-x86_64-linux-gnu.so",
+  "platform": "x86_64",
+  "triton_version": "3.6.0",
+  "torch_version": "2.11.0+cu128",
+  "fla_version": "0.5.2",
+  "scope": "Host driver/launch helpers only, independent of GPU SM; GPU Triton JIT is retained.",
+  "modules": [
+    {
+      "key": "ffdad69299da12e814e07c1c03ea6c7a3d71d4c0aae4498772a4e9440c16bedc",
+      "name": "cuda_utils",
+      "file": "modules/ffdad69299da12e814e07c1c03ea6c7a3d71d4c0aae4498772a4e9440c16bedc/cuda_utils.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "46462dc2c407ccdc1322359cfa1a28a997993cd724b9519eadfb2cbceaeb86c8",
+      "source_sha256": "439c1e886fa9eac7346d7523d03ba0a4c52aa4c9b518ea86d8659b5c07eb7dc9"
+    },
+    {
+      "key": "a4a447cb679ffae271d1152bd6d47f544b3cd05e6c4fc8e70593768b2a669638",
+      "name": "__triton_launcher",
+      "file": "modules/a4a447cb679ffae271d1152bd6d47f544b3cd05e6c4fc8e70593768b2a669638/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "9697027ae931e64017412deae279dcc4fc7804d57362e24538a2e30124a1ff42",
+      "source_sha256": "1deb874d4ae18691ca936e5cd77b42e02ee9dee5d3cf1d447ad917c173650e97"
+    },
+    {
+      "key": "685f16bd5481eb5c5ec58bba58e6ee7f1d1cdbe280ecf6554346c5d972edcca8",
+      "name": "__triton_launcher",
+      "file": "modules/685f16bd5481eb5c5ec58bba58e6ee7f1d1cdbe280ecf6554346c5d972edcca8/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "402dbf73e8ff166bd54096db9759ac35e67d6812184be7254744d4b6f67eda61",
+      "source_sha256": "d1305f394680eb46eff86782f671b3ce3c874d5034228156a9639b5325773be6"
+    },
+    {
+      "key": "95502c2f0cdea39b7b885c4127ffff9f8e10e1761a6346b0e50de2e444d43f72",
+      "name": "__triton_launcher",
+      "file": "SVICYLYM32RZW64ILRASP777T6HBBYLWDJRUNMHFBXROIRGUH5ZA/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "30f8fe7f24888bb2da5e3fa98dd5ff152ed1f44a18ea2026bf57d01a4f162fcf"
+    },
+    {
+      "key": "3db8b59e81ff134c9c60738990452897d3fc20cbfd5a1f62d7f9498a12d198a8",
+      "name": "__triton_launcher",
+      "file": "modules/3db8b59e81ff134c9c60738990452897d3fc20cbfd5a1f62d7f9498a12d198a8/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "d895bffff0ccabd2421f36d23771d28bfa390f360bb1116a7c9b6386678b93c9",
+      "source_sha256": "693cf7a5bd557cd21ff09e739d97c60f5308e467b5f7d5e54127d5258356e4ef"
+    },
+    {
+      "key": "f79c032c40ddfb12adef52bde2b134c93f7b56e3b638b377acc1577161ad3cb7",
+      "name": "__triton_launcher",
+      "file": "66OAGLCA3X5RFLPPKK66FMJUZE7XWVXDWY4LG55MYFLXCYNNHS3Q/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "a14eb0dd6c6e0c6a57a1e549b9a2edfc87ee316ab1ba58b9e09b885724eb2ca1"
+    },
+    {
+      "key": "1d26977c3c1dbb35b7be6cac18df4019244569bb2ebfa305dfde4010d9bd99dd",
+      "name": "__triton_launcher",
+      "file": "modules/1d26977c3c1dbb35b7be6cac18df4019244569bb2ebfa305dfde4010d9bd99dd/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "f9a6652bb64c93e08081d0daf7d5cbe65fb30acd49d11145d9d7587a8297f5af",
+      "source_sha256": "e12d084511211745a4bcebd8ee6b2e350d885f4bf85a259d035117fdbcfe0fe8"
+    },
+    {
+      "key": "71cddfbf596da3636d9b23f4a3bb54a239668127fc74acea2c01e460c44a7fca",
+      "name": "__triton_launcher",
+      "file": "OHG57P2ZNWRWG3M3EP2KHO2UUI4WNAJH7R2KZ2RMAHSGBRCKP7FA/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "5ef5d02eedc46420b26e360c9f4ab9437926f91466d94ba47f67297fc42d47dd"
+    },
+    {
+      "key": "a274681ed44d610c58a02c403697d4e694d407ea02427fc78c25c2a92b7d762b",
+      "name": "__triton_launcher",
+      "file": "modules/a274681ed44d610c58a02c403697d4e694d407ea02427fc78c25c2a92b7d762b/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "df3880819cf5a6e42f3dfaf51870b1b13bc6a46e18f5f9c042078f29ea70e723",
+      "source_sha256": "cb692064f19c9d6397b9e2936dae4df6cc4e1a6a6ffe572891e4050cb2d4de54"
+    },
+    {
+      "key": "96191b88694cc0d15d7940666fe5fc6c70fa120a539e7e35359bd3d239a3ca69",
+      "name": "__triton_launcher",
+      "file": "SYMRXCDJJTANCXLZIBTG7ZP4NRYPUEQKKOPH4NJVTPJ5EONDZJUQ/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "94a4324a2e6f7479aeecafdfb076e083e11b96b2171516f67021d6ea9a923092"
+    },
+    {
+      "key": "56d38c073d3725afc52ac14aba28e7087c3aac9e35dee8baff8907f7d5e74203",
+      "name": "__triton_launcher",
+      "file": "K3JYYBZ5G4S27RJKYFFLUKHHBB6DVLE6GXPOROX7RED7PVPHIIBQ/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "1b96eea70ba993f1ff456b4c2f7348e454e83cf8ba3e37bc1d2f795804001da6"
+    },
+    {
+      "key": "27427e32c8ac0b0952029382a1998aba01f5074c6eb69c2545e9a7e2fbc53f3a",
+      "name": "__triton_launcher",
+      "file": "E5BH4MWIVQFQSUQCSOBKDGMKXIA7KB2MN23JYJKF5GT6F66FH45A/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "ec39b45115e06ac3eb0bd18de7538dfe2b7254570cb058929114fd3c953db8a3"
+    },
+    {
+      "key": "bd3a39e80ee847d010e4c196f7f571194e7150899f1661d561e4a77a1aa6395e",
+      "name": "cuda_utils",
+      "file": "XU5DT2AO5BD5AEHEYGLPP5LRDFHHCUEJT4LGDVLB4STXUGVGHFPA/cuda_utils.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "d8876188ac656eabafdb845195f6f47920ec3025bf49e49dc5cd121fc1a1db25"
+    },
+    {
+      "key": "6768bccd6af764075df10ca7e069e15274fd0fa093625722421b0af6f4c9e27c",
+      "name": "__triton_launcher",
+      "file": "modules/6768bccd6af764075df10ca7e069e15274fd0fa093625722421b0af6f4c9e27c/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "86a581113365d3dcd89e301d043eac27b55c3b3b914a896eee9acc2c5fafddc3",
+      "source_sha256": "8b6fb705479997a1f27bb589c1f77ce16b448b9c404684e480515f8e7e7ff01c"
+    },
+    {
+      "key": "faef66e6f4586cdce1160a8a0222fd1b588be65507058ebca515f30274e2200d",
+      "name": "__triton_launcher",
+      "file": "modules/faef66e6f4586cdce1160a8a0222fd1b588be65507058ebca515f30274e2200d/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "8144c56276ac1bf8c068f4c1807fa3168a6dc6813ec8cb1efaaa6872030f665a",
+      "source_sha256": "5dd9948faf1f1c166079231d67efb5708d43cf11cc973ac01e2ca23b8cdf5004"
+    },
+    {
+      "key": "74359ffb7c0f49e69740dc8466d6efa3407ba75281367a4f4ee657a1c6311805",
+      "name": "__triton_launcher",
+      "file": "modules/74359ffb7c0f49e69740dc8466d6efa3407ba75281367a4f4ee657a1c6311805/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "64b1310e27743bfb15eb4d05a36d639248fdf78059200d1265f09871c50844de",
+      "source_sha256": "877b17270a81e92a9c2a04d76b52c54b989dfaeebe157b1824c8393821baad92"
+    },
+    {
+      "key": "9fe98ab63a64994d4d84fde2715ec64c263b8d2c1f5da69989112516d53b3605",
+      "name": "__triton_launcher",
+      "file": "T7UYVNR2MSMU2TME7XRHCXWGJQTDXDJMD5O2NGMJCESRNVJ3GYCQ/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "4cd56bd37673430f11a9c3c5b4529c87caddfe3afc725916c2256175f02e32a9"
+    },
+    {
+      "key": "a67b6ffed10df93e6bd726c0be88c9644574f27da2aa0b757628e0766d14f45a",
+      "name": "__triton_launcher",
+      "file": "UZ5W77WRBX4T426XE3AL5CGJMRCXJ4T5UKVAW5LWFDQHM3IU6RNA/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "693f62aba3f0f11318caffb14bd110ca36a6a35f52afd0027a2ae8c14ceac8be"
+    },
+    {
+      "key": "65610bbe97da3ed288fead6c962ddb328c5c05e6798d107d2907b286ea688321",
+      "name": "__triton_launcher",
+      "file": "modules/65610bbe97da3ed288fead6c962ddb328c5c05e6798d107d2907b286ea688321/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "dcb20ec958026ab5d0179af116665dd98574b0d6a465504a1bb4e5f0d84448e5",
+      "source_sha256": "12451941159e8dfdafbf2ff6805ccc401421726cf6b39cd2ad0c598425d5b904"
+    },
+    {
+      "key": "d75d84ed2fcee46671a4847cdfd019cb6b3133cfb2180c2877120f990033ccd6",
+      "name": "__triton_launcher",
+      "file": "modules/d75d84ed2fcee46671a4847cdfd019cb6b3133cfb2180c2877120f990033ccd6/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "0c68caa09cf211aae7e2b13ae465d00273304599b9488ceb98a0fbd75dc5f64e",
+      "source_sha256": "53e2ae7eaaddc39f6f9be61543c8e859ac21793d9bb3669abcf55be6eba7995b"
+    },
+    {
+      "key": "e8074c59278c4eaaa0c4f89978417ff85d3ad71947978b87ae7d97e8feb5e167",
+      "name": "__triton_launcher",
+      "file": "modules/e8074c59278c4eaaa0c4f89978417ff85d3ad71947978b87ae7d97e8feb5e167/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "e1ae5dc151077f8d12c79f59cc924c48bf731d920bd6e4b7af3c7f4e33e0466c",
+      "source_sha256": "bd554291bf3104f47ac6f6255541c23e69350f62b5ddacdfd1adfb5506836f9a"
+    },
+    {
+      "key": "3e4a7d6992fd190caba2839f34f3f81c796ef1e4e11d57f5afde032067748400",
+      "name": "__triton_launcher",
+      "file": "modules/3e4a7d6992fd190caba2839f34f3f81c796ef1e4e11d57f5afde032067748400/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "0a739dbe0187b6d47ef85bcbfe72528132f1054011a3d9724ce6709432294208",
+      "source_sha256": "0341e54dc1f577e59721462810f4ab680296c77faf52135aef28548137e9f27c"
+    },
+    {
+      "key": "74381a0a2656d092539a1845a96cae457b639e809bd5291d4e9603c3adcd7f41",
+      "name": "__triton_launcher",
+      "file": "modules/74381a0a2656d092539a1845a96cae457b639e809bd5291d4e9603c3adcd7f41/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "cea1c354a6b6d3978d612996e86c9e6414d456ac40fe56caa18199c8daa033eb",
+      "source_sha256": "1438f88553b435e572174bc384b1d46da3b872edc24c567506d0bcef1d6e1f9e"
+    },
+    {
+      "key": "6935ee41c08dc298e9da9fc48b1d114a184406b9fcc625ae3eb6d7d247fa7a49",
+      "name": "__triton_launcher",
+      "file": "modules/6935ee41c08dc298e9da9fc48b1d114a184406b9fcc625ae3eb6d7d247fa7a49/__triton_launcher.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "72f58f200ed8209d1e48336ddeaf84e130acaebc3e3f1cdad436263eec44f9d0",
+      "source_sha256": "b0384a8cbe085a04e89c722e7b27d387c23a241e083c9f72530d73e87e7686e6"
+    }
+  ]
+}

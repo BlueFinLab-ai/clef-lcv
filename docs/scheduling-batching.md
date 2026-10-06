@@ -109,3 +109,14 @@ cancellation, wait deadlines and bounded wire-payload admission; it preprocesses
 one request at a time rather than holding multiple decoded image batches.
 The source email dataset and private benchmark inputs remain outside the saved
 project and are not included in its source archive.
+
+
+## Production integration, October 5
+
+[Opportunistic CUDA queue batching](runtime-optimizations.md#opportunistic-cuda-text-batching)
+now implements the backlog-only text path with no collection timer, bounded
+padding/memory admission and independent hybrid state. The default cap is two
+on validated SM86 builds; four remains an explicit experiment. Images and long
+prompts stay single-request operations. The preceding October 3 private-email
+measurements are historical. The new [public synthetic 100-email results](../benchmarks/nvidia-batching/summary-2026-10-05.json)
+use warmed HTTP passes and fixed per-card settings.

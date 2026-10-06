@@ -673,3 +673,48 @@ The queue was empty after the benchmark. Its one failed-request count came from
 the intentional overlength API test beforehand. The Full container was stopped
 and kept for rollback. See the
 [results](../benchmarks/provider-comparison/results-flash-3090-2026-10-04.json).
+
+## Runtime and portal checkpoint — October 5, 2026
+
+The saved project now includes opportunistic NVIDIA batching, universal exact
+prefix branching with CPU RAM retention, shared immutable host blocks, corrected
+physical-storage accounting, and memory-adaptive native/tiled/streamed context
+routing. Both NVIDIA model profiles share the runtime. The 131K-token tests are
+documented in [adaptive context results](../benchmarks/adaptive-context/README.md);
+larger discovery estimates are not a claim of tested maximum quality or capacity.
+The RX 580 path remains experimental, Flash only, with batching disabled.
+
+Optional startup API keys and demo URL masking are included. The portal uses an
+automatic HttpOnly session without exposing or editing the configured key;
+visitors with portal access can run requests. Direct clients use Bearer keys.
+The portal preserves client image scaling, shows formatted JSON after requests,
+and includes the updated bounded text fields, queue timing, cached-input metric,
+and run-history layout.
+
+The wrap-up checks exercise CPU cache/queue/policy/authentication regressions,
+CUDA streamed-attention and native-head equivalence, artifact hashes, image
+scaling, generated code, syntax, provenance, and live API/browser behavior.
+CPU image tests no longer invoke CUDA synchronization on CPU tensors, and the
+interleave test waits for worker cleanup after its early reply. The latter is a
+test synchronization correction; early response delivery remains unchanged.
+
+Only the 24 manifest-referenced Triton host modules, manifest, and license are
+distributed. Unreferenced captures are preserved in ignored `.dev/`, which stays
+outside Git and Docker. Private source images, credentials, development SDKs,
+and raw mail data are not included; public test records use host placeholders.
+
+## Email benchmark rerun — October 6, 2026
+
+The public 100-email benchmark was rerun on the October 5 runtime with Flash on
+the RTX 3070 Ti (290 W) and RTX 3090 (400 W), and Full on the same RTX 3090.
+Each configuration ran first and warm serial passes plus two four-client passes.
+All 1,400 measured requests succeeded, and every repeated or concurrent pass kept
+the model's serial category choices. Agreement with the GPT Sol 6.1 reference
+labels was 96/100 for Flash and 100/100 for Full. Requests reused about 1,536
+prefix tokens on average, mostly the shared category guide.
+
+A second session after restoring cooling repeated the same passes. All 1,200
+requests succeeded with the same agreement. The RTX 3070 Ti peak fell from 79 °C
+to 59 °C; four-client means changed by 0.1–3.2%. See
+[queue batching results](../benchmarks/nvidia-batching/README.md).
+

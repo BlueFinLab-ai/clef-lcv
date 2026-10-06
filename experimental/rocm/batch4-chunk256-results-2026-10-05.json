@@ -1,0 +1,1469 @@
+{
+  "completed": true,
+  "batches": [
+    {
+      "block": 64,
+      "batch_size": 2,
+      "seconds": 166.3526418399997,
+      "rows": [
+        {
+          "type": "choice",
+          "choice": "orders",
+          "confidence": 0.9494,
+          "probabilities": {
+            "work": 0.0041,
+            "recruiting": 0.0036,
+            "personal": 0.0044,
+            "community": 0.0031,
+            "finance": 0.011,
+            "orders": 0.9494,
+            "security": 0.0033,
+            "service": 0.0051,
+            "events": 0.0034,
+            "newsletters": 0.0034,
+            "marketing": 0.0042,
+            "other": 0.0051
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "personal",
+          "confidence": 0.7733,
+          "probabilities": {
+            "work": 0.0268,
+            "recruiting": 0.0068,
+            "personal": 0.7733,
+            "community": 0.0198,
+            "finance": 0.0086,
+            "orders": 0.0067,
+            "security": 0.0073,
+            "service": 0.0246,
+            "events": 0.0089,
+            "newsletters": 0.0726,
+            "marketing": 0.022,
+            "other": 0.0227
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "newsletters",
+          "confidence": 0.9091,
+          "probabilities": {
+            "work": 0.017,
+            "recruiting": 0.0043,
+            "personal": 0.0071,
+            "community": 0.0128,
+            "finance": 0.0073,
+            "orders": 0.0044,
+            "security": 0.003,
+            "service": 0.0106,
+            "events": 0.0056,
+            "newsletters": 0.9091,
+            "marketing": 0.0103,
+            "other": 0.0085
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "marketing",
+          "confidence": 0.8052,
+          "probabilities": {
+            "work": 0.0165,
+            "recruiting": 0.0085,
+            "personal": 0.0095,
+            "community": 0.0096,
+            "finance": 0.0312,
+            "orders": 0.0091,
+            "security": 0.0109,
+            "service": 0.0273,
+            "events": 0.0157,
+            "newsletters": 0.0377,
+            "marketing": 0.8052,
+            "other": 0.0188
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "marketing",
+          "confidence": 0.5912,
+          "probabilities": {
+            "work": 0.0139,
+            "recruiting": 0.0037,
+            "personal": 0.018,
+            "community": 0.03,
+            "finance": 0.0139,
+            "orders": 0.0082,
+            "security": 0.0048,
+            "service": 0.051,
+            "events": 0.0171,
+            "newsletters": 0.2244,
+            "marketing": 0.5912,
+            "other": 0.0238
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "finance",
+          "confidence": 0.7191,
+          "probabilities": {
+            "work": 0.0326,
+            "recruiting": 0.0118,
+            "personal": 0.0159,
+            "community": 0.0119,
+            "finance": 0.7191,
+            "orders": 0.0297,
+            "security": 0.0357,
+            "service": 0.0414,
+            "events": 0.0133,
+            "newsletters": 0.0186,
+            "marketing": 0.0347,
+            "other": 0.0352
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "newsletters",
+          "confidence": 0.8753,
+          "probabilities": {
+            "work": 0.023,
+            "recruiting": 0.0045,
+            "personal": 0.0123,
+            "community": 0.024,
+            "finance": 0.0116,
+            "orders": 0.0053,
+            "security": 0.0038,
+            "service": 0.0095,
+            "events": 0.0088,
+            "newsletters": 0.8753,
+            "marketing": 0.0109,
+            "other": 0.0111
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "community",
+          "confidence": 0.887,
+          "probabilities": {
+            "work": 0.0079,
+            "recruiting": 0.0042,
+            "personal": 0.0182,
+            "community": 0.887,
+            "finance": 0.0047,
+            "orders": 0.0037,
+            "security": 0.0052,
+            "service": 0.0079,
+            "events": 0.0094,
+            "newsletters": 0.0353,
+            "marketing": 0.0091,
+            "other": 0.0074
+          }
+        }
+      ],
+      "cpu_seconds": 173.51826303500002,
+      "peak_mib": 5820.3291015625,
+      "peak_reserved_mib": 6574.0,
+      "groups": [
+        {
+          "offset": 0,
+          "count": 2,
+          "seconds": 45.02470597700449,
+          "max_input_tokens": 2665,
+          "padded_tokens": 221
+        },
+        {
+          "offset": 2,
+          "count": 2,
+          "seconds": 45.701174307003384,
+          "max_input_tokens": 2636,
+          "padded_tokens": 193
+        },
+        {
+          "offset": 4,
+          "count": 2,
+          "seconds": 38.09650409099413,
+          "max_input_tokens": 2468,
+          "padded_tokens": 44
+        },
+        {
+          "offset": 6,
+          "count": 2,
+          "seconds": 37.53016929000296,
+          "max_input_tokens": 2453,
+          "padded_tokens": 116
+        }
+      ],
+      "category_matches_serial": 8,
+      "probability_max_delta_serial": 0.0007000000000000339
+    },
+    {
+      "block": 64,
+      "batch_size": 4,
+      "seconds": 135.54184911800257,
+      "rows": [
+        {
+          "type": "choice",
+          "choice": "orders",
+          "confidence": 0.9495,
+          "probabilities": {
+            "work": 0.004,
+            "recruiting": 0.0036,
+            "personal": 0.0044,
+            "community": 0.0031,
+            "finance": 0.011,
+            "orders": 0.9495,
+            "security": 0.0033,
+            "service": 0.0051,
+            "events": 0.0034,
+            "newsletters": 0.0034,
+            "marketing": 0.0042,
+            "other": 0.0051
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "personal",
+          "confidence": 0.7733,
+          "probabilities": {
+            "work": 0.0268,
+            "recruiting": 0.0068,
+            "personal": 0.7733,
+            "community": 0.0198,
+            "finance": 0.0086,
+            "orders": 0.0067,
+            "security": 0.0073,
+            "service": 0.0246,
+            "events": 0.0089,
+            "newsletters": 0.0725,
+            "marketing": 0.022,
+            "other": 0.0227
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "newsletters",
+          "confidence": 0.9091,
+          "probabilities": {
+            "work": 0.017,
+            "recruiting": 0.0043,
+            "personal": 0.0071,
+            "community": 0.0128,
+            "finance": 0.0073,
+            "orders": 0.0044,
+            "security": 0.003,
+            "service": 0.0106,
+            "events": 0.0056,
+            "newsletters": 0.9091,
+            "marketing": 0.0103,
+            "other": 0.0085
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "marketing",
+          "confidence": 0.8052,
+          "probabilities": {
+            "work": 0.0165,
+            "recruiting": 0.0085,
+            "personal": 0.0095,
+            "community": 0.0096,
+            "finance": 0.0312,
+            "orders": 0.0091,
+            "security": 0.0109,
+            "service": 0.0273,
+            "events": 0.0157,
+            "newsletters": 0.0377,
+            "marketing": 0.8052,
+            "other": 0.0188
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "marketing",
+          "confidence": 0.5905,
+          "probabilities": {
+            "work": 0.0139,
+            "recruiting": 0.0038,
+            "personal": 0.0181,
+            "community": 0.03,
+            "finance": 0.0138,
+            "orders": 0.0082,
+            "security": 0.0048,
+            "service": 0.0511,
+            "events": 0.0171,
+            "newsletters": 0.2248,
+            "marketing": 0.5905,
+            "other": 0.0239
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "finance",
+          "confidence": 0.7186,
+          "probabilities": {
+            "work": 0.0327,
+            "recruiting": 0.0118,
+            "personal": 0.0159,
+            "community": 0.0119,
+            "finance": 0.7186,
+            "orders": 0.0297,
+            "security": 0.0357,
+            "service": 0.0415,
+            "events": 0.0134,
+            "newsletters": 0.0186,
+            "marketing": 0.0348,
+            "other": 0.0353
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "newsletters",
+          "confidence": 0.8752,
+          "probabilities": {
+            "work": 0.023,
+            "recruiting": 0.0045,
+            "personal": 0.0123,
+            "community": 0.024,
+            "finance": 0.0116,
+            "orders": 0.0053,
+            "security": 0.0038,
+            "service": 0.0095,
+            "events": 0.0088,
+            "newsletters": 0.8752,
+            "marketing": 0.0109,
+            "other": 0.0111
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "community",
+          "confidence": 0.8868,
+          "probabilities": {
+            "work": 0.0079,
+            "recruiting": 0.0042,
+            "personal": 0.0182,
+            "community": 0.8868,
+            "finance": 0.0047,
+            "orders": 0.0037,
+            "security": 0.0052,
+            "service": 0.008,
+            "events": 0.0094,
+            "newsletters": 0.0354,
+            "marketing": 0.0091,
+            "other": 0.0075
+          }
+        }
+      ],
+      "cpu_seconds": 142.34321843199996,
+      "peak_mib": 6531.44921875,
+      "peak_reserved_mib": 6798.0,
+      "groups": [
+        {
+          "offset": 0,
+          "count": 4,
+          "seconds": 72.72283877100563,
+          "max_input_tokens": 2665,
+          "padded_tokens": 472
+        },
+        {
+          "offset": 4,
+          "count": 4,
+          "seconds": 62.818968815001426,
+          "max_input_tokens": 2468,
+          "padded_tokens": 190
+        }
+      ],
+      "category_matches_serial": 8,
+      "probability_max_delta_serial": 0.0013999999999999568
+    },
+    {
+      "block": 64,
+      "batch_size": 4,
+      "seconds": 133.00984287200117,
+      "rows": [
+        {
+          "type": "choice",
+          "choice": "orders",
+          "confidence": 0.9494,
+          "probabilities": {
+            "work": 0.0041,
+            "recruiting": 0.0036,
+            "personal": 0.0044,
+            "community": 0.0031,
+            "finance": 0.011,
+            "orders": 0.9494,
+            "security": 0.0033,
+            "service": 0.0051,
+            "events": 0.0034,
+            "newsletters": 0.0034,
+            "marketing": 0.0042,
+            "other": 0.0051
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "personal",
+          "confidence": 0.773,
+          "probabilities": {
+            "work": 0.0268,
+            "recruiting": 0.0068,
+            "personal": 0.773,
+            "community": 0.0198,
+            "finance": 0.0086,
+            "orders": 0.0067,
+            "security": 0.0073,
+            "service": 0.0246,
+            "events": 0.0089,
+            "newsletters": 0.0727,
+            "marketing": 0.022,
+            "other": 0.0226
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "newsletters",
+          "confidence": 0.9089,
+          "probabilities": {
+            "work": 0.017,
+            "recruiting": 0.0043,
+            "personal": 0.0071,
+            "community": 0.0128,
+            "finance": 0.0073,
+            "orders": 0.0044,
+            "security": 0.003,
+            "service": 0.0106,
+            "events": 0.0056,
+            "newsletters": 0.9089,
+            "marketing": 0.0103,
+            "other": 0.0085
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "marketing",
+          "confidence": 0.8047,
+          "probabilities": {
+            "work": 0.0166,
+            "recruiting": 0.0085,
+            "personal": 0.0096,
+            "community": 0.0096,
+            "finance": 0.0313,
+            "orders": 0.0091,
+            "security": 0.011,
+            "service": 0.0274,
+            "events": 0.0157,
+            "newsletters": 0.0377,
+            "marketing": 0.8047,
+            "other": 0.0189
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "marketing",
+          "confidence": 0.5901,
+          "probabilities": {
+            "work": 0.0139,
+            "recruiting": 0.0037,
+            "personal": 0.0181,
+            "community": 0.0301,
+            "finance": 0.0139,
+            "orders": 0.0082,
+            "security": 0.0048,
+            "service": 0.0511,
+            "events": 0.017,
+            "newsletters": 0.2253,
+            "marketing": 0.5901,
+            "other": 0.0238
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "finance",
+          "confidence": 0.7192,
+          "probabilities": {
+            "work": 0.0326,
+            "recruiting": 0.0118,
+            "personal": 0.0159,
+            "community": 0.0119,
+            "finance": 0.7192,
+            "orders": 0.0297,
+            "security": 0.0357,
+            "service": 0.0414,
+            "events": 0.0133,
+            "newsletters": 0.0186,
+            "marketing": 0.0347,
+            "other": 0.0352
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "newsletters",
+          "confidence": 0.8753,
+          "probabilities": {
+            "work": 0.023,
+            "recruiting": 0.0045,
+            "personal": 0.0123,
+            "community": 0.024,
+            "finance": 0.0115,
+            "orders": 0.0053,
+            "security": 0.0038,
+            "service": 0.0095,
+            "events": 0.0088,
+            "newsletters": 0.8753,
+            "marketing": 0.0109,
+            "other": 0.0111
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "community",
+          "confidence": 0.887,
+          "probabilities": {
+            "work": 0.0079,
+            "recruiting": 0.0042,
+            "personal": 0.0182,
+            "community": 0.887,
+            "finance": 0.0047,
+            "orders": 0.0037,
+            "security": 0.0052,
+            "service": 0.0079,
+            "events": 0.0094,
+            "newsletters": 0.0353,
+            "marketing": 0.0091,
+            "other": 0.0074
+          }
+        }
+      ],
+      "cpu_seconds": 139.6512188349999,
+      "peak_mib": 6531.44921875,
+      "peak_reserved_mib": 6834.0,
+      "groups": [
+        {
+          "offset": 0,
+          "count": 4,
+          "seconds": 72.79354133000015,
+          "max_input_tokens": 2665,
+          "padded_tokens": 472
+        },
+        {
+          "offset": 4,
+          "count": 4,
+          "seconds": 60.2162583620011,
+          "max_input_tokens": 2468,
+          "padded_tokens": 190
+        }
+      ],
+      "category_matches_serial": 8,
+      "probability_max_delta_serial": 0.0018000000000000238
+    },
+    {
+      "block": 64,
+      "batch_size": 2,
+      "seconds": 162.33550682700297,
+      "rows": [
+        {
+          "type": "choice",
+          "choice": "orders",
+          "confidence": 0.9493,
+          "probabilities": {
+            "work": 0.0041,
+            "recruiting": 0.0036,
+            "personal": 0.0044,
+            "community": 0.0031,
+            "finance": 0.011,
+            "orders": 0.9493,
+            "security": 0.0033,
+            "service": 0.0051,
+            "events": 0.0034,
+            "newsletters": 0.0034,
+            "marketing": 0.0042,
+            "other": 0.0051
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "personal",
+          "confidence": 0.7731,
+          "probabilities": {
+            "work": 0.0268,
+            "recruiting": 0.0068,
+            "personal": 0.7731,
+            "community": 0.0197,
+            "finance": 0.0086,
+            "orders": 0.0068,
+            "security": 0.0073,
+            "service": 0.0246,
+            "events": 0.0089,
+            "newsletters": 0.0727,
+            "marketing": 0.022,
+            "other": 0.0227
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "newsletters",
+          "confidence": 0.9088,
+          "probabilities": {
+            "work": 0.017,
+            "recruiting": 0.0043,
+            "personal": 0.0071,
+            "community": 0.0129,
+            "finance": 0.0073,
+            "orders": 0.0044,
+            "security": 0.003,
+            "service": 0.0106,
+            "events": 0.0056,
+            "newsletters": 0.9088,
+            "marketing": 0.0104,
+            "other": 0.0085
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "marketing",
+          "confidence": 0.8052,
+          "probabilities": {
+            "work": 0.0165,
+            "recruiting": 0.0085,
+            "personal": 0.0095,
+            "community": 0.0096,
+            "finance": 0.0312,
+            "orders": 0.0091,
+            "security": 0.0109,
+            "service": 0.0273,
+            "events": 0.0157,
+            "newsletters": 0.0377,
+            "marketing": 0.8052,
+            "other": 0.0188
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "marketing",
+          "confidence": 0.5912,
+          "probabilities": {
+            "work": 0.0139,
+            "recruiting": 0.0038,
+            "personal": 0.018,
+            "community": 0.03,
+            "finance": 0.0139,
+            "orders": 0.0082,
+            "security": 0.0048,
+            "service": 0.051,
+            "events": 0.0171,
+            "newsletters": 0.2244,
+            "marketing": 0.5912,
+            "other": 0.0238
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "finance",
+          "confidence": 0.7191,
+          "probabilities": {
+            "work": 0.0326,
+            "recruiting": 0.0118,
+            "personal": 0.0159,
+            "community": 0.0119,
+            "finance": 0.7191,
+            "orders": 0.0297,
+            "security": 0.0357,
+            "service": 0.0414,
+            "events": 0.0133,
+            "newsletters": 0.0186,
+            "marketing": 0.0347,
+            "other": 0.0352
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "newsletters",
+          "confidence": 0.8753,
+          "probabilities": {
+            "work": 0.023,
+            "recruiting": 0.0045,
+            "personal": 0.0123,
+            "community": 0.024,
+            "finance": 0.0116,
+            "orders": 0.0053,
+            "security": 0.0038,
+            "service": 0.0095,
+            "events": 0.0088,
+            "newsletters": 0.8753,
+            "marketing": 0.0109,
+            "other": 0.0111
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "community",
+          "confidence": 0.8871,
+          "probabilities": {
+            "work": 0.0079,
+            "recruiting": 0.0042,
+            "personal": 0.0181,
+            "community": 0.8871,
+            "finance": 0.0046,
+            "orders": 0.0037,
+            "security": 0.0052,
+            "service": 0.0079,
+            "events": 0.0094,
+            "newsletters": 0.0352,
+            "marketing": 0.0091,
+            "other": 0.0074
+          }
+        }
+      ],
+      "cpu_seconds": 169.250983248,
+      "peak_mib": 5820.3291015625,
+      "peak_reserved_mib": 6574.0,
+      "groups": [
+        {
+          "offset": 0,
+          "count": 2,
+          "seconds": 45.02207205900049,
+          "max_input_tokens": 2665,
+          "padded_tokens": 221
+        },
+        {
+          "offset": 2,
+          "count": 2,
+          "seconds": 44.33440572399559,
+          "max_input_tokens": 2636,
+          "padded_tokens": 193
+        },
+        {
+          "offset": 4,
+          "count": 2,
+          "seconds": 36.70407990300009,
+          "max_input_tokens": 2468,
+          "padded_tokens": 44
+        },
+        {
+          "offset": 6,
+          "count": 2,
+          "seconds": 36.274885137994715,
+          "max_input_tokens": 2453,
+          "padded_tokens": 116
+        }
+      ],
+      "category_matches_serial": 8,
+      "probability_max_delta_serial": 0.0007000000000000339
+    }
+  ],
+  "warmups": [
+    {
+      "block": 64,
+      "batch_size": 2,
+      "seconds": 47.73056753799756,
+      "rows": [
+        {
+          "type": "choice",
+          "choice": "orders",
+          "confidence": 0.9493,
+          "probabilities": {
+            "work": 0.0041,
+            "recruiting": 0.0036,
+            "personal": 0.0044,
+            "community": 0.0031,
+            "finance": 0.011,
+            "orders": 0.9493,
+            "security": 0.0033,
+            "service": 0.0051,
+            "events": 0.0034,
+            "newsletters": 0.0034,
+            "marketing": 0.0042,
+            "other": 0.0052
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "personal",
+          "confidence": 0.7733,
+          "probabilities": {
+            "work": 0.0268,
+            "recruiting": 0.0068,
+            "personal": 0.7733,
+            "community": 0.0198,
+            "finance": 0.0086,
+            "orders": 0.0067,
+            "security": 0.0073,
+            "service": 0.0246,
+            "events": 0.0089,
+            "newsletters": 0.0725,
+            "marketing": 0.022,
+            "other": 0.0227
+          }
+        }
+      ],
+      "cpu_seconds": 49.844376260000004,
+      "peak_mib": 5819.4072265625,
+      "peak_reserved_mib": 6420.0,
+      "groups": [
+        {
+          "offset": 0,
+          "count": 2,
+          "seconds": 47.73052740699495,
+          "max_input_tokens": 2665,
+          "padded_tokens": 221
+        }
+      ]
+    },
+    {
+      "block": 64,
+      "batch_size": 4,
+      "seconds": 77.90127872999437,
+      "rows": [
+        {
+          "type": "choice",
+          "choice": "orders",
+          "confidence": 0.9494,
+          "probabilities": {
+            "work": 0.0041,
+            "recruiting": 0.0036,
+            "personal": 0.0044,
+            "community": 0.0031,
+            "finance": 0.011,
+            "orders": 0.9494,
+            "security": 0.0033,
+            "service": 0.0051,
+            "events": 0.0034,
+            "newsletters": 0.0034,
+            "marketing": 0.0042,
+            "other": 0.0051
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "personal",
+          "confidence": 0.7733,
+          "probabilities": {
+            "work": 0.0268,
+            "recruiting": 0.0068,
+            "personal": 0.7733,
+            "community": 0.0198,
+            "finance": 0.0086,
+            "orders": 0.0068,
+            "security": 0.0072,
+            "service": 0.0246,
+            "events": 0.0089,
+            "newsletters": 0.0724,
+            "marketing": 0.022,
+            "other": 0.0227
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "newsletters",
+          "confidence": 0.9089,
+          "probabilities": {
+            "work": 0.017,
+            "recruiting": 0.0043,
+            "personal": 0.0071,
+            "community": 0.0129,
+            "finance": 0.0073,
+            "orders": 0.0044,
+            "security": 0.003,
+            "service": 0.0106,
+            "events": 0.0056,
+            "newsletters": 0.9089,
+            "marketing": 0.0103,
+            "other": 0.0085
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "marketing",
+          "confidence": 0.8051,
+          "probabilities": {
+            "work": 0.0165,
+            "recruiting": 0.0085,
+            "personal": 0.0095,
+            "community": 0.0096,
+            "finance": 0.0312,
+            "orders": 0.0091,
+            "security": 0.0109,
+            "service": 0.0273,
+            "events": 0.0157,
+            "newsletters": 0.0377,
+            "marketing": 0.8051,
+            "other": 0.0188
+          }
+        }
+      ],
+      "cpu_seconds": 81.95420862699996,
+      "peak_mib": 6531.44921875,
+      "peak_reserved_mib": 6822.0,
+      "groups": [
+        {
+          "offset": 0,
+          "count": 4,
+          "seconds": 77.90124876499613,
+          "max_input_tokens": 2665,
+          "padded_tokens": 472
+        }
+      ]
+    },
+    {
+      "block": 64,
+      "batch_size": 4,
+      "seconds": 72.78571093500068,
+      "rows": [
+        {
+          "type": "choice",
+          "choice": "orders",
+          "confidence": 0.9494,
+          "probabilities": {
+            "work": 0.0041,
+            "recruiting": 0.0036,
+            "personal": 0.0044,
+            "community": 0.0031,
+            "finance": 0.011,
+            "orders": 0.9494,
+            "security": 0.0033,
+            "service": 0.0051,
+            "events": 0.0034,
+            "newsletters": 0.0034,
+            "marketing": 0.0042,
+            "other": 0.0051
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "personal",
+          "confidence": 0.7731,
+          "probabilities": {
+            "work": 0.0268,
+            "recruiting": 0.0068,
+            "personal": 0.7731,
+            "community": 0.0198,
+            "finance": 0.0086,
+            "orders": 0.0067,
+            "security": 0.0073,
+            "service": 0.0246,
+            "events": 0.0089,
+            "newsletters": 0.0727,
+            "marketing": 0.022,
+            "other": 0.0226
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "newsletters",
+          "confidence": 0.9088,
+          "probabilities": {
+            "work": 0.017,
+            "recruiting": 0.0043,
+            "personal": 0.0071,
+            "community": 0.0129,
+            "finance": 0.0073,
+            "orders": 0.0044,
+            "security": 0.003,
+            "service": 0.0106,
+            "events": 0.0056,
+            "newsletters": 0.9088,
+            "marketing": 0.0104,
+            "other": 0.0085
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "marketing",
+          "confidence": 0.8052,
+          "probabilities": {
+            "work": 0.0165,
+            "recruiting": 0.0085,
+            "personal": 0.0095,
+            "community": 0.0096,
+            "finance": 0.0312,
+            "orders": 0.0091,
+            "security": 0.0109,
+            "service": 0.0273,
+            "events": 0.0157,
+            "newsletters": 0.0377,
+            "marketing": 0.8052,
+            "other": 0.0188
+          }
+        }
+      ],
+      "cpu_seconds": 76.41403546499998,
+      "peak_mib": 6531.44921875,
+      "peak_reserved_mib": 6834.0,
+      "groups": [
+        {
+          "offset": 0,
+          "count": 4,
+          "seconds": 72.7856778839996,
+          "max_input_tokens": 2665,
+          "padded_tokens": 472
+        }
+      ]
+    },
+    {
+      "block": 64,
+      "batch_size": 2,
+      "seconds": 44.9476695570047,
+      "rows": [
+        {
+          "type": "choice",
+          "choice": "orders",
+          "confidence": 0.9493,
+          "probabilities": {
+            "work": 0.0041,
+            "recruiting": 0.0036,
+            "personal": 0.0044,
+            "community": 0.0031,
+            "finance": 0.011,
+            "orders": 0.9493,
+            "security": 0.0033,
+            "service": 0.0051,
+            "events": 0.0034,
+            "newsletters": 0.0034,
+            "marketing": 0.0042,
+            "other": 0.0051
+          }
+        },
+        {
+          "type": "choice",
+          "choice": "personal",
+          "confidence": 0.7733,
+          "probabilities": {
+            "work": 0.0268,
+            "recruiting": 0.0068,
+            "personal": 0.7733,
+            "community": 0.0198,
+            "finance": 0.0086,
+            "orders": 0.0067,
+            "security": 0.0073,
+            "service": 0.0246,
+            "events": 0.0089,
+            "newsletters": 0.0726,
+            "marketing": 0.022,
+            "other": 0.0227
+          }
+        }
+      ],
+      "cpu_seconds": 46.885310778000076,
+      "peak_mib": 5820.3291015625,
+      "peak_reserved_mib": 6574.0,
+      "groups": [
+        {
+          "offset": 0,
+          "count": 2,
+          "seconds": 44.94763958900148,
+          "max_input_tokens": 2665,
+          "padded_tokens": 221
+        }
+      ]
+    }
+  ],
+  "scope": "Same eight public synthetic emails, text only; fixed shared prefix prepared once; native GDN block64, math SDPA, 256-token tail chunks. Prefix construction, CPU encoding and shape warmups excluded from measured runs. No production queue changes.",
+  "health": {
+    "queue": {
+      "enabled": true,
+      "policy": "fifo",
+      "gpu_workers": 1,
+      "active_requests": 0,
+      "waiting_requests": 0,
+      "max_waiting_requests": 64,
+      "wait_timeout_seconds": 300.0,
+      "admitted_requests": 0,
+      "admitted_payload_mib": 0.0,
+      "payload_limit_mib": 256.0,
+      "request_body_limit_mib": 224.0,
+      "completed": 0,
+      "failed": 0,
+      "cancelled": 0,
+      "timed_out": 0,
+      "rejected": 0,
+      "accepting": true
+    },
+    "status": "ok",
+    "model": "Cloudflare/clef-flash",
+    "startup_strategy": {
+      "gpu_name": "AMD Radeon RX 580 Series",
+      "capability": "gfx803",
+      "total_mib": 8192,
+      "profile": "flash",
+      "compute_dtype": "float16",
+      "linear_prefill_backend": "torch",
+      "fla_max_chunk_tokens": 512,
+      "tested_family": true,
+      "kernel_arch_supported": false,
+      "compiled_kernel_arches": [],
+      "runtime_backend": "rocm",
+      "strategy_id": "gfx803-flash-native",
+      "experimental": true,
+      "runtime_options": {
+        "CLEF_LINEAR_PREFILL_BACKEND": "torch",
+        "CLEF_FLA_MAX_CHUNK_TOKENS": "512",
+        "CLEF_REQUIRE_FAST_LINEAR_ATTENTION": "0",
+        "CLEF_ATTENTION_BACKEND": "math",
+        "CLEF_IMAGE_PREFILL": "1",
+        "CLEF_PREFILL_INITIAL_CHUNK_TOKENS": "1024",
+        "CLEF_PREFILL_CHUNK_TOKENS": "1024",
+        "CLEF_PREFIX_CACHE": "1",
+        "CLEF_INPUT_CACHE": "1",
+        "CLEF_IMAGE_POOLING": "0",
+        "CLEF_MAX_IMAGE_LENGTH": "4096",
+        "CLEF_DISABLE_FUSED_KERNELS": "1",
+        "CLEF_ROCM_LONG_PROMPT_THRESHOLD": "4096",
+        "CLEF_ROCM_LONG_PREFILL_CHUNK_TOKENS": "512",
+        "CLEF_CONTEXT_LIMIT_MODE": "fixed",
+        "CLEF_MAX_LENGTH": "8192",
+        "CLEF_MAX_VISION_PATCH_TOKENS_PER_IMAGE": "8192",
+        "CLEF_ROCM_GPU_CACHE": "1",
+        "CLEF_ROCM_VISION_TILING": "1",
+        "CLEF_VISION_QUERY_CHUNK_TOKENS": "256",
+        "CLEF_CACHE_PROMOTE_REPEATED_BOUNDARY": "1",
+        "CLEF_TORCH_GDN_BLOCK_TOKENS": "64",
+        "CLEF_ROCM_OBSERVED_PREFILL_WORKSPACE": "0",
+        "CLEF_PREFIX_CACHE_RESERVE_MIB": "256",
+        "CLEF_PREFIX_CACHE_PREFILL_RESERVE_MIB": "512",
+        "CLEF_ROCM_TUNABLEOP_FILE": "/app/tuning/gfx803.csv",
+        "HSA_ENABLE_SDMA": "0",
+        "PYTORCH_ALLOC_CONF": "expandable_segments:False",
+        "PYTORCH_TUNABLEOP_HIPBLASLT_ENABLED": "0"
+      },
+      "overrides": {}
+    },
+    "quantization": "nf4",
+    "compact_embeddings": true,
+    "source_revision": "17f0b0ad64efb65d273590632833508766b2aae6",
+    "gpu": "AMD Radeon RX 580 Series",
+    "compute_dtype": "float16",
+    "nf4_layers": 358,
+    "linear_attention": {
+      "fast_path_available": false,
+      "layers": 24,
+      "native_gdn_block_tokens": 64,
+      "prefill_override": "torch",
+      "fla_max_chunk_tokens": null,
+      "chunk_kernels": [
+        "transformers.models.qwen3_5.modeling_qwen3_5.torch_chunk_gated_delta_rule"
+      ],
+      "optimized_prefill": false,
+      "recurrent_kernels": [
+        "transformers.models.qwen3_5.modeling_qwen3_5.torch_recurrent_gated_delta_rule"
+      ],
+      "optimized_recurrence": false
+    },
+    "vision_attention": {
+      "query_tiling": true,
+      "query_chunk_tokens": 256,
+      "dense_threshold_tokens": 1024,
+      "layers": 27
+    },
+    "matrix_tuning": {
+      "enabled": true,
+      "live_tuning": false,
+      "backend": "rocblas",
+      "results": 111
+    },
+    "max_input_tokens": 8192,
+    "max_input_tokens_with_images": 4096,
+    "context_limit": {
+      "mode": "configured",
+      "estimated": false,
+      "computed_max_input_tokens": null,
+      "configured_max_input_tokens": 8192,
+      "configured_cap_applied": true,
+      "model_max_position_embeddings": 262144,
+      "image_limit_basis": "configured_chunked_ceiling",
+      "configured_max_input_tokens_with_images": 4096,
+      "available_request_mib": 3039.2,
+      "safety_reserve_mib": 512.0,
+      "full_attention_kv_bytes_per_token": 32768,
+      "retained_hidden_bytes_per_token": 8192,
+      "projected_growth_bytes_per_token": 76840,
+      "calibration_reference_tokens": null,
+      "calibration_workspace_mib": null,
+      "rounding_tokens": 4096,
+      "fallback_reason": "explicit fixed mode",
+      "snapshot_unix_seconds": 1791202082
+    },
+    "context_snapshot_status": "idle",
+    "input": [
+      "text",
+      "json",
+      "images"
+    ],
+    "image_input": {
+      "format": "base64 data URL",
+      "max_images": 16,
+      "max_processed_pixels_per_image": 16777216,
+      "max_vision_patch_tokens_per_image": 8192,
+      "resize_location": "client_for_gui",
+      "processor_defaults_for_api": true,
+      "legacy_fidelity_max_pixels": 1048576,
+      "default_fidelity": "standard",
+      "fidelities": {
+        "standard": 65536,
+        "low": 16384,
+        "medium": 262144,
+        "high": 1048576
+      },
+      "pooling_default": false,
+      "pooling_factor": 2
+    },
+    "attention_backend": "math",
+    "optimizations": {
+      "compact_schema": true,
+      "single_pass_preprocessing": true,
+      "observed_chunked_workspace_admission": false,
+      "chunked_prefill": {
+        "enabled": true,
+        "text_only": false,
+        "images_enabled": true,
+        "vision_batch_images": 1,
+        "initial_chunk_tokens": 1024,
+        "chunk_tokens": 1024,
+        "rocm_long_prompt_threshold": 4096,
+        "rocm_long_chunk_tokens": 512
+      },
+      "prefix_cache_enabled": true,
+      "image_feature_cache_enabled": true,
+      "promote_repeated_boundary": true,
+      "input_cache_enabled": true,
+      "prefix_cache": {
+        "entries": 0,
+        "mib": 0.0,
+        "limit_mib": 2783.2,
+        "budget_mode": "auto",
+        "elastic": true,
+        "phase": "idle",
+        "request_workspace_mib": 0.0,
+        "retention_rejections": {},
+        "last_retention_rejection": null,
+        "last_rejected_checkpoint_mib": 0.0,
+        "max_entries": 32,
+        "reserve_mib": 256.0,
+        "prefill_reserve_mib": 512.0,
+        "effective_reserve_mib": 256.0,
+        "observed_prefixes": 0,
+        "observed_workspace_mib": 0.0,
+        "observed_chunked_workspace_mib": 0.0,
+        "gpu_utilization_target": 1.0,
+        "checkpoint_tokens": 0,
+        "hits": 0,
+        "misses": 0,
+        "evictions": 0,
+        "reused_tokens": 0,
+        "image_features": {
+          "entries": 0,
+          "mib": 0.0,
+          "limit_mib": 256.0,
+          "max_entries": 64,
+          "hits": 0,
+          "misses": 0,
+          "evictions": 0
+        }
+      },
+      "input_cache": {
+        "image_entries": 0,
+        "image_mib": 0.0,
+        "image_limit_mib": 256.0,
+        "image_max_entries": 128,
+        "image_hits": 0,
+        "image_misses": 0,
+        "image_evictions": 0,
+        "token_entries": 0,
+        "token_mib": 0.0,
+        "token_limit_mib": 8.0,
+        "token_max_entries": 1024,
+        "token_hits": 0,
+        "token_misses": 0,
+        "token_evictions": 0
+      }
+    },
+    "allocated_mib": 4966.8,
+    "reserved_mib": 5068.0,
+    "free_device_mib": 2938.0
+  },
+  "reference_labels": [
+    "orders",
+    "personal",
+    "newsletters",
+    "marketing",
+    "marketing",
+    "finance",
+    "newsletters",
+    "community"
+  ],
+  "record_ids": [
+    "sample-001",
+    "sample-002",
+    "sample-003",
+    "sample-005",
+    "sample-006",
+    "sample-007",
+    "sample-008",
+    "sample-009"
+  ],
+  "email_tokens": [
+    2444,
+    2665,
+    2636,
+    2443,
+    2424,
+    2468,
+    2453,
+    2337
+  ],
+  "prefix_tokens": 1544,
+  "prefix_mib": 85.8125,
+  "prefix_build_seconds": 36.50294830799976,
+  "serial_reference": [
+    {
+      "type": "choice",
+      "choice": "orders",
+      "confidence": 0.9493,
+      "probabilities": {
+        "work": 0.0041,
+        "recruiting": 0.0036,
+        "personal": 0.0044,
+        "community": 0.0031,
+        "finance": 0.011,
+        "orders": 0.9493,
+        "security": 0.0033,
+        "service": 0.0051,
+        "events": 0.0034,
+        "newsletters": 0.0034,
+        "marketing": 0.0042,
+        "other": 0.0052
+      }
+    },
+    {
+      "type": "choice",
+      "choice": "personal",
+      "confidence": 0.773,
+      "probabilities": {
+        "work": 0.0269,
+        "recruiting": 0.0068,
+        "personal": 0.773,
+        "community": 0.0198,
+        "finance": 0.0086,
+        "orders": 0.0068,
+        "security": 0.0073,
+        "service": 0.0246,
+        "events": 0.0089,
+        "newsletters": 0.0727,
+        "marketing": 0.022,
+        "other": 0.0226
+      }
+    },
+    {
+      "type": "choice",
+      "choice": "newsletters",
+      "confidence": 0.9088,
+      "probabilities": {
+        "work": 0.017,
+        "recruiting": 0.0043,
+        "personal": 0.0071,
+        "community": 0.0129,
+        "finance": 0.0073,
+        "orders": 0.0044,
+        "security": 0.003,
+        "service": 0.0106,
+        "events": 0.0056,
+        "newsletters": 0.9088,
+        "marketing": 0.0104,
+        "other": 0.0085
+      }
+    },
+    {
+      "type": "choice",
+      "choice": "marketing",
+      "confidence": 0.8047,
+      "probabilities": {
+        "work": 0.0166,
+        "recruiting": 0.0085,
+        "personal": 0.0096,
+        "community": 0.0096,
+        "finance": 0.0313,
+        "orders": 0.0091,
+        "security": 0.011,
+        "service": 0.0274,
+        "events": 0.0157,
+        "newsletters": 0.0377,
+        "marketing": 0.8047,
+        "other": 0.0189
+      }
+    },
+    {
+      "type": "choice",
+      "choice": "marketing",
+      "confidence": 0.5919,
+      "probabilities": {
+        "work": 0.0139,
+        "recruiting": 0.0037,
+        "personal": 0.018,
+        "community": 0.0299,
+        "finance": 0.0139,
+        "orders": 0.0082,
+        "security": 0.0048,
+        "service": 0.0511,
+        "events": 0.017,
+        "newsletters": 0.2238,
+        "marketing": 0.5919,
+        "other": 0.0238
+      }
+    },
+    {
+      "type": "choice",
+      "choice": "finance",
+      "confidence": 0.7191,
+      "probabilities": {
+        "work": 0.0326,
+        "recruiting": 0.0118,
+        "personal": 0.0159,
+        "community": 0.0119,
+        "finance": 0.7191,
+        "orders": 0.0297,
+        "security": 0.0357,
+        "service": 0.0414,
+        "events": 0.0133,
+        "newsletters": 0.0186,
+        "marketing": 0.0347,
+        "other": 0.0352
+      }
+    },
+    {
+      "type": "choice",
+      "choice": "newsletters",
+      "confidence": 0.8751,
+      "probabilities": {
+        "work": 0.023,
+        "recruiting": 0.0045,
+        "personal": 0.0123,
+        "community": 0.024,
+        "finance": 0.0116,
+        "orders": 0.0053,
+        "security": 0.0038,
+        "service": 0.0096,
+        "events": 0.0088,
+        "newsletters": 0.8751,
+        "marketing": 0.0109,
+        "other": 0.0111
+      }
+    },
+    {
+      "type": "choice",
+      "choice": "community",
+      "confidence": 0.8869,
+      "probabilities": {
+        "work": 0.0079,
+        "recruiting": 0.0042,
+        "personal": 0.0182,
+        "community": 0.8869,
+        "finance": 0.0047,
+        "orders": 0.0037,
+        "security": 0.0052,
+        "service": 0.0079,
+        "events": 0.0094,
+        "newsletters": 0.0354,
+        "marketing": 0.0091,
+        "other": 0.0074
+      }
+    }
+  ]
+}

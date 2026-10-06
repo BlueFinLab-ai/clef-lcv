@@ -133,6 +133,8 @@ def summarize(results, wall_seconds, categories):
         "reference_matches": matches,
         "reference_agreement_percent": 100 * matches / len(good) if good else None,
         "client_wall_ms": distribution(r["client_wall_ms"] for r in good),
+        "batch_size_counts": dict(Counter(r["usage"].get("batch_size",1) for r in good)),
+        "batch_fallback_counts": dict(Counter(r["usage"].get("batch_fallback_reason") for r in good if r["usage"].get("batch_fallback_reason"))),
         "prefix_status_counts": dict(Counter(r["usage"].get("prefix_cache", "unreported") for r in good)),
         "confusion_matrix": confusion,
         "mismatches": [{"id": r["id"], "reference": r["reference_category"], "choice": r["choice"]}

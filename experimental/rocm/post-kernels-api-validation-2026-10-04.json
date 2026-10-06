@@ -1,0 +1,784 @@
+{
+  "before": {
+    "queue": {
+      "enabled": true,
+      "policy": "fifo",
+      "gpu_workers": 1,
+      "active_requests": 0,
+      "waiting_requests": 0,
+      "max_waiting_requests": 64,
+      "wait_timeout_seconds": 300.0,
+      "admitted_requests": 0,
+      "admitted_payload_mib": 0.0,
+      "payload_limit_mib": 256.0,
+      "request_body_limit_mib": 224.0,
+      "completed": 0,
+      "failed": 0,
+      "cancelled": 0,
+      "timed_out": 0,
+      "rejected": 0,
+      "accepting": true
+    },
+    "status": "ok",
+    "model": "Cloudflare/clef-flash",
+    "startup_strategy": {
+      "gpu_name": "AMD Radeon RX 580 Series",
+      "capability": "gfx803",
+      "total_mib": 8192,
+      "profile": "flash",
+      "compute_dtype": "float16",
+      "linear_prefill_backend": "torch",
+      "fla_max_chunk_tokens": 256,
+      "tested_family": false,
+      "kernel_arch_supported": false,
+      "compiled_kernel_arches": [],
+      "runtime_backend": "rocm"
+    },
+    "quantization": "nf4",
+    "compact_embeddings": true,
+    "source_revision": "17f0b0ad64efb65d273590632833508766b2aae6",
+    "gpu": "AMD Radeon RX 580 Series",
+    "compute_dtype": "float16",
+    "nf4_layers": 358,
+    "linear_attention": {
+      "fast_path_available": false,
+      "layers": 24,
+      "prefill_override": "torch",
+      "fla_max_chunk_tokens": null,
+      "chunk_kernels": [
+        "transformers.models.qwen3_5.modeling_qwen3_5.torch_chunk_gated_delta_rule"
+      ],
+      "optimized_prefill": false,
+      "recurrent_kernels": [
+        "transformers.models.qwen3_5.modeling_qwen3_5.torch_recurrent_gated_delta_rule"
+      ],
+      "optimized_recurrence": false
+    },
+    "vision_attention": {
+      "query_tiling": true,
+      "query_chunk_tokens": 256,
+      "dense_threshold_tokens": 1024,
+      "layers": 27
+    },
+    "matrix_tuning": {
+      "enabled": true,
+      "live_tuning": false,
+      "backend": "rocblas",
+      "results": 111
+    },
+    "max_input_tokens": 8192,
+    "max_input_tokens_with_images": 4096,
+    "context_limit": {
+      "mode": "configured",
+      "estimated": false,
+      "computed_max_input_tokens": null,
+      "configured_max_input_tokens": 8192,
+      "configured_cap_applied": true,
+      "model_max_position_embeddings": 262144,
+      "image_limit_basis": "configured_chunked_ceiling",
+      "configured_max_input_tokens_with_images": 4096,
+      "available_request_mib": 3039.2,
+      "safety_reserve_mib": 512.0,
+      "full_attention_kv_bytes_per_token": 32768,
+      "retained_hidden_bytes_per_token": 8192,
+      "projected_growth_bytes_per_token": 76840,
+      "calibration_reference_tokens": null,
+      "calibration_workspace_mib": null,
+      "rounding_tokens": 4096,
+      "fallback_reason": "explicit fixed mode",
+      "snapshot_unix_seconds": 1791169780
+    },
+    "context_snapshot_status": "idle",
+    "input": [
+      "text",
+      "json",
+      "images"
+    ],
+    "image_input": {
+      "format": "base64 data URL",
+      "max_images": 16,
+      "max_processed_pixels_per_image": 16777216,
+      "max_vision_patch_tokens_per_image": 8192,
+      "resize_location": "client_for_gui",
+      "processor_defaults_for_api": true,
+      "legacy_fidelity_max_pixels": 1048576,
+      "default_fidelity": "standard",
+      "fidelities": {
+        "standard": 65536,
+        "low": 16384,
+        "medium": 262144,
+        "high": 1048576
+      },
+      "pooling_default": false,
+      "pooling_factor": 2
+    },
+    "attention_backend": "math",
+    "optimizations": {
+      "compact_schema": true,
+      "single_pass_preprocessing": true,
+      "chunked_prefill": {
+        "enabled": true,
+        "text_only": false,
+        "images_enabled": true,
+        "vision_batch_images": 1,
+        "initial_chunk_tokens": 1024,
+        "chunk_tokens": 1024,
+        "rocm_long_prompt_threshold": 4096,
+        "rocm_long_chunk_tokens": 512
+      },
+      "prefix_cache_enabled": true,
+      "image_feature_cache_enabled": true,
+      "promote_repeated_boundary": true,
+      "input_cache_enabled": true,
+      "prefix_cache": {
+        "entries": 0,
+        "mib": 0.0,
+        "limit_mib": 2783.2,
+        "budget_mode": "auto",
+        "elastic": true,
+        "phase": "idle",
+        "request_workspace_mib": 0.0,
+        "retention_rejections": {},
+        "last_retention_rejection": null,
+        "last_rejected_checkpoint_mib": 0.0,
+        "max_entries": 32,
+        "reserve_mib": 256.0,
+        "prefill_reserve_mib": 512.0,
+        "effective_reserve_mib": 256.0,
+        "observed_prefixes": 0,
+        "observed_workspace_mib": 0.0,
+        "observed_chunked_workspace_mib": 0.0,
+        "gpu_utilization_target": 1.0,
+        "checkpoint_tokens": 0,
+        "hits": 0,
+        "misses": 0,
+        "evictions": 0,
+        "reused_tokens": 0,
+        "image_features": {
+          "entries": 0,
+          "mib": 0.0,
+          "limit_mib": 256.0,
+          "max_entries": 64,
+          "hits": 0,
+          "misses": 0,
+          "evictions": 0
+        }
+      },
+      "input_cache": {
+        "image_entries": 0,
+        "image_mib": 0.0,
+        "image_limit_mib": 256.0,
+        "image_max_entries": 128,
+        "image_hits": 0,
+        "image_misses": 0,
+        "image_evictions": 0,
+        "token_entries": 0,
+        "token_mib": 0.0,
+        "token_limit_mib": 8.0,
+        "token_max_entries": 1024,
+        "token_hits": 0,
+        "token_misses": 0,
+        "token_evictions": 0
+      }
+    },
+    "allocated_mib": 4966.8,
+    "reserved_mib": 5068.0,
+    "free_device_mib": 2938.0
+  },
+  "models": {
+    "object": "list",
+    "data": [
+      {
+        "id": "clef-flash",
+        "object": "model",
+        "max_input_tokens": 8192,
+        "max_input_tokens_with_images": 4096,
+        "context_limit": {
+          "mode": "configured",
+          "estimated": false,
+          "computed_max_input_tokens": null,
+          "configured_max_input_tokens": 8192,
+          "configured_cap_applied": true,
+          "model_max_position_embeddings": 262144,
+          "image_limit_basis": "configured_chunked_ceiling",
+          "configured_max_input_tokens_with_images": 4096,
+          "available_request_mib": 3039.2,
+          "safety_reserve_mib": 512.0,
+          "full_attention_kv_bytes_per_token": 32768,
+          "retained_hidden_bytes_per_token": 8192,
+          "projected_growth_bytes_per_token": 76840,
+          "calibration_reference_tokens": null,
+          "calibration_workspace_mib": null,
+          "rounding_tokens": 4096,
+          "fallback_reason": "explicit fixed mode",
+          "snapshot_unix_seconds": 1791169780
+        },
+        "context_snapshot_status": "idle",
+        "max_vision_patch_tokens_per_image": 8192
+      }
+    ]
+  },
+  "requests": [
+    {
+      "label": "photo-1",
+      "status": 200,
+      "seconds": 9.66393845499988,
+      "response": {
+        "model": "clef-flash",
+        "answers": {
+          "fish": {
+            "type": "noul",
+            "noul": 0.6851
+          },
+          "count": {
+            "type": "choice",
+            "choice": "two",
+            "confidence": 0.9409,
+            "probabilities": {
+              "one": 0.0175,
+              "two": 0.9409,
+              "three": 0.0416
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 268,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 268,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 24.1,
+          "image_preprocess_cache_hits": 0,
+          "image_preprocess_cache_misses": 2,
+          "token_cache_hits": 6,
+          "token_cache_misses": 14,
+          "cache_prepare_ms": 0.3,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "prefix_cache",
+          "prefix_cache": "miss",
+          "prefix_tokens": 142,
+          "reused_prefix_tokens": 0,
+          "new_prefix_tokens": 142,
+          "prefix_build_ms": 4790.8,
+          "prefix_checkpoints_saved": 1,
+          "vision_prefix_reused": false,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 2,
+          "accepted_max_input_tokens": 4096,
+          "context_limit_mode": "configured",
+          "latency_ms": 9660.2,
+          "peak_allocated_mib": 5190.8,
+          "image_count": 2,
+          "image_fidelity": null,
+          "processed_images": [
+            {
+              "width": 256,
+              "height": 192
+            },
+            {
+              "width": 192,
+              "height": 256
+            }
+          ],
+          "max_processed_pixels_per_image": 49152,
+          "processor_resize_enabled": false,
+          "queue_wait_ms": 0.0,
+          "server_total_ms": 9661.9
+        }
+      }
+    },
+    {
+      "label": "photo-2",
+      "status": 200,
+      "seconds": 3.3850182100013626,
+      "response": {
+        "model": "clef-flash",
+        "answers": {
+          "fish": {
+            "type": "noul",
+            "noul": 0.6851
+          },
+          "count": {
+            "type": "choice",
+            "choice": "two",
+            "confidence": 0.9407,
+            "probabilities": {
+              "one": 0.0175,
+              "two": 0.9407,
+              "three": 0.0417
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 268,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 268,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 0.8,
+          "image_preprocess_cache_hits": 2,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 20,
+          "token_cache_misses": 0,
+          "cache_prepare_ms": 1.5,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "prefix_cache",
+          "prefix_cache": "hit",
+          "prefix_tokens": 142,
+          "reused_prefix_tokens": 137,
+          "new_prefix_tokens": 5,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "vision_prefix_reused": true,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 0,
+          "accepted_max_input_tokens": 4096,
+          "context_limit_mode": "configured",
+          "latency_ms": 3381.8,
+          "peak_allocated_mib": 5185.5,
+          "image_count": 2,
+          "image_fidelity": null,
+          "processed_images": [
+            {
+              "width": 256,
+              "height": 192
+            },
+            {
+              "width": 192,
+              "height": 256
+            }
+          ],
+          "max_processed_pixels_per_image": 49152,
+          "processor_resize_enabled": false,
+          "queue_wait_ms": 0.0,
+          "server_total_ms": 3383.3
+        }
+      }
+    },
+    {
+      "label": "photo-3",
+      "status": 200,
+      "seconds": 3.380310823999025,
+      "response": {
+        "model": "clef-flash",
+        "answers": {
+          "fish": {
+            "type": "noul",
+            "noul": 0.6842
+          },
+          "count": {
+            "type": "choice",
+            "choice": "two",
+            "confidence": 0.9409,
+            "probabilities": {
+              "one": 0.0175,
+              "two": 0.9409,
+              "three": 0.0416
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 268,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 268,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 0.8,
+          "image_preprocess_cache_hits": 2,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 20,
+          "token_cache_misses": 0,
+          "cache_prepare_ms": 1.5,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "prefix_cache",
+          "prefix_cache": "hit",
+          "prefix_tokens": 142,
+          "reused_prefix_tokens": 137,
+          "new_prefix_tokens": 5,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "vision_prefix_reused": true,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 0,
+          "accepted_max_input_tokens": 4096,
+          "context_limit_mode": "configured",
+          "latency_ms": 3377.3,
+          "peak_allocated_mib": 5185.5,
+          "image_count": 2,
+          "image_fidelity": null,
+          "processed_images": [
+            {
+              "width": 256,
+              "height": 192
+            },
+            {
+              "width": 192,
+              "height": 256
+            }
+          ],
+          "max_processed_pixels_per_image": 49152,
+          "processor_resize_enabled": false,
+          "queue_wait_ms": 0.1,
+          "server_total_ms": 3378.7
+        }
+      }
+    },
+    {
+      "label": "queued-text-0",
+      "status": 200,
+      "seconds": 6.324536121999699,
+      "response": {
+        "model": "clef-flash",
+        "answers": {
+          "category": {
+            "type": "choice",
+            "choice": "outage",
+            "confidence": 0.9431,
+            "probabilities": {
+              "outage": 0.9431,
+              "billing": 0.0189,
+              "other": 0.038
+            }
+          },
+          "urgent": {
+            "type": "noul",
+            "noul": 0.9416
+          },
+          "severity": {
+            "type": "score",
+            "score": 1.9647,
+            "confidence": 0.9763,
+            "legend": {
+              "0": "No impact",
+              "1": "Minor impact",
+              "2": "Customers cannot complete purchases"
+            },
+            "probabilities": {
+              "0": 0.0116,
+              "1": 0.0122,
+              "2": 0.9763
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 229,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 229,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 1.6,
+          "image_preprocess_cache_hits": 0,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 16,
+          "token_cache_misses": 13,
+          "cache_prepare_ms": 1.4,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "prefix_cache",
+          "prefix_cache": "miss",
+          "prefix_tokens": 52,
+          "reused_prefix_tokens": 0,
+          "new_prefix_tokens": 52,
+          "prefix_build_ms": 2880.5,
+          "prefix_checkpoints_saved": 1,
+          "vision_prefix_reused": false,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 0,
+          "accepted_max_input_tokens": 8192,
+          "context_limit_mode": "configured",
+          "latency_ms": 6317.2,
+          "peak_allocated_mib": 5210.7,
+          "queue_wait_ms": 0.1,
+          "server_total_ms": 6319.2
+        }
+      }
+    },
+    {
+      "label": "queued-text-1",
+      "status": 200,
+      "seconds": 9.76572256200052,
+      "response": {
+        "model": "clef-flash",
+        "answers": {
+          "category": {
+            "type": "choice",
+            "choice": "outage",
+            "confidence": 0.943,
+            "probabilities": {
+              "outage": 0.943,
+              "billing": 0.0189,
+              "other": 0.0381
+            }
+          },
+          "urgent": {
+            "type": "noul",
+            "noul": 0.9416
+          },
+          "severity": {
+            "type": "score",
+            "score": 1.9648,
+            "confidence": 0.9763,
+            "legend": {
+              "0": "No impact",
+              "1": "Minor impact",
+              "2": "Customers cannot complete purchases"
+            },
+            "probabilities": {
+              "0": 0.0115,
+              "1": 0.0121,
+              "2": 0.9763
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 229,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 229,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 0.2,
+          "image_preprocess_cache_hits": 0,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 29,
+          "token_cache_misses": 0,
+          "cache_prepare_ms": 2.4,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "prefix_cache",
+          "prefix_cache": "hit",
+          "prefix_tokens": 52,
+          "reused_prefix_tokens": 52,
+          "new_prefix_tokens": 0,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "vision_prefix_reused": false,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 0,
+          "accepted_max_input_tokens": 8192,
+          "context_limit_mode": "configured",
+          "latency_ms": 3443.1,
+          "peak_allocated_mib": 5210.3,
+          "queue_wait_ms": 6318.6,
+          "server_total_ms": 9763.8
+        }
+      }
+    },
+    {
+      "label": "vision-guard-pooled",
+      "status": 413,
+      "seconds": 0.1545723849994829,
+      "response": {
+        "detail": "Image 1 exceeds 8192 vision patch tokens; downscale this image",
+        "image_index": 1,
+        "vision_patch_tokens": 12288,
+        "max_vision_patch_tokens_per_image": 8192
+      }
+    },
+    {
+      "label": "token-guard",
+      "status": 413,
+      "seconds": 0.02664161500069895,
+      "response": {
+        "detail": "Request exceeds 8192 input tokens",
+        "input_tokens": 9229,
+        "max_input_tokens": 8192,
+        "context_limit_mode": "configured"
+      }
+    }
+  ],
+  "after": {
+    "queue": {
+      "enabled": true,
+      "policy": "fifo",
+      "gpu_workers": 1,
+      "active_requests": 0,
+      "waiting_requests": 0,
+      "max_waiting_requests": 64,
+      "wait_timeout_seconds": 300.0,
+      "admitted_requests": 0,
+      "admitted_payload_mib": 0.0,
+      "payload_limit_mib": 256.0,
+      "request_body_limit_mib": 224.0,
+      "completed": 7,
+      "failed": 0,
+      "cancelled": 0,
+      "timed_out": 0,
+      "rejected": 0,
+      "accepting": true
+    },
+    "status": "ok",
+    "model": "Cloudflare/clef-flash",
+    "startup_strategy": {
+      "gpu_name": "AMD Radeon RX 580 Series",
+      "capability": "gfx803",
+      "total_mib": 8192,
+      "profile": "flash",
+      "compute_dtype": "float16",
+      "linear_prefill_backend": "torch",
+      "fla_max_chunk_tokens": 256,
+      "tested_family": false,
+      "kernel_arch_supported": false,
+      "compiled_kernel_arches": [],
+      "runtime_backend": "rocm"
+    },
+    "quantization": "nf4",
+    "compact_embeddings": true,
+    "source_revision": "17f0b0ad64efb65d273590632833508766b2aae6",
+    "gpu": "AMD Radeon RX 580 Series",
+    "compute_dtype": "float16",
+    "nf4_layers": 358,
+    "linear_attention": {
+      "fast_path_available": false,
+      "layers": 24,
+      "prefill_override": "torch",
+      "fla_max_chunk_tokens": null,
+      "chunk_kernels": [
+        "transformers.models.qwen3_5.modeling_qwen3_5.torch_chunk_gated_delta_rule"
+      ],
+      "optimized_prefill": false,
+      "recurrent_kernels": [
+        "transformers.models.qwen3_5.modeling_qwen3_5.torch_recurrent_gated_delta_rule"
+      ],
+      "optimized_recurrence": false
+    },
+    "vision_attention": {
+      "query_tiling": true,
+      "query_chunk_tokens": 256,
+      "dense_threshold_tokens": 1024,
+      "layers": 27
+    },
+    "matrix_tuning": {
+      "enabled": true,
+      "live_tuning": false,
+      "backend": "rocblas",
+      "results": 111
+    },
+    "max_input_tokens": 8192,
+    "max_input_tokens_with_images": 4096,
+    "context_limit": {
+      "mode": "configured",
+      "estimated": false,
+      "computed_max_input_tokens": null,
+      "configured_max_input_tokens": 8192,
+      "configured_cap_applied": true,
+      "model_max_position_embeddings": 262144,
+      "image_limit_basis": "configured_chunked_ceiling",
+      "configured_max_input_tokens_with_images": 4096,
+      "available_request_mib": 2130.0,
+      "safety_reserve_mib": 512.0,
+      "full_attention_kv_bytes_per_token": 32768,
+      "retained_hidden_bytes_per_token": 8192,
+      "projected_growth_bytes_per_token": 76840,
+      "calibration_reference_tokens": null,
+      "calibration_workspace_mib": null,
+      "rounding_tokens": 4096,
+      "fallback_reason": "explicit fixed mode",
+      "snapshot_unix_seconds": 1791169807
+    },
+    "context_snapshot_status": "idle",
+    "input": [
+      "text",
+      "json",
+      "images"
+    ],
+    "image_input": {
+      "format": "base64 data URL",
+      "max_images": 16,
+      "max_processed_pixels_per_image": 16777216,
+      "max_vision_patch_tokens_per_image": 8192,
+      "resize_location": "client_for_gui",
+      "processor_defaults_for_api": true,
+      "legacy_fidelity_max_pixels": 1048576,
+      "default_fidelity": "standard",
+      "fidelities": {
+        "standard": 65536,
+        "low": 16384,
+        "medium": 262144,
+        "high": 1048576
+      },
+      "pooling_default": false,
+      "pooling_factor": 2
+    },
+    "attention_backend": "math",
+    "optimizations": {
+      "compact_schema": true,
+      "single_pass_preprocessing": true,
+      "chunked_prefill": {
+        "enabled": true,
+        "text_only": false,
+        "images_enabled": true,
+        "vision_batch_images": 1,
+        "initial_chunk_tokens": 1024,
+        "chunk_tokens": 1024,
+        "rocm_long_prompt_threshold": 4096,
+        "rocm_long_chunk_tokens": 512
+      },
+      "prefix_cache_enabled": true,
+      "image_feature_cache_enabled": true,
+      "promote_repeated_boundary": true,
+      "input_cache_enabled": true,
+      "prefix_cache": {
+        "entries": 2,
+        "mib": 59.1,
+        "limit_mib": 1906.4,
+        "budget_mode": "auto",
+        "elastic": true,
+        "phase": "idle",
+        "request_workspace_mib": 0.0,
+        "retention_rejections": {},
+        "last_retention_rejection": null,
+        "last_rejected_checkpoint_mib": 0.0,
+        "max_entries": 32,
+        "reserve_mib": 256.0,
+        "prefill_reserve_mib": 512.0,
+        "effective_reserve_mib": 256.0,
+        "observed_prefixes": 2,
+        "observed_workspace_mib": 224.0,
+        "observed_chunked_workspace_mib": 0.0,
+        "gpu_utilization_target": 1.0,
+        "checkpoint_tokens": 0,
+        "hits": 3,
+        "misses": 2,
+        "evictions": 0,
+        "reused_tokens": 326,
+        "image_features": {
+          "entries": 2,
+          "mib": 0.75,
+          "limit_mib": 256.0,
+          "max_entries": 64,
+          "hits": 0,
+          "misses": 2,
+          "evictions": 0
+        }
+      },
+      "input_cache": {
+        "image_entries": 3,
+        "image_mib": 74.47,
+        "image_limit_mib": 256.0,
+        "image_max_entries": 128,
+        "image_hits": 4,
+        "image_misses": 3,
+        "image_evictions": 0,
+        "token_entries": 28,
+        "token_mib": 0.33,
+        "token_limit_mib": 8.0,
+        "token_max_entries": 1024,
+        "token_hits": 139,
+        "token_misses": 28,
+        "token_evictions": 0
+      }
+    },
+    "allocated_mib": 5058.2,
+    "reserved_mib": 5330.0,
+    "free_device_mib": 1799.1
+  },
+  "passed": true
+}

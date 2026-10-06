@@ -1,3 +1,11 @@
+# Settings come from the environment or a .env file beside this file:
+#   CLEF_GPU           GPU index or UUID (default 0)
+#   CLEF_PROFILE       flash (default) or full
+#   CLEF_PORT          host port (default 8080)
+#   CLEF_BIND          host address to listen on (default 0.0.0.0, reachable from
+#                      your network); use 127.0.0.1 for this machine only
+#   CLEF_API_KEY_FILE  absolute path to an API key file on the host (recommended),
+#                      mounted read-only; or set CLEF_API_KEY, not both
 services:
   clef:
     build: .
@@ -5,13 +13,24 @@ services:
     init: true
     restart: unless-stopped
     ports:
-      - "${CLEF_PORT:-8080}:8080"
+      - "${CLEF_BIND:-0.0.0.0}:${CLEF_PORT:-8080}:8080"
     environment:
       CLEF_PROFILE: ${CLEF_PROFILE:-flash}
+      CLEF_API_KEY: ${CLEF_API_KEY:-}
+      # Points at the mounted file only when CLEF_API_KEY_FILE is set.
+      CLEF_API_KEY_FILE: ${CLEF_API_KEY_FILE:+/run/secrets/clef-api-key}
+      CLEF_REQUIRE_API_KEY: ${CLEF_REQUIRE_API_KEY:-0}
+      CLEF_DEMO_MODE: ${CLEF_DEMO_MODE:-0}
+      # Behind an HTTPS reverse proxy, set CLEF_PORTAL_COOKIE_SECURE=1.
+      CLEF_PORTAL_COOKIE_SECURE: ${CLEF_PORTAL_COOKIE_SECURE:-0}
+      # API-only deployments can set 0 to stop the portal issuing sessions.
+      CLEF_PORTAL_AUTO_AUTH: ${CLEF_PORTAL_AUTO_AUTH:-1}
       # Optional for authenticated model downloads; not stored in the image.
       HF_TOKEN: ${HF_TOKEN:-}
     volumes:
       - clef-cache:/data
+      # Without CLEF_API_KEY_FILE an empty placeholder is mounted and ignored.
+      - ${CLEF_API_KEY_FILE:-/dev/null}:/run/secrets/clef-api-key:ro
     deploy:
       resources:
         reservations:

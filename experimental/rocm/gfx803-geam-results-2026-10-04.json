@@ -1,0 +1,2120 @@
+{
+  "completed": true,
+  "provenance": "Schaka/rocm-gfx803 685b2cd0e1a8d48497d694b9dc5a1130fd059f89, unchanged gfx803_gemm_lib.hip",
+  "micro": [
+    {
+      "tokens": 128,
+      "method": "bnb",
+      "ms": 7.148138000047766,
+      "max_abs_error": 0.0,
+      "mean_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "passed": true
+    },
+    {
+      "tokens": 128,
+      "method": "fp16_rocblas",
+      "ms": 6.374786333253724,
+      "max_abs_error": 0.0,
+      "mean_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "passed": true
+    },
+    {
+      "tokens": 128,
+      "method": "gfx803_fp16_pretransposed",
+      "ms": 3.9753689998178743,
+      "max_abs_error": 3.0517578125e-05,
+      "mean_abs_error": 1.2897809931189386e-08,
+      "relative_l2_error": 2.5786421247175895e-05,
+      "passed": true
+    },
+    {
+      "tokens": 128,
+      "method": "gfx803_nf4_with_layout_cost",
+      "ms": 54.830723333604205,
+      "max_abs_error": 3.0517578125e-05,
+      "mean_abs_error": 1.2897809931189386e-08,
+      "relative_l2_error": 2.5786421247175895e-05,
+      "passed": true
+    },
+    {
+      "tokens": 512,
+      "method": "bnb",
+      "ms": 30.746744999608683,
+      "max_abs_error": 0.0,
+      "mean_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "passed": true
+    },
+    {
+      "tokens": 512,
+      "method": "fp16_rocblas",
+      "ms": 29.86227866676927,
+      "max_abs_error": 0.0,
+      "mean_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "passed": true
+    },
+    {
+      "tokens": 512,
+      "method": "gfx803_fp16_pretransposed",
+      "ms": 14.851566000288585,
+      "max_abs_error": 6.103515625e-05,
+      "mean_abs_error": 1.2606430566108884e-08,
+      "relative_l2_error": 2.5311088393209502e-05,
+      "passed": true
+    },
+    {
+      "tokens": 512,
+      "method": "gfx803_nf4_with_layout_cost",
+      "ms": 65.59967000005902,
+      "max_abs_error": 6.103515625e-05,
+      "mean_abs_error": 1.2606430566108884e-08,
+      "relative_l2_error": 2.5311088393209502e-05,
+      "passed": true
+    },
+    {
+      "tokens": 1024,
+      "method": "bnb",
+      "ms": 39.31086466703467,
+      "max_abs_error": 0.0,
+      "mean_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "passed": true
+    },
+    {
+      "tokens": 1024,
+      "method": "fp16_rocblas",
+      "ms": 39.118785000027856,
+      "max_abs_error": 0.0,
+      "mean_abs_error": 0.0,
+      "relative_l2_error": 0.0,
+      "passed": true
+    },
+    {
+      "tokens": 1024,
+      "method": "gfx803_fp16_pretransposed",
+      "ms": 31.195949000296725,
+      "max_abs_error": 3.0517578125e-05,
+      "mean_abs_error": 1.2711353747363319e-08,
+      "relative_l2_error": 2.559729909989983e-05,
+      "passed": true
+    },
+    {
+      "tokens": 1024,
+      "method": "gfx803_nf4_with_layout_cost",
+      "ms": 80.10458033337879,
+      "max_abs_error": 3.0517578125e-05,
+      "mean_abs_error": 1.2711353747363319e-08,
+      "relative_l2_error": 2.559729909989983e-05,
+      "passed": true
+    }
+  ],
+  "cases": [
+    {
+      "fixture": "text",
+      "enabled": false,
+      "seconds": 13.931366094000623,
+      "kernel_calls": 0,
+      "peak_mib": 5121.57080078125,
+      "result": {
+        "model": "clef-flash",
+        "answers": {
+          "category": {
+            "type": "choice",
+            "choice": "outage",
+            "confidence": 0.943,
+            "probabilities": {
+              "outage": 0.943,
+              "billing": 0.0189,
+              "other": 0.0381
+            }
+          },
+          "urgent": {
+            "type": "noul",
+            "noul": 0.9415
+          },
+          "severity": {
+            "type": "score",
+            "score": 1.9648,
+            "confidence": 0.9764,
+            "legend": {
+              "0": "No impact",
+              "1": "Minor impact",
+              "2": "Customers cannot complete purchases"
+            },
+            "probabilities": {
+              "0": 0.0115,
+              "1": 0.0121,
+              "2": 0.9764
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 229,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 229,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 7.9,
+          "image_preprocess_cache_hits": 0,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 10,
+          "token_cache_misses": 19,
+          "cache_prepare_ms": 0.5,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "single_pass",
+          "prefix_cache": "disabled",
+          "prefix_tokens": 52,
+          "reused_prefix_tokens": 0,
+          "new_prefix_tokens": 52,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "vision_prefix_reused": false,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 0,
+          "accepted_max_input_tokens": 8192,
+          "context_limit_mode": "configured",
+          "latency_ms": 13930.6,
+          "peak_allocated_mib": 5121.6
+        }
+      }
+    },
+    {
+      "fixture": "photos256",
+      "enabled": false,
+      "seconds": 5.153973522001252,
+      "kernel_calls": 0,
+      "peak_mib": 5129.6337890625,
+      "result": {
+        "model": "clef-flash",
+        "answers": {
+          "fish": {
+            "type": "noul",
+            "noul": 0.6841
+          },
+          "count": {
+            "type": "choice",
+            "choice": "two",
+            "confidence": 0.941,
+            "probabilities": {
+              "one": 0.0174,
+              "two": 0.941,
+              "three": 0.0416
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 268,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 268,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 31.0,
+          "image_preprocess_cache_hits": 0,
+          "image_preprocess_cache_misses": 2,
+          "token_cache_hits": 12,
+          "token_cache_misses": 8,
+          "cache_prepare_ms": 0.3,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "single_pass",
+          "prefix_cache": "disabled",
+          "prefix_tokens": 142,
+          "reused_prefix_tokens": 0,
+          "new_prefix_tokens": 142,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "vision_prefix_reused": false,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 2,
+          "accepted_max_input_tokens": 4096,
+          "context_limit_mode": "configured",
+          "latency_ms": 5153.2,
+          "peak_allocated_mib": 5129.6,
+          "image_count": 2,
+          "image_fidelity": null,
+          "processed_images": [
+            {
+              "width": 256,
+              "height": 192
+            },
+            {
+              "width": 192,
+              "height": 256
+            }
+          ],
+          "max_processed_pixels_per_image": 49152,
+          "processor_resize_enabled": false
+        }
+      }
+    },
+    {
+      "fixture": "longtext",
+      "enabled": false,
+      "seconds": 25.286813038999753,
+      "kernel_calls": 0,
+      "peak_mib": 5464.70458984375,
+      "result": {
+        "model": "clef-flash",
+        "answers": {
+          "category": {
+            "type": "choice",
+            "choice": "outage",
+            "confidence": 0.932,
+            "probabilities": {
+              "outage": 0.932,
+              "billing": 0.0231,
+              "other": 0.045
+            }
+          },
+          "urgent": {
+            "type": "noul",
+            "noul": 0.962
+          },
+          "severity": {
+            "type": "score",
+            "score": 1.9402,
+            "confidence": 0.9611,
+            "legend": {
+              "0": "No impact",
+              "1": "Minor impact",
+              "2": "Customers cannot complete purchases"
+            },
+            "probabilities": {
+              "0": 0.0209,
+              "1": 0.0181,
+              "2": 0.9611
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 2042,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 2042,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 8.9,
+          "image_preprocess_cache_hits": 0,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 29,
+          "token_cache_misses": 1,
+          "cache_prepare_ms": 0.4,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "chunked",
+          "prefill_chunks": 4,
+          "prefill_initial_chunk_tokens": 1024,
+          "prefill_chunk_tokens": 1024,
+          "language_ms": 25206.6,
+          "head_ms": 66.8,
+          "prefix_cache": "disabled",
+          "prefix_tokens": 1865,
+          "reused_prefix_tokens": 0,
+          "cache_memory_budget_mib": 1403.5,
+          "cache_limit_reason": "disabled_by_request",
+          "new_prefix_tokens": 1865,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 0,
+          "accepted_max_input_tokens": 8192,
+          "context_limit_mode": "configured",
+          "latency_ms": 25286.4,
+          "peak_allocated_mib": 5464.7
+        }
+      }
+    },
+    {
+      "fixture": "text",
+      "enabled": false,
+      "seconds": 3.812402234001638,
+      "kernel_calls": 0,
+      "peak_mib": 5121.57080078125,
+      "result": {
+        "model": "clef-flash",
+        "answers": {
+          "category": {
+            "type": "choice",
+            "choice": "outage",
+            "confidence": 0.943,
+            "probabilities": {
+              "outage": 0.943,
+              "billing": 0.0189,
+              "other": 0.0381
+            }
+          },
+          "urgent": {
+            "type": "noul",
+            "noul": 0.9415
+          },
+          "severity": {
+            "type": "score",
+            "score": 1.9648,
+            "confidence": 0.9764,
+            "legend": {
+              "0": "No impact",
+              "1": "Minor impact",
+              "2": "Customers cannot complete purchases"
+            },
+            "probabilities": {
+              "0": 0.0115,
+              "1": 0.0121,
+              "2": 0.9764
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 229,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 229,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 0.3,
+          "image_preprocess_cache_hits": 0,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 29,
+          "token_cache_misses": 0,
+          "cache_prepare_ms": 0.5,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "single_pass",
+          "prefix_cache": "disabled",
+          "prefix_tokens": 52,
+          "reused_prefix_tokens": 0,
+          "new_prefix_tokens": 52,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "vision_prefix_reused": false,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 0,
+          "accepted_max_input_tokens": 8192,
+          "context_limit_mode": "configured",
+          "latency_ms": 3811.9,
+          "peak_allocated_mib": 5121.6
+        }
+      }
+    },
+    {
+      "fixture": "photos256",
+      "enabled": false,
+      "seconds": 4.198575080001319,
+      "kernel_calls": 0,
+      "peak_mib": 5129.6337890625,
+      "result": {
+        "model": "clef-flash",
+        "answers": {
+          "fish": {
+            "type": "noul",
+            "noul": 0.6841
+          },
+          "count": {
+            "type": "choice",
+            "choice": "two",
+            "confidence": 0.941,
+            "probabilities": {
+              "one": 0.0174,
+              "two": 0.941,
+              "three": 0.0416
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 268,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 268,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 1.8,
+          "image_preprocess_cache_hits": 2,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 20,
+          "token_cache_misses": 0,
+          "cache_prepare_ms": 0.5,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "single_pass",
+          "prefix_cache": "disabled",
+          "prefix_tokens": 142,
+          "reused_prefix_tokens": 0,
+          "new_prefix_tokens": 142,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "vision_prefix_reused": false,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 2,
+          "accepted_max_input_tokens": 4096,
+          "context_limit_mode": "configured",
+          "latency_ms": 4197.8,
+          "peak_allocated_mib": 5129.6,
+          "image_count": 2,
+          "image_fidelity": null,
+          "processed_images": [
+            {
+              "width": 256,
+              "height": 192
+            },
+            {
+              "width": 192,
+              "height": 256
+            }
+          ],
+          "max_processed_pixels_per_image": 49152,
+          "processor_resize_enabled": false
+        }
+      }
+    },
+    {
+      "fixture": "longtext",
+      "enabled": false,
+      "seconds": 22.42716309199932,
+      "kernel_calls": 0,
+      "peak_mib": 5464.70458984375,
+      "result": {
+        "model": "clef-flash",
+        "answers": {
+          "category": {
+            "type": "choice",
+            "choice": "outage",
+            "confidence": 0.932,
+            "probabilities": {
+              "outage": 0.932,
+              "billing": 0.0231,
+              "other": 0.045
+            }
+          },
+          "urgent": {
+            "type": "noul",
+            "noul": 0.962
+          },
+          "severity": {
+            "type": "score",
+            "score": 1.9402,
+            "confidence": 0.9611,
+            "legend": {
+              "0": "No impact",
+              "1": "Minor impact",
+              "2": "Customers cannot complete purchases"
+            },
+            "probabilities": {
+              "0": 0.0209,
+              "1": 0.0181,
+              "2": 0.9611
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 2042,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 2042,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 0.5,
+          "image_preprocess_cache_hits": 0,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 30,
+          "token_cache_misses": 0,
+          "cache_prepare_ms": 0.5,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "chunked",
+          "prefill_chunks": 4,
+          "prefill_initial_chunk_tokens": 1024,
+          "prefill_chunk_tokens": 1024,
+          "language_ms": 22354.6,
+          "head_ms": 66.9,
+          "prefix_cache": "disabled",
+          "prefix_tokens": 1865,
+          "reused_prefix_tokens": 0,
+          "cache_memory_budget_mib": 1335.5,
+          "cache_limit_reason": "disabled_by_request",
+          "new_prefix_tokens": 1865,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 0,
+          "accepted_max_input_tokens": 8192,
+          "context_limit_mode": "configured",
+          "latency_ms": 22426.7,
+          "peak_allocated_mib": 5464.7
+        }
+      }
+    },
+    {
+      "fixture": "text",
+      "enabled": true,
+      "seconds": 8.400740031000169,
+      "kernel_calls": 96,
+      "peak_mib": 5588.20361328125,
+      "result": {
+        "model": "clef-flash",
+        "answers": {
+          "category": {
+            "type": "choice",
+            "choice": "outage",
+            "confidence": 0.9429,
+            "probabilities": {
+              "outage": 0.9429,
+              "billing": 0.0189,
+              "other": 0.0382
+            }
+          },
+          "urgent": {
+            "type": "noul",
+            "noul": 0.9415
+          },
+          "severity": {
+            "type": "score",
+            "score": 1.9648,
+            "confidence": 0.9763,
+            "legend": {
+              "0": "No impact",
+              "1": "Minor impact",
+              "2": "Customers cannot complete purchases"
+            },
+            "probabilities": {
+              "0": 0.0115,
+              "1": 0.0121,
+              "2": 0.9763
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 229,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 229,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 0.4,
+          "image_preprocess_cache_hits": 0,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 29,
+          "token_cache_misses": 0,
+          "cache_prepare_ms": 0.5,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "single_pass",
+          "prefix_cache": "disabled",
+          "prefix_tokens": 52,
+          "reused_prefix_tokens": 0,
+          "new_prefix_tokens": 52,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "vision_prefix_reused": false,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 0,
+          "accepted_max_input_tokens": 8192,
+          "context_limit_mode": "configured",
+          "latency_ms": 8400.2,
+          "peak_allocated_mib": 5588.2
+        }
+      }
+    },
+    {
+      "fixture": "photos256",
+      "enabled": true,
+      "seconds": 8.850785265000013,
+      "kernel_calls": 96,
+      "peak_mib": 5595.3525390625,
+      "result": {
+        "model": "clef-flash",
+        "answers": {
+          "fish": {
+            "type": "noul",
+            "noul": 0.6843
+          },
+          "count": {
+            "type": "choice",
+            "choice": "two",
+            "confidence": 0.9409,
+            "probabilities": {
+              "one": 0.0176,
+              "two": 0.9409,
+              "three": 0.0415
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 268,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 268,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 1.2,
+          "image_preprocess_cache_hits": 2,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 20,
+          "token_cache_misses": 0,
+          "cache_prepare_ms": 0.7,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "single_pass",
+          "prefix_cache": "disabled",
+          "prefix_tokens": 142,
+          "reused_prefix_tokens": 0,
+          "new_prefix_tokens": 142,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "vision_prefix_reused": false,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 2,
+          "accepted_max_input_tokens": 4096,
+          "context_limit_mode": "configured",
+          "latency_ms": 8850.0,
+          "peak_allocated_mib": 5595.4,
+          "image_count": 2,
+          "image_fidelity": null,
+          "processed_images": [
+            {
+              "width": 256,
+              "height": 192
+            },
+            {
+              "width": 192,
+              "height": 256
+            }
+          ],
+          "max_processed_pixels_per_image": 49152,
+          "processor_resize_enabled": false
+        }
+      }
+    },
+    {
+      "fixture": "longtext",
+      "enabled": true,
+      "seconds": 35.24590913699831,
+      "kernel_calls": 288,
+      "peak_mib": 5727.14599609375,
+      "result": {
+        "model": "clef-flash",
+        "answers": {
+          "category": {
+            "type": "choice",
+            "choice": "outage",
+            "confidence": 0.9321,
+            "probabilities": {
+              "outage": 0.9321,
+              "billing": 0.0231,
+              "other": 0.0448
+            }
+          },
+          "urgent": {
+            "type": "noul",
+            "noul": 0.9619
+          },
+          "severity": {
+            "type": "score",
+            "score": 1.9401,
+            "confidence": 0.961,
+            "legend": {
+              "0": "No impact",
+              "1": "Minor impact",
+              "2": "Customers cannot complete purchases"
+            },
+            "probabilities": {
+              "0": 0.0209,
+              "1": 0.0182,
+              "2": 0.961
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 2042,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 2042,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 0.4,
+          "image_preprocess_cache_hits": 0,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 30,
+          "token_cache_misses": 0,
+          "cache_prepare_ms": 0.5,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "chunked",
+          "prefill_chunks": 4,
+          "prefill_initial_chunk_tokens": 1024,
+          "prefill_chunk_tokens": 1024,
+          "language_ms": 35173.7,
+          "head_ms": 66.8,
+          "prefix_cache": "disabled",
+          "prefix_tokens": 1865,
+          "reused_prefix_tokens": 0,
+          "cache_memory_budget_mib": 1019.8,
+          "cache_limit_reason": "disabled_by_request",
+          "new_prefix_tokens": 1865,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 0,
+          "accepted_max_input_tokens": 8192,
+          "context_limit_mode": "configured",
+          "latency_ms": 35245.5,
+          "peak_allocated_mib": 5727.1
+        }
+      }
+    },
+    {
+      "fixture": "text",
+      "enabled": false,
+      "seconds": 3.8108750770006736,
+      "kernel_calls": 0,
+      "peak_mib": 5121.57080078125,
+      "result": {
+        "model": "clef-flash",
+        "answers": {
+          "category": {
+            "type": "choice",
+            "choice": "outage",
+            "confidence": 0.943,
+            "probabilities": {
+              "outage": 0.943,
+              "billing": 0.0189,
+              "other": 0.0381
+            }
+          },
+          "urgent": {
+            "type": "noul",
+            "noul": 0.9415
+          },
+          "severity": {
+            "type": "score",
+            "score": 1.9648,
+            "confidence": 0.9764,
+            "legend": {
+              "0": "No impact",
+              "1": "Minor impact",
+              "2": "Customers cannot complete purchases"
+            },
+            "probabilities": {
+              "0": 0.0115,
+              "1": 0.0121,
+              "2": 0.9764
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 229,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 229,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 0.3,
+          "image_preprocess_cache_hits": 0,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 29,
+          "token_cache_misses": 0,
+          "cache_prepare_ms": 0.5,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "single_pass",
+          "prefix_cache": "disabled",
+          "prefix_tokens": 52,
+          "reused_prefix_tokens": 0,
+          "new_prefix_tokens": 52,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "vision_prefix_reused": false,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 0,
+          "accepted_max_input_tokens": 8192,
+          "context_limit_mode": "configured",
+          "latency_ms": 3810.4,
+          "peak_allocated_mib": 5121.6
+        }
+      }
+    },
+    {
+      "fixture": "photos256",
+      "enabled": false,
+      "seconds": 4.195231146000879,
+      "kernel_calls": 0,
+      "peak_mib": 5129.6337890625,
+      "result": {
+        "model": "clef-flash",
+        "answers": {
+          "fish": {
+            "type": "noul",
+            "noul": 0.6841
+          },
+          "count": {
+            "type": "choice",
+            "choice": "two",
+            "confidence": 0.941,
+            "probabilities": {
+              "one": 0.0174,
+              "two": 0.941,
+              "three": 0.0416
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 268,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 268,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 1.3,
+          "image_preprocess_cache_hits": 2,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 20,
+          "token_cache_misses": 0,
+          "cache_prepare_ms": 0.5,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "single_pass",
+          "prefix_cache": "disabled",
+          "prefix_tokens": 142,
+          "reused_prefix_tokens": 0,
+          "new_prefix_tokens": 142,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "vision_prefix_reused": false,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 2,
+          "accepted_max_input_tokens": 4096,
+          "context_limit_mode": "configured",
+          "latency_ms": 4194.5,
+          "peak_allocated_mib": 5129.6,
+          "image_count": 2,
+          "image_fidelity": null,
+          "processed_images": [
+            {
+              "width": 256,
+              "height": 192
+            },
+            {
+              "width": 192,
+              "height": 256
+            }
+          ],
+          "max_processed_pixels_per_image": 49152,
+          "processor_resize_enabled": false
+        }
+      }
+    },
+    {
+      "fixture": "longtext",
+      "enabled": false,
+      "seconds": 22.407419429000583,
+      "kernel_calls": 0,
+      "peak_mib": 5464.70458984375,
+      "result": {
+        "model": "clef-flash",
+        "answers": {
+          "category": {
+            "type": "choice",
+            "choice": "outage",
+            "confidence": 0.932,
+            "probabilities": {
+              "outage": 0.932,
+              "billing": 0.0231,
+              "other": 0.045
+            }
+          },
+          "urgent": {
+            "type": "noul",
+            "noul": 0.962
+          },
+          "severity": {
+            "type": "score",
+            "score": 1.9402,
+            "confidence": 0.9611,
+            "legend": {
+              "0": "No impact",
+              "1": "Minor impact",
+              "2": "Customers cannot complete purchases"
+            },
+            "probabilities": {
+              "0": 0.0209,
+              "1": 0.0181,
+              "2": 0.9611
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 2042,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 2042,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 0.5,
+          "image_preprocess_cache_hits": 0,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 30,
+          "token_cache_misses": 0,
+          "cache_prepare_ms": 0.5,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 256.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "chunked",
+          "prefill_chunks": 4,
+          "prefill_initial_chunk_tokens": 1024,
+          "prefill_chunk_tokens": 1024,
+          "language_ms": 22335.1,
+          "head_ms": 66.8,
+          "prefix_cache": "disabled",
+          "prefix_tokens": 1865,
+          "reused_prefix_tokens": 0,
+          "cache_memory_budget_mib": 965.8,
+          "cache_limit_reason": "disabled_by_request",
+          "new_prefix_tokens": 1865,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 0,
+          "accepted_max_input_tokens": 8192,
+          "context_limit_mode": "configured",
+          "latency_ms": 22407.0,
+          "peak_allocated_mib": 5464.7
+        }
+      }
+    }
+  ],
+  "persistent_weight_cache_bytes": 0,
+  "health": {
+    "queue": {
+      "enabled": true,
+      "policy": "fifo",
+      "gpu_workers": 1,
+      "active_requests": 0,
+      "waiting_requests": 0,
+      "max_waiting_requests": 64,
+      "wait_timeout_seconds": 300.0,
+      "admitted_requests": 0,
+      "admitted_payload_mib": 0.0,
+      "payload_limit_mib": 256.0,
+      "request_body_limit_mib": 224.0,
+      "completed": 0,
+      "failed": 0,
+      "cancelled": 0,
+      "timed_out": 0,
+      "rejected": 0,
+      "accepting": true
+    },
+    "status": "ok",
+    "model": "Cloudflare/clef-flash",
+    "startup_strategy": {
+      "gpu_name": "AMD Radeon RX 580 Series",
+      "capability": "gfx803",
+      "total_mib": 8192,
+      "profile": "flash",
+      "compute_dtype": "float16",
+      "linear_prefill_backend": "torch",
+      "fla_max_chunk_tokens": 256,
+      "tested_family": false,
+      "kernel_arch_supported": false,
+      "compiled_kernel_arches": [],
+      "runtime_backend": "rocm"
+    },
+    "quantization": "nf4",
+    "compact_embeddings": true,
+    "source_revision": "17f0b0ad64efb65d273590632833508766b2aae6",
+    "gpu": "AMD Radeon RX 580 Series",
+    "compute_dtype": "float16",
+    "nf4_layers": 358,
+    "linear_attention": {
+      "fast_path_available": false,
+      "layers": 24,
+      "native_gdn_block_tokens": 64,
+      "prefill_override": "torch",
+      "fla_max_chunk_tokens": null,
+      "chunk_kernels": [
+        "transformers.models.qwen3_5.modeling_qwen3_5.torch_chunk_gated_delta_rule"
+      ],
+      "optimized_prefill": false,
+      "recurrent_kernels": [
+        "transformers.models.qwen3_5.modeling_qwen3_5.torch_recurrent_gated_delta_rule"
+      ],
+      "optimized_recurrence": false
+    },
+    "vision_attention": {
+      "query_tiling": true,
+      "query_chunk_tokens": 256,
+      "dense_threshold_tokens": 1024,
+      "layers": 27
+    },
+    "matrix_tuning": {
+      "enabled": true,
+      "live_tuning": false,
+      "backend": "rocblas",
+      "results": 111
+    },
+    "max_input_tokens": 8192,
+    "max_input_tokens_with_images": 4096,
+    "context_limit": {
+      "mode": "configured",
+      "estimated": false,
+      "computed_max_input_tokens": null,
+      "configured_max_input_tokens": 8192,
+      "configured_cap_applied": true,
+      "model_max_position_embeddings": 262144,
+      "image_limit_basis": "configured_chunked_ceiling",
+      "configured_max_input_tokens_with_images": 4096,
+      "available_request_mib": 3007.2,
+      "safety_reserve_mib": 512.0,
+      "full_attention_kv_bytes_per_token": 32768,
+      "retained_hidden_bytes_per_token": 8192,
+      "projected_growth_bytes_per_token": 76840,
+      "calibration_reference_tokens": null,
+      "calibration_workspace_mib": null,
+      "rounding_tokens": 4096,
+      "fallback_reason": "explicit fixed mode",
+      "snapshot_unix_seconds": 1791168877
+    },
+    "context_snapshot_status": "idle",
+    "input": [
+      "text",
+      "json",
+      "images"
+    ],
+    "image_input": {
+      "format": "base64 data URL",
+      "max_images": 16,
+      "max_processed_pixels_per_image": 16777216,
+      "max_vision_patch_tokens_per_image": 8192,
+      "resize_location": "client_for_gui",
+      "processor_defaults_for_api": true,
+      "legacy_fidelity_max_pixels": 1048576,
+      "default_fidelity": "standard",
+      "fidelities": {
+        "standard": 65536,
+        "low": 16384,
+        "medium": 262144,
+        "high": 1048576
+      },
+      "pooling_default": false,
+      "pooling_factor": 2
+    },
+    "attention_backend": "math",
+    "optimizations": {
+      "compact_schema": true,
+      "single_pass_preprocessing": true,
+      "observed_chunked_workspace_admission": false,
+      "chunked_prefill": {
+        "enabled": true,
+        "text_only": false,
+        "images_enabled": true,
+        "vision_batch_images": 1,
+        "initial_chunk_tokens": 1024,
+        "chunk_tokens": 1024,
+        "rocm_long_prompt_threshold": 4096,
+        "rocm_long_chunk_tokens": 512
+      },
+      "prefix_cache_enabled": true,
+      "image_feature_cache_enabled": true,
+      "promote_repeated_boundary": true,
+      "input_cache_enabled": true,
+      "prefix_cache": {
+        "entries": 0,
+        "mib": 0.0,
+        "limit_mib": 2783.2,
+        "budget_mode": "auto",
+        "elastic": true,
+        "phase": "idle",
+        "request_workspace_mib": 0.0,
+        "retention_rejections": {},
+        "last_retention_rejection": null,
+        "last_rejected_checkpoint_mib": 0.0,
+        "max_entries": 32,
+        "reserve_mib": 256.0,
+        "prefill_reserve_mib": 512.0,
+        "effective_reserve_mib": 256.0,
+        "observed_prefixes": 0,
+        "observed_workspace_mib": 0.0,
+        "observed_chunked_workspace_mib": 0.0,
+        "gpu_utilization_target": 1.0,
+        "checkpoint_tokens": 0,
+        "hits": 0,
+        "misses": 0,
+        "evictions": 0,
+        "reused_tokens": 0,
+        "image_features": {
+          "entries": 0,
+          "mib": 0.0,
+          "limit_mib": 256.0,
+          "max_entries": 64,
+          "hits": 0,
+          "misses": 0,
+          "evictions": 0
+        }
+      },
+      "input_cache": {
+        "image_entries": 0,
+        "image_mib": 0.0,
+        "image_limit_mib": 256.0,
+        "image_max_entries": 128,
+        "image_hits": 0,
+        "image_misses": 0,
+        "image_evictions": 0,
+        "token_entries": 0,
+        "token_mib": 0.0,
+        "token_limit_mib": 8.0,
+        "token_max_entries": 1024,
+        "token_hits": 0,
+        "token_misses": 0,
+        "token_evictions": 0
+      }
+    },
+    "allocated_mib": 4966.8,
+    "reserved_mib": 5068.0,
+    "free_device_mib": 2906.0
+  },
+  "layout": "rocBLAS FP32 GEAM with lossless FP16 round trip",
+  "transpose": {
+    "ms": 50.1398160001069,
+    "bitwise_equal": true
+  },
+  "weight_shape": [
+    12288,
+    4096
+  ],
+  "eligible_layers": [
+    {
+      "name": "language_model.model.language_model.layers.0.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.0.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.0.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.1.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.1.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.1.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.2.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.2.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.2.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.3.self_attn.q_proj",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.3.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.3.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.4.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.4.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.4.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.5.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.5.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.5.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.6.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.6.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.6.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.7.self_attn.q_proj",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.7.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.7.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.8.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.8.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.8.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.9.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.9.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.9.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.10.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.10.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.10.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.11.self_attn.q_proj",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.11.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.11.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.12.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.12.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.12.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.13.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.13.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.13.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.14.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.14.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.14.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.15.self_attn.q_proj",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.15.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.15.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.16.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.16.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.16.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.17.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.17.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.17.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.18.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.18.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.18.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.19.self_attn.q_proj",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.19.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.19.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.20.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.20.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.20.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.21.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.21.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.21.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.22.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.22.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.22.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.23.self_attn.q_proj",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.23.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.23.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.24.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.24.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.24.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.25.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.25.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.25.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.26.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.26.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.26.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.27.self_attn.q_proj",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.27.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.27.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.28.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.28.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.28.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.29.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.29.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.29.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.30.linear_attn.in_proj_qkv",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.30.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.30.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.31.self_attn.q_proj",
+      "in_features": 4096,
+      "out_features": 8192
+    },
+    {
+      "name": "language_model.model.language_model.layers.31.mlp.gate_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    },
+    {
+      "name": "language_model.model.language_model.layers.31.mlp.up_proj",
+      "in_features": 4096,
+      "out_features": 12288
+    }
+  ],
+  "admission_validation": [
+    {
+      "fixture": "text8192",
+      "pass": 1,
+      "seconds": 246.91387013699932,
+      "result": {
+        "model": "clef-flash",
+        "answers": {
+          "category": {
+            "type": "choice",
+            "choice": "outage",
+            "confidence": 0.9497,
+            "probabilities": {
+              "outage": 0.9497,
+              "billing": 0.0199,
+              "other": 0.0304
+            }
+          },
+          "urgent": {
+            "type": "noul",
+            "noul": 0.9596
+          },
+          "severity": {
+            "type": "score",
+            "score": 1.9388,
+            "confidence": 0.9595,
+            "legend": {
+              "0": "No impact",
+              "1": "Minor impact",
+              "2": "Customers cannot complete purchases"
+            },
+            "probabilities": {
+              "0": 0.0207,
+              "1": 0.0197,
+              "2": 0.9595
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 8192,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 8192,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 0.8,
+          "image_preprocess_cache_hits": 0,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 30,
+          "token_cache_misses": 0,
+          "cache_prepare_ms": 0.5,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 512.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "chunked",
+          "prefill_chunks": 18,
+          "prefill_initial_chunk_tokens": 512,
+          "prefill_chunk_tokens": 512,
+          "language_ms": 128786.5,
+          "head_ms": 188.9,
+          "prefix_cache": "memory_fallback",
+          "prefix_tokens": 8015,
+          "reused_prefix_tokens": 0,
+          "cache_memory_budget_mib": 530.9,
+          "cache_limit_reason": "disabled_by_request",
+          "new_prefix_tokens": 8015,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 0,
+          "accepted_max_input_tokens": 8192,
+          "context_limit_mode": "configured",
+          "latency_ms": 246913.4,
+          "peak_allocated_mib": 6323.2
+        }
+      },
+      "longest_retained_prefix_tokens": 0,
+      "cache_stats": {
+        "entries": 0,
+        "mib": 0.0,
+        "limit_mib": 1547.2,
+        "budget_mode": "auto",
+        "elastic": true,
+        "phase": "idle",
+        "request_workspace_mib": 0.0,
+        "retention_rejections": {},
+        "last_retention_rejection": null,
+        "last_rejected_checkpoint_mib": 0.0,
+        "max_entries": 32,
+        "reserve_mib": 256.0,
+        "prefill_reserve_mib": 512.0,
+        "effective_reserve_mib": 256.0,
+        "observed_prefixes": 1,
+        "observed_workspace_mib": 628.6,
+        "observed_chunked_workspace_mib": 1356.5,
+        "gpu_utilization_target": 1.0,
+        "checkpoint_tokens": 0,
+        "hits": 0,
+        "misses": 1,
+        "evictions": 0,
+        "reused_tokens": 0,
+        "image_features": {
+          "entries": 0,
+          "mib": 0.0,
+          "limit_mib": 256.0,
+          "max_entries": 64,
+          "hits": 0,
+          "misses": 8,
+          "evictions": 0
+        }
+      }
+    },
+    {
+      "fixture": "text8192",
+      "pass": 2,
+      "seconds": 128.25736420400062,
+      "result": {
+        "model": "clef-flash",
+        "answers": {
+          "category": {
+            "type": "choice",
+            "choice": "outage",
+            "confidence": 0.9498,
+            "probabilities": {
+              "outage": 0.9498,
+              "billing": 0.0198,
+              "other": 0.0304
+            }
+          },
+          "urgent": {
+            "type": "noul",
+            "noul": 0.9595
+          },
+          "severity": {
+            "type": "score",
+            "score": 1.9388,
+            "confidence": 0.9596,
+            "legend": {
+              "0": "No impact",
+              "1": "Minor impact",
+              "2": "Customers cannot complete purchases"
+            },
+            "probabilities": {
+              "0": 0.0208,
+              "1": 0.0197,
+              "2": 0.9596
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 8192,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 8192,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 0.4,
+          "image_preprocess_cache_hits": 0,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 30,
+          "token_cache_misses": 0,
+          "cache_prepare_ms": 0.2,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 512.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "chunked",
+          "prefill_chunks": 18,
+          "prefill_initial_chunk_tokens": 512,
+          "prefill_chunk_tokens": 512,
+          "language_ms": 128061.9,
+          "head_ms": 190.0,
+          "prefix_cache": "disabled",
+          "prefix_tokens": 8015,
+          "reused_prefix_tokens": 0,
+          "cache_memory_budget_mib": 0.0,
+          "cache_limit_reason": "request_memory_budget",
+          "new_prefix_tokens": 8015,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 0,
+          "accepted_max_input_tokens": 8192,
+          "context_limit_mode": "configured",
+          "latency_ms": 128257.0,
+          "peak_allocated_mib": 6323.2
+        }
+      },
+      "longest_retained_prefix_tokens": 0,
+      "cache_stats": {
+        "entries": 0,
+        "mib": 0.0,
+        "limit_mib": 1595.2,
+        "budget_mode": "auto",
+        "elastic": true,
+        "phase": "idle",
+        "request_workspace_mib": 0.0,
+        "retention_rejections": {},
+        "last_retention_rejection": null,
+        "last_rejected_checkpoint_mib": 0.0,
+        "max_entries": 32,
+        "reserve_mib": 256.0,
+        "prefill_reserve_mib": 512.0,
+        "effective_reserve_mib": 256.0,
+        "observed_prefixes": 1,
+        "observed_workspace_mib": 628.6,
+        "observed_chunked_workspace_mib": 1356.5,
+        "gpu_utilization_target": 1.0,
+        "checkpoint_tokens": 0,
+        "hits": 0,
+        "misses": 1,
+        "evictions": 0,
+        "reused_tokens": 0,
+        "image_features": {
+          "entries": 0,
+          "mib": 0.0,
+          "limit_mib": 256.0,
+          "max_entries": 64,
+          "hits": 0,
+          "misses": 8,
+          "evictions": 0
+        }
+      },
+      "repeat_stopped": "Large checkpoint was not retained; a third identical pass cannot use it."
+    },
+    {
+      "fixture": "photos1536",
+      "pass": 1,
+      "seconds": 85.64533397299965,
+      "result": {
+        "model": "clef-flash",
+        "answers": {
+          "fish": {
+            "type": "noul",
+            "noul": 0.9451
+          },
+          "count": {
+            "type": "choice",
+            "choice": "two",
+            "confidence": 0.9377,
+            "probabilities": {
+              "one": 0.0243,
+              "two": 0.9377,
+              "three": 0.038
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 3628,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 3628,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 164.5,
+          "image_preprocess_cache_hits": 0,
+          "image_preprocess_cache_misses": 2,
+          "token_cache_hits": 20,
+          "token_cache_misses": 0,
+          "cache_prepare_ms": 0.2,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 512.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "chunked",
+          "prefill_chunks": 6,
+          "prefill_initial_chunk_tokens": 1024,
+          "prefill_chunk_tokens": 1024,
+          "language_ms": 42442.5,
+          "head_ms": 93.0,
+          "multimodal_prefill": true,
+          "vision_ms": 42927.6,
+          "vision_batch_images": 1,
+          "image_chunk_splits": 3,
+          "vision_prefix_reused": false,
+          "prefix_cache": "disabled",
+          "prefix_tokens": 3502,
+          "reused_prefix_tokens": 0,
+          "cache_memory_budget_mib": 0.0,
+          "cache_limit_reason": "request_memory_budget",
+          "new_prefix_tokens": 3502,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 2,
+          "accepted_max_input_tokens": 4096,
+          "context_limit_mode": "configured",
+          "latency_ms": 85639.8,
+          "peak_allocated_mib": 5834.1,
+          "image_count": 2,
+          "image_fidelity": null,
+          "processed_images": [
+            {
+              "width": 1536,
+              "height": 1152
+            },
+            {
+              "width": 1152,
+              "height": 1536
+            }
+          ],
+          "max_processed_pixels_per_image": 1769472,
+          "processor_resize_enabled": false
+        }
+      },
+      "longest_retained_prefix_tokens": 0,
+      "cache_stats": {
+        "entries": 0,
+        "mib": 0.0,
+        "limit_mib": 1535.2,
+        "budget_mode": "auto",
+        "elastic": true,
+        "phase": "idle",
+        "request_workspace_mib": 0.0,
+        "retention_rejections": {},
+        "last_retention_rejection": null,
+        "last_rejected_checkpoint_mib": 0.0,
+        "max_entries": 32,
+        "reserve_mib": 256.0,
+        "prefill_reserve_mib": 512.0,
+        "effective_reserve_mib": 256.0,
+        "observed_prefixes": 1,
+        "observed_workspace_mib": 628.6,
+        "observed_chunked_workspace_mib": 1356.5,
+        "gpu_utilization_target": 1.0,
+        "checkpoint_tokens": 0,
+        "hits": 0,
+        "misses": 1,
+        "evictions": 0,
+        "reused_tokens": 0,
+        "image_features": {
+          "entries": 0,
+          "mib": 0.0,
+          "limit_mib": 256.0,
+          "max_entries": 64,
+          "hits": 0,
+          "misses": 10,
+          "evictions": 0
+        }
+      }
+    },
+    {
+      "fixture": "photos1536",
+      "pass": 2,
+      "seconds": 82.79622868600018,
+      "result": {
+        "model": "clef-flash",
+        "answers": {
+          "fish": {
+            "type": "noul",
+            "noul": 0.945
+          },
+          "count": {
+            "type": "choice",
+            "choice": "two",
+            "confidence": 0.9377,
+            "probabilities": {
+              "one": 0.0243,
+              "two": 0.9377,
+              "three": 0.038
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 3628,
+          "output_tokens": 0,
+          "unpooled_input_tokens": 3628,
+          "compact_schema": true,
+          "image_pooling": false,
+          "preprocessing_ms": 16.1,
+          "image_preprocess_cache_hits": 2,
+          "image_preprocess_cache_misses": 0,
+          "token_cache_hits": 20,
+          "token_cache_misses": 0,
+          "cache_prepare_ms": 0.2,
+          "cache_evicted_mib": 0.0,
+          "cache_headroom_mib": 512.0,
+          "cache_allocator_release_ms": 0.0,
+          "prefill_mode": "chunked",
+          "prefill_chunks": 6,
+          "prefill_initial_chunk_tokens": 1024,
+          "prefill_chunk_tokens": 1024,
+          "language_ms": 39839.1,
+          "head_ms": 89.9,
+          "multimodal_prefill": true,
+          "vision_ms": 42833.7,
+          "vision_batch_images": 1,
+          "image_chunk_splits": 3,
+          "vision_prefix_reused": false,
+          "prefix_cache": "disabled",
+          "prefix_tokens": 3502,
+          "reused_prefix_tokens": 0,
+          "cache_memory_budget_mib": 0.0,
+          "cache_limit_reason": "request_memory_budget",
+          "new_prefix_tokens": 3502,
+          "prefix_build_ms": 0.0,
+          "prefix_checkpoints_saved": 0,
+          "image_feature_cache_hits": 0,
+          "image_feature_cache_misses": 2,
+          "accepted_max_input_tokens": 4096,
+          "context_limit_mode": "configured",
+          "latency_ms": 82790.7,
+          "peak_allocated_mib": 5834.7,
+          "image_count": 2,
+          "image_fidelity": null,
+          "processed_images": [
+            {
+              "width": 1536,
+              "height": 1152
+            },
+            {
+              "width": 1152,
+              "height": 1536
+            }
+          ],
+          "max_processed_pixels_per_image": 1769472,
+          "processor_resize_enabled": false
+        }
+      },
+      "longest_retained_prefix_tokens": 0,
+      "cache_stats": {
+        "entries": 0,
+        "mib": 0.0,
+        "limit_mib": 1535.2,
+        "budget_mode": "auto",
+        "elastic": true,
+        "phase": "idle",
+        "request_workspace_mib": 0.0,
+        "retention_rejections": {},
+        "last_retention_rejection": null,
+        "last_rejected_checkpoint_mib": 0.0,
+        "max_entries": 32,
+        "reserve_mib": 256.0,
+        "prefill_reserve_mib": 512.0,
+        "effective_reserve_mib": 256.0,
+        "observed_prefixes": 1,
+        "observed_workspace_mib": 628.6,
+        "observed_chunked_workspace_mib": 1356.5,
+        "gpu_utilization_target": 1.0,
+        "checkpoint_tokens": 0,
+        "hits": 0,
+        "misses": 1,
+        "evictions": 0,
+        "reused_tokens": 0,
+        "image_features": {
+          "entries": 0,
+          "mib": 0.0,
+          "limit_mib": 256.0,
+          "max_entries": 64,
+          "hits": 0,
+          "misses": 12,
+          "evictions": 0
+        }
+      },
+      "repeat_stopped": "Large checkpoint was not retained; a third identical pass cannot use it."
+    }
+  ]
+}

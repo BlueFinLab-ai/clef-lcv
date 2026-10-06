@@ -4,6 +4,7 @@ let nextQuestionId = 0, questionRows = [], images = [], history = [], activeRun 
 let apiModel = null, codeModel = null, poolingDefaultApplied = false;
 let running = false, imageLoading = false, elapsedFrame = 0, runSequence = 0, pastedImageSequence = 0;
 let codeFormat = 'curl', autoRunTimer = 0, autoRunPending = false;
+let apiKeyRequired = false, demoMode = true, uiConfigReady = false;
 const editedQuestions = new Set();
 const typeNames = {noul: 'Yes / no', choice: 'Choose one', score: 'Score'};
 const imageScalings = {
@@ -35,7 +36,30 @@ function node(tag, className, text) {
   if (text !== undefined) element.textContent = text;
   return element;
 }
-function fit(textarea) {textarea.style.height = 'auto'; textarea.style.height = `${textarea.scrollHeight + 2}px`;}
+// Grow with the text up to the box's CSS max-height, then scroll inside it.
+function fit(textarea) {
+  const pane = textarea.closest('.editor'), paneTop = pane?.scrollTop, boxTop = textarea.scrollTop;
+  textarea.style.height = 'auto';
+  const limit = parseFloat(getComputedStyle(textarea).maxHeight) || Infinity, needed = textarea.scrollHeight + 2;
+  textarea.style.height = `${Math.min(needed, limit)}px`;
+  textarea.classList.toggle('scrolls', needed > limit);
+  textarea.scrollTop = boxTop; if (pane) pane.scrollTop = paneTop;
+}
+function describeSize(text) {
+  return `${text.length.toLocaleString()} characters · about ${Math.ceil(text.length / 4).toLocaleString()} tokens`;
+}
+// Size, Expand and Clear under the large text boxes.
+function refreshField(textarea) {
+  fit(textarea);
+  const meta = document.querySelector(`.field-meta[data-for="${textarea.id}"]`);
+  if (meta) {
+    meta.hidden = !textarea.value;
+    meta.querySelector('.field-size').textContent = textarea.value ? describeSize(textarea.value) : '';
+    const expand = meta.querySelector('[data-expand]'), expanded = textarea.classList.contains('expanded');
+    expand.hidden = !expanded && !textarea.classList.contains('scrolls');
+    expand.textContent = expanded ? 'Collapse' : 'Expand'; expand.setAttribute('aria-expanded', String(expanded));
+  }
+}
 function showError(message, field) {
   $('form-error').textContent = message; $('form-error').hidden = false;
   if (field) {field.setAttribute('aria-invalid', 'true'); field.focus();}
@@ -228,14 +252,28 @@ async function acceptImages(files) {
 }
 
 /* Server */
+async function apiFetch(path, options = {}) {
+  const headers = new Headers(options.headers);
+  headers.set('X-Clef-Portal', '1');
+  return fetch(path, {...options, headers, credentials: 'same-origin', redirect: 'error'});
+}
+async function loadUIConfig() {
+  const response = await fetch('/ui-config', {cache: 'no-store', signal: AbortSignal.timeout(5000)});
+  if (!response.ok) throw new Error('Portal configuration unavailable');
+  const config = await response.json();
+  apiKeyRequired = !!config.api_key_required; demoMode = !!config.demo_mode; uiConfigReady = true;
+  refreshCode();
+}
 async function checkConnection() {
   if (running) return;
   $('connection-text').textContent = 'Connecting'; $('connection').className = 'connection';
   try {
-    const response = await fetch('/health', {signal: AbortSignal.timeout(5000), cache: 'no-store'});
+    if (!uiConfigReady) await loadUIConfig();
+    const response = await apiFetch('/health', {signal: AbortSignal.timeout(5000), cache: 'no-store'});
+    if (response.status === 401) throw new Error('session');
     if (!response.ok) throw new Error('unavailable'); const health = await response.json();
     $('connection').classList.add('online'); $('connection-text').textContent = 'Server ready';
-    $('connection').title = `${health.model} at ${location.host}. Click to check again.`;
+    $('connection').title = `${health.model} at ${apiBase()}. Click to check again.`;
     const imageLimit = health.max_input_tokens_with_images ?? health.max_input_tokens;
     const estimateLabel = health.context_limit?.estimated ? 'Estimated limit: ' : 'Limit: ';
     $('limit-note').textContent = estimateLabel + (imageLimit < health.max_input_tokens
@@ -250,15 +288,16 @@ async function checkConnection() {
     $('hardware-note').textContent = `${health.gpu.replace('NVIDIA GeForce ', '')} / ${health.quantization.toUpperCase()}`;
     if (!codeModel) void loadCodeModel();
     refreshCode();
-  } catch {
-    $('connection').classList.add('offline'); $('connection-text').textContent = 'Server unavailable';
-    $('connection').title = 'The server could not be reached. Click to retry.';
+  } catch (error) {
+    $('connection').classList.add('offline');
+    $('connection-text').textContent = error.message === 'session' ? 'Reload to connect' : 'Server unavailable';
+    $('connection').title = error.message === 'session' ? 'The portal session expired. Reload this page to reconnect.' : 'The server could not be reached. Click to retry.';
   }
 }
 // Code examples use the short model id that /v1/models advertises; the server accepts either form.
 async function loadCodeModel() {
   try {
-    const response = await fetch('/v1/models', {signal: AbortSignal.timeout(5000), cache: 'no-store'});
+    const response = await apiFetch('/v1/models', {signal: AbortSignal.timeout(5000), cache: 'no-store'});
     if (response.ok) {codeModel = (await response.json()).data?.[0]?.id || null; refreshCode();}
   } catch {}
 }
@@ -277,11 +316,21 @@ function showProbabilities(container, entries, winner) {
   }
   container.append(probabilities);
 }
-function usageCacheNote(usage) {
-  const images = usage?.image_feature_cache_hits || 0;
-  const processed = usage?.image_preprocess_cache_hits || 0;
-  const note = `${usage?.queue_wait_ms != null ? ` Queue wait: ${duration(usage.queue_wait_ms)}.` : ''}${images ? ` Reused ${images} image feature(s).` : ''}${processed ? ` Reused preprocessing for ${processed} image(s).` : ''}`;
-  return note + (usage?.prefix_cache === 'hit' ? ` Reused ${usage.reused_prefix_tokens ?? usage.prefix_tokens} context tokens${usage.vision_prefix_reused ? ' and image encoding' : ''}.` : '');
+function setMetric(id, value, title) {
+  $(id).replaceChildren(...(Array.isArray(value) ? value : [value]));
+  if (title) $(id).closest('.metric').title = title;
+}
+function cachedInputDetail(usage) {
+  const reused = usage.reused_prefix_tokens ?? (usage.prefix_cache === 'hit' ? usage.prefix_tokens : 0) ?? 0;
+  const images = usage.image_feature_cache_hits || 0, processed = usage.image_preprocess_cache_hits || 0;
+  const parts = [`${reused.toLocaleString()} of ${usage.input_tokens.toLocaleString()} input tokens were reused from the cache instead of being processed again.`];
+  if (images) parts.push(`Reused ${images} cached image encoding${images === 1 ? '' : 's'}.`);
+  if (processed) parts.push(`Reused preprocessing for ${processed} image${processed === 1 ? '' : 's'}.`);
+  return {reused, title: parts.join(' ')};
+}
+function resetMetrics() {
+  for (const id of ['server-time', 'queue-time', 'input-tokens', 'cached-tokens', 'gpu-memory']) $(id).textContent = '—';
+  $('total-block').title = '';
 }
 // Reduce any answer type to its displayed winner, confidence and probability bars.
 function summarize(answer) {
@@ -313,13 +362,21 @@ function delta(run, id) {
 function renderRun(run) {
   activeRun = run; editedQuestions.clear();
   $('elapsed').textContent = (run.totalMs / 1000).toFixed(3);
-  $('run-label').textContent = `Run ${run.number}${run.imageNames.length ? ' · ' + imageScalings[run.imageScaling].name + (run.imagePooling ? ' · 2×2 pooling' : '') : ''}${run.response?.usage?.prefix_cache === 'hit' ? ' · prefix cache hit' : ''}`;
+  const images = run.imageNames.length;
+  $('run-label').textContent = `Run ${run.number}${run.error ? ' failed' : ''} · ${Object.keys(run.questions).length} question${Object.keys(run.questions).length === 1 ? '' : 's'}${images ? ` · ${images} image${images === 1 ? '' : 's'} at ${imageScalings[run.imageScaling].name}${run.imagePooling ? ', pooled' : ''}` : ''}`;
   $('run-state').textContent = run.error ? 'Failed' : `Run ${run.number}`; $('run-state').className = `run-state ${run.error ? 'failed' : 'success'}`;
-  $('timer-description').textContent = run.error ? '' : `Client image preparation: ${duration(run.clientImageMs || 0)}. Upload: ${((run.uploadBytes || 0) / 1024).toFixed(0)} KiB.${usageCacheNote(run.response?.usage)}`;
   const usage = run.response?.usage || {};
-  $('server-time').textContent = typeof usage.latency_ms === 'number' ? duration(usage.latency_ms) : '—';
-  $('input-tokens').textContent = typeof usage.input_tokens === 'number' ? usage.input_tokens.toLocaleString() : '—';
-  $('gpu-memory').textContent = typeof usage.peak_allocated_mib === 'number' ? `${(usage.peak_allocated_mib / 1024).toFixed(2)} GiB` : '—';
+  resetMetrics();
+  $('total-block').title = `Measured in this browser: ${images ? `${duration(run.clientImageMs || 0)} image preparation, ` : ''}a ${((run.uploadBytes || 0) / 1024).toFixed(0)} KiB upload, queueing, processing and the response.`;
+  if (typeof usage.latency_ms === 'number') setMetric('server-time', duration(usage.latency_ms));
+  if (typeof usage.queue_wait_ms === 'number') setMetric('queue-time', duration(usage.queue_wait_ms));
+  if (typeof usage.input_tokens === 'number') {
+    setMetric('input-tokens', usage.input_tokens.toLocaleString());
+    const {reused, title} = cachedInputDetail(usage);
+    const share = usage.input_tokens ? Math.round(reused / usage.input_tokens * 100) : 0;
+    setMetric('cached-tokens', reused ? [reused.toLocaleString(), node('small', '', `${share}%`)] : '0', title);
+  }
+  if (typeof usage.peak_allocated_mib === 'number') setMetric('gpu-memory', `${(usage.peak_allocated_mib / 1024).toFixed(2)} GiB`);
   $('results').replaceChildren();
   if (run.error) {
     const box = node('div', 'run-failure'); box.append(node('h3', '', 'Request failed'), node('p', '', run.error)); $('results').append(box);
@@ -360,7 +417,7 @@ function feedbackControls(run, id) {
 }
 function renderHistory() {
   const spark = $('spark'); spark.replaceChildren();
-  spark.hidden = history.length === 0; $('clear-history').hidden = history.length === 0;
+  $('clear-history').hidden = history.length === 0;
   const max = Math.max(...history.map(run => run.totalMs), 1);
   for (const run of [...history].reverse()) {
     const bar = node('button', `${activeRun === run ? 'selected' : ''}${run.error ? ' failed' : ''}`); bar.type = 'button';
@@ -380,7 +437,7 @@ function highlight(id, scroll) {
 
 /* Code examples built from the current editor and the runtime URL */
 const pythonCode = Symbol('python code');
-function apiBase() {return location.origin;}
+function apiBase() {return demoMode ? 'http://<HOST_NAME>:<PORT>' : location.origin;}
 function exampleRequest(forPython) {
   const questions = {};
   for (const row of questionRows) {
@@ -412,7 +469,8 @@ function pythonLiteral(value, indent = '') {
   return entries.length ? `{\n${entries.map(([key, item]) => `${inner}${JSON.stringify(key)}: ${pythonLiteral(item, inner)}`).join(',\n')},\n${indent}}` : '{}';
 }
 function curlExample() {
-  return `curl ${apiBase()}/v1/systemone \\
+  return `curl '${apiBase()}/v1/systemone' \\
+${apiKeyRequired ? "  -H 'Authorization: Bearer YOUR_API_KEY' \\\n" : ''}\
   -H 'Content-Type: application/json' \\
   --data-binary @- <<'JSON'
 ${JSON.stringify(exampleRequest(false), null, 2)}
@@ -438,7 +496,7 @@ request = ${pythonLiteral(exampleRequest(true))}
 http_request = urllib.request.Request(
     URL,
     data=json.dumps(request).encode(),
-    headers={"Content-Type": "application/json"},
+    headers={"Content-Type": "application/json"${apiKeyRequired ? ', "Authorization": "Bearer YOUR_API_KEY"' : ''}},
 )
 with urllib.request.urlopen(http_request, timeout=600) as response:
     result = json.load(response)
@@ -456,6 +514,7 @@ print(f"Server time {usage['latency_ms'] / 1000:.3f} s, {usage['input_tokens']} 
 }
 function rawExample() {
   if (!activeRun) return '// Run a request to see the raw response here.';
+  if (activeRun.apiResponse) return JSON.stringify(activeRun.apiResponse, null, 2);
   if (activeRun.error) return `// Run ${activeRun.number} failed: ${activeRun.error}`;
   return JSON.stringify(activeRun.response, null, 2);
 }
@@ -482,9 +541,20 @@ function highlightCode(code) {
   fragment.append(code.slice(last));
   return fragment;
 }
+// Strings over 600 characters are shortened on screen only.
+function shortenForDisplay(code) {
+  let shortened = false;
+  const text = code.replace(/"((?:[^"\\\n]|\\.){600,})"/g, (match, inner) => {
+    shortened = true;
+    const kept = inner.slice(0, 360).replace(/\\+$/, '');
+    return `"${kept}… (+${(inner.length - kept.length).toLocaleString()} more characters)"`;
+  });
+  return {text, shortened};
+}
 function refreshCode() {
-  $('code-view').replaceChildren(highlightCode(codeExamples[codeFormat]()));
-  $('code-note').textContent = codeNote();
+  const {text, shortened} = shortenForDisplay(codeExamples[codeFormat]());
+  $('code-view').replaceChildren(highlightCode(text));
+  $('code-note').textContent = [shortened ? 'Long text is shortened here; Copy includes all of it.' : '', codeNote()].filter(Boolean).join(' ');
 }
 function selectCodeFormat(format) {
   codeFormat = format; storage.set('clef.codeFormat', format);
@@ -512,6 +582,7 @@ async function copyCode() {
 
 /* Requests */
 function apiError(status, payload) {
+  if (status === 401) return 'The portal session expired. Reload this page to reconnect.';
   if (status === 429) return payload?.detail || 'The request queue is full. Try again shortly.';
   if (status === 504) return payload?.detail || 'The request exceeded its queue wait deadline. Try again shortly.';
   if (status === 503) return payload?.detail || 'The GPU ran out of memory. Choose a smaller image scaling option, use fewer images, or shorten the context.';
@@ -534,8 +605,8 @@ async function submit(event) {
   running = true; $('editor-fields').disabled = true; $('example').disabled = true; $('run-button').disabled = true;
   $('run-button-text').textContent = images.length ? 'Preparing images…' : 'Answering…'; $('results').setAttribute('aria-busy', 'true');
   $('run-state').textContent = 'Answering'; $('run-state').className = 'run-state running';
-  $('server-time').textContent = '—'; $('input-tokens').textContent = '—'; $('gpu-memory').textContent = '—';
-  $('run-label').textContent = 'Total time includes image preparation, upload and response.'; $('timer-description').textContent = '';
+  resetMetrics();
+  $('run-label').textContent = `Run ${runSequence + 1} · waiting for answers…`;
   document.querySelectorAll('.answer-card').forEach(card => card.classList.add('stale'));
   if (!document.querySelector('.answer-card')) $('results').replaceChildren(node('div', 'empty-state', 'Clef is reading your input and answering your questions…'));
   $('result-announcement').textContent = images.length ? 'Preparing images for upload.' : 'Clef is answering.'; renderHistory();
@@ -554,12 +625,13 @@ async function submit(event) {
     run.processedImages = prepared.map(({width, height, bytes, format}) => ({width, height, bytes, format}));
     $('run-button-text').textContent = 'Waiting for response…';
     $('result-announcement').textContent = 'Request sent. Clef will answer when its turn arrives.';
-    const response = await fetch('/v1/systemone', {method: 'POST', headers: {'Content-Type': 'application/json'}, body, signal: AbortSignal.timeout(600000)});
+    const response = await apiFetch('/v1/systemone', {method: 'POST', headers: {'Content-Type': 'application/json'}, body, signal: AbortSignal.timeout(600000)});
     const responseText = await response.text();
     let payload;
     try {payload = JSON.parse(responseText);} catch {
       throw new Error(response.ok ? 'The server returned an unreadable response.' : apiError(response.status));
     }
+    run.apiResponse = payload;
     if (!response.ok) throw new Error(apiError(response.status, payload));
     if (!payload.answers || !payload.usage) throw new Error('The server returned an incomplete response.');
     run.response = payload;
@@ -570,6 +642,7 @@ async function submit(event) {
     running = false; $('editor-fields').disabled = false; $('example').disabled = false; $('run-button').disabled = false;
     $('run-button-text').textContent = 'Ask Clef'; $('results').setAttribute('aria-busy', 'false');
     history.unshift(run); history = history.slice(0, 12); renderRun(run);
+    if (run.apiResponse) selectCodeFormat('raw');
     void checkConnection();
     $('result-announcement').textContent = run.error ? `Request failed. ${run.error}` : `Answers received in ${duration(run.totalMs)}. Server processing took ${duration(run.response.usage.latency_ms)}.`;
     if (autoRunPending) {autoRunPending = false; scheduleAutoRun();}
@@ -604,20 +677,25 @@ $('drop-zone').addEventListener('dragover', event => {event.preventDefault(); if
 $('drop-zone').addEventListener('dragleave', () => $('drop-zone').classList.remove('dragging'));
 $('drop-zone').addEventListener('drop', event => {event.preventDefault(); $('drop-zone').classList.remove('dragging'); acceptImages(event.dataTransfer.files);});
 $('connection').addEventListener('click', checkConnection);
-for (const id of ['context', 'shared-context']) $(id).addEventListener('input', event => {fit(event.target); markEdited();});
-$('shared-context').addEventListener('input', () => {
-  const value = $('shared-context').value.trim();
-  $('shared-peek').textContent = value || 'Optional instructions and definitions you reuse across requests';
-});
+for (const id of ['context', 'shared-context']) $(id).addEventListener('input', event => {refreshField(event.target); markEdited();});
+document.querySelectorAll('[data-expand]').forEach(button => button.addEventListener('click', () => {
+  const textarea = $(button.dataset.expand); textarea.classList.toggle('expanded'); refreshField(textarea); textarea.focus();
+}));
+document.querySelectorAll('[data-clear]').forEach(button => button.addEventListener('click', () => {
+  const textarea = $(button.dataset.clear); textarea.value = ''; textarea.classList.remove('expanded');
+  refreshField(textarea); markEdited(); textarea.focus();
+}));
+let resizeTimer = 0;
+window.addEventListener('resize', () => {clearTimeout(resizeTimer); resizeTimer = setTimeout(() => document.querySelectorAll('textarea.auto').forEach(fit), 150);});
 $('example').addEventListener('click', () => {
   clearError(); questionRows = []; $('questions').replaceChildren(); images = []; renderImages(); $('image-input').value = '';
-  $('context').value = 'Our checkout started returning errors and orders are blocked.'; fit($('context'));
+  $('context').value = 'Our checkout started returning errors and orders are blocked.'; refreshField($('context'));
   addQuestion({type: 'noul', instructions: 'Is a service down?'});
   addQuestion({type: 'choice', instructions: 'Which team should handle this message?', options: ['Billing', 'Technical support']});
   addQuestion({type: 'score', instructions: 'How urgent is this?', options: ['Can wait', 'This week', 'Today']});
   markEdited(); questionRows[0].text.focus();
 });
-$('clear-history').addEventListener('click', () => {if (!running) {history = []; renderHistory(); $('result-announcement').textContent = 'Run history cleared.';}});
+$('clear-history').addEventListener('click', () => {if (!running) {history = []; renderHistory(); $('run-label').textContent = 'Each run adds a bar here. Select one to view it.'; $('result-announcement').textContent = 'Run history cleared.';}});
 $('auto-run').checked = storage.get('clef.autoRun') === '1';
 $('auto-run').addEventListener('change', () => {storage.set('clef.autoRun', $('auto-run').checked ? '1' : '0'); if ($('auto-run').checked) scheduleAutoRun();});
 $('show-code').addEventListener('click', () => {$('code-panel').scrollIntoView({block: 'start', behavior: 'smooth'}); $('code-view').focus({preventScroll: true});});

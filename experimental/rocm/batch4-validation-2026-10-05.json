@@ -1,0 +1,120 @@
+{
+  "portal_restored": true,
+  "text_status": 200,
+  "text_seconds": 8.791293335998489,
+  "strategy": {
+    "gpu_name": "AMD Radeon RX 580 Series",
+    "capability": "gfx803",
+    "total_mib": 8192,
+    "profile": "flash",
+    "compute_dtype": "float16",
+    "linear_prefill_backend": "torch",
+    "fla_max_chunk_tokens": 512,
+    "tested_family": true,
+    "kernel_arch_supported": false,
+    "compiled_kernel_arches": [],
+    "runtime_backend": "rocm",
+    "strategy_id": "gfx803-flash-native",
+    "experimental": true,
+    "runtime_options": {
+      "CLEF_LINEAR_PREFILL_BACKEND": "torch",
+      "CLEF_FLA_MAX_CHUNK_TOKENS": "512",
+      "CLEF_REQUIRE_FAST_LINEAR_ATTENTION": "0",
+      "CLEF_ATTENTION_BACKEND": "math",
+      "CLEF_IMAGE_PREFILL": "1",
+      "CLEF_PREFILL_INITIAL_CHUNK_TOKENS": "1024",
+      "CLEF_PREFILL_CHUNK_TOKENS": "1024",
+      "CLEF_PREFIX_CACHE": "1",
+      "CLEF_INPUT_CACHE": "1",
+      "CLEF_IMAGE_POOLING": "0",
+      "CLEF_MAX_IMAGE_LENGTH": "4096",
+      "CLEF_DISABLE_FUSED_KERNELS": "1",
+      "CLEF_ROCM_LONG_PROMPT_THRESHOLD": "4096",
+      "CLEF_ROCM_LONG_PREFILL_CHUNK_TOKENS": "512",
+      "CLEF_CONTEXT_LIMIT_MODE": "fixed",
+      "CLEF_MAX_LENGTH": "8192",
+      "CLEF_MAX_VISION_PATCH_TOKENS_PER_IMAGE": "8192",
+      "CLEF_ROCM_GPU_CACHE": "1",
+      "CLEF_ROCM_VISION_TILING": "1",
+      "CLEF_VISION_QUERY_CHUNK_TOKENS": "256",
+      "CLEF_CACHE_PROMOTE_REPEATED_BOUNDARY": "1",
+      "CLEF_TORCH_GDN_BLOCK_TOKENS": "64",
+      "CLEF_ROCM_OBSERVED_PREFILL_WORKSPACE": "0",
+      "CLEF_PREFIX_CACHE_RESERVE_MIB": "256",
+      "CLEF_PREFIX_CACHE_PREFILL_RESERVE_MIB": "512",
+      "CLEF_ROCM_TUNABLEOP_FILE": "/app/tuning/gfx803.csv",
+      "HSA_ENABLE_SDMA": "0",
+      "PYTORCH_ALLOC_CONF": "expandable_segments:False",
+      "PYTORCH_TUNABLEOP_HIPBLASLT_ENABLED": "0"
+    },
+    "overrides": {}
+  },
+  "queue": {
+    "enabled": true,
+    "policy": "fifo",
+    "gpu_workers": 1,
+    "active_requests": 0,
+    "waiting_requests": 0,
+    "max_waiting_requests": 64,
+    "wait_timeout_seconds": 300.0,
+    "admitted_requests": 0,
+    "admitted_payload_mib": 0.0,
+    "payload_limit_mib": 256.0,
+    "request_body_limit_mib": 224.0,
+    "completed": 1,
+    "failed": 0,
+    "cancelled": 0,
+    "timed_out": 0,
+    "rejected": 0,
+    "accepting": true
+  },
+  "matrix_tuning": {
+    "enabled": true,
+    "live_tuning": false,
+    "backend": "rocblas",
+    "results": 111
+  },
+  "telemetry": {
+    "512": {
+      "samples": 179,
+      "maximum_temperature_c": 72.0,
+      "maximum_gpu_busy_percent": 100
+    },
+    "256": {
+      "samples": 458,
+      "maximum_temperature_c": 76.0,
+      "maximum_gpu_busy_percent": 100
+    }
+  },
+  "allocator_warnings": {
+    "512": {
+      "count": 4,
+      "messages": [
+        "[W1005 12:06:15.462463922 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 270532608 bytes (free: 176160768, total: 8589934592).",
+        "[W1005 12:06:16.148031630 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 270532608 bytes (free: 115343360, total: 8589934592).",
+        "[W1005 12:06:16.179770479 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 69206016 bytes (free: 0, total: 8589934592).",
+        "[W1005 12:06:16.179811930 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 69206016 bytes (free: 0, total: 8589934592)."
+      ]
+    },
+    "256": {
+      "count": 15,
+      "messages": [
+        "[W1005 12:12:32.602359624 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 136314880 bytes (free: 0, total: 8589934592).",
+        "[W1005 12:12:47.598063259 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 153092096 bytes (free: 14680064, total: 8589934592).",
+        "[W1005 12:13:02.698855859 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 169869312 bytes (free: 6291456, total: 8589934592).",
+        "[W1005 12:13:48.045581167 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 136314880 bytes (free: 62914560, total: 8589934592).",
+        "[W1005 12:14:03.044106991 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 153092096 bytes (free: 33554432, total: 8589934592).",
+        "[W1005 12:14:18.137816689 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 169869312 bytes (free: 8388608, total: 8589934592).",
+        "[W1005 12:14:33.096472522 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 176160768 bytes (free: 0, total: 8589934592).",
+        "[W1005 12:16:03.781225647 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 136314880 bytes (free: 0, total: 8589934592).",
+        "[W1005 12:16:18.757136863 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 153092096 bytes (free: 71303168, total: 8589934592).",
+        "[W1005 12:16:33.876431394 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 169869312 bytes (free: 8388608, total: 8589934592).",
+        "[W1005 12:16:48.851459940 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 176160768 bytes (free: 0, total: 8589934592).",
+        "[W1005 12:17:16.715039264 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 136314880 bytes (free: 0, total: 8589934592).",
+        "[W1005 12:17:31.712536723 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 153092096 bytes (free: 33554432, total: 8589934592).",
+        "[W1005 12:17:46.836060611 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 169869312 bytes (free: 8388608, total: 8589934592).",
+        "[W1005 12:18:01.790911526 HIPCachingAllocator.cpp:3935] memory allocation failed with OOM on device 0 while trying to allocate 176160768 bytes (free: 0, total: 8589934592)."
+      ]
+    }
+  }
+}

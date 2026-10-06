@@ -18,3 +18,10 @@ upstream source and records its checksum plus the build-only modifications.
 The project's original code is licensed under the Apache License 2.0; see
 [LICENSE](LICENSE). That license covers this repository's code only. Model weights
 are downloaded from Cloudflare at runtime and remain under their release license.
+
+
+The prebuilt Triton host-helper modules in `artifacts/triton-host/` are generated
+from Triton 3.6.0 driver/launcher code (MIT). Its license is included beside the
+manifest. Generated C sources and raw checks are retained in the Git-ignored `.dev/`
+workspace; binary and source hashes remain in the distributable manifest. Additional previously exercised helper variants were extracted from
+the validated service cache. The manifest binds Python ABI and dependency versions.
