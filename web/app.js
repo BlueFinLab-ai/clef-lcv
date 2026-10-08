@@ -599,9 +599,11 @@ async function copyCode() {
 /* Requests */
 function apiError(status, payload) {
   if (status === 401) return 'The portal session expired. Reload this page to reconnect.';
-  if (status === 429) return payload?.detail || 'The request queue is full. Try again shortly.';
+  // Responses without a detail come from a proxy or CDN in front of Clef, not from Clef itself.
+  if (status === 429) return payload?.detail || 'Too many questions in a short time. Wait a few seconds, then try again.';
   if (status === 504) return payload?.detail || 'The request exceeded its queue wait deadline. Try again shortly.';
-  if (status === 503) return payload?.detail || 'The GPU ran out of memory. Choose a smaller image scaling option, use fewer images, or shorten the context.';
+  if (status === 503) return payload?.detail || 'The server is unavailable right now. Try again in a minute.';
+  if (status === 502 || (status >= 520 && status <= 524)) return payload?.detail || 'The server is not reachable right now. Try again in a minute.';
   if (status === 413) return `${payload?.detail || 'This input exceeds the server limits.'}${Number.isFinite(payload?.input_tokens) ? ` Input: ${payload.input_tokens.toLocaleString()} tokens; accepted maximum: ${payload.max_input_tokens.toLocaleString()}.` : ''} Shorten the context, choose a smaller image scaling option, or use fewer images.`;
   if (Array.isArray(payload?.detail)) return payload.detail.map(error => error.msg).join(' ');
   return typeof payload?.detail === 'string' ? payload.detail : `Server returned HTTP ${status}. Try again or check the server connection.`;
