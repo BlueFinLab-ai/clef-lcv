@@ -8,20 +8,21 @@ with probabilities and shows how long the browser round trip and server
 inference took. It runs on a single NVIDIA GPU using 4-bit (NF4) weights, with an opt-in
 [RX 580 community ROCm path](experimental/rocm/README.md).
 
-![Animated demo of the Clef LCV portal: the example request runs and answers appear beside the timer; the first question is reworded and its answer dims; running again flips the answer from Yes to No and marks the change](docs/images/portal-demo.png)
+**Live demo:** [bluefinlab.ai](https://bluefinlab.ai), Clef Flash on a single RTX 3070 Ti 8 GB. Built by [Bluefin Lab](https://bluefinlab.ai).
 
-*Run, edit a question, run again: each answer shows how it changed. Recorded
-against a stand-in server, so the answers shown are illustrative.*
+![Clef LCV portal answering two questions about a photo: an emotion score, then a beverage count, with GPU time, CPU time, overhead and cached input shown for each run](docs/images/clef-lcv-demo.gif)
+
+*Recorded against the live Clef Flash server on an RTX 3070 Ti: two questions about one photo, then a second run that reuses the cached image.*
 
 ## Why Clef LCV
 
-There are plenty of ways to classify documents with a model. This project fills
+There are plenty of ways to classify text with a model. This project fills
 a narrower need: a high-quality decision model that runs entirely on local
 hardware and can decide based on what's in an image, not just text.
 
 The requirements were:
 
-- **Quality:** document categorization on par with GPT Sol 6.1, the hosted reference model.
+- **Quality:** categorization on par with GPT Sol 6.1, the hosted reference model.
 - **Images:** decisions based on image content as well as text.
 - **Accessibility:** works offline and in air-gapped environments, with no calls
   to hosted services once the model is prepared.
