@@ -25,8 +25,14 @@ jobs:
         run: pip install fastapi==0.142.2 pillow==12.3.0 httpx==0.28.1
       - name: Startup warmup and request queue
         run: python scripts/test_startup_warmup.py && python scripts/test_request_queue.py
+      - name: Request preparation and GPU timing
+        run: python scripts/test_prepared_handler.py && python scripts/test_cpu_timing.py
+      - name: Hugging Face token handling
+        run: python scripts/test_hf_token.py
       - name: Image-prefix radix branches
         run: python scripts/test_image_prefix_index.py
+      - name: Runtime installer and security scan gates
+        run: python scripts/test_runtime_installers.py && python scripts/test_security_scan.py
       - name: Email benchmark fixture
         run: python scripts/test_email_benchmark.py
       - name: Provider benchmark

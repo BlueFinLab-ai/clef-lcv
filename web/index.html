@@ -7,9 +7,9 @@
   <meta name="description" content="Clef Local Inference, Caching, and Vision">
   <title>Clef LCV · Questions & timing</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b50d9'/%3E%3Cpath d='M23 10a9 9 0 1 0 0 12' fill='none' stroke='white' stroke-width='4'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/ui/styles.css?v=20261005-steady-layout-2">
+  <link rel="stylesheet" href="/ui/styles.css?v=20261007-timing-row-3">
   <script src="/ui/image-input.js?v=20261004-queue-1" defer></script>
-  <script src="/ui/app.js?v=20261005-steady-layout-2" defer></script>
+  <script src="/ui/app.js?v=20261007-timing-2" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -73,8 +73,10 @@
           <span id="run-state" class="run-state">Ready</span>
         </div>
         <dl class="metrics">
-          <div class="metric" id="server-metric" title="Time the server spent processing the request"><dt>Server</dt><dd id="server-time">—</dd></div>
-          <div class="metric" id="queue-metric" title="Time the request waited for the GPU"><dt>Queue wait</dt><dd id="queue-time">—</dd></div>
+          <div class="metric" id="server-metric" title="Elapsed GPU inference window, including launches, transfers and cache work; not a GPU utilization measurement. Shared when requests are batched or interleaved."><dt id="processing-label">GPU Time</dt><dd id="server-time">—</dd></div>
+          <div class="metric" id="cpu-metric" title="Estimated elapsed CPU processing: browser image preparation plus server work outside the GPU inference window. Includes lookahead preprocessing once; not CPU utilization or summed core time."><dt>CPU Time</dt><dd id="cpu-time">—</dd></div>
+          <div class="metric" id="overhead-metric" title="Total response time minus GPU Time and estimated CPU Time. Includes upload, proxy/network transit, remaining queue wait and unmeasured work."><dt>Overhead Wait</dt><dd id="overhead-time">—</dd></div>
+          <div class="metric" id="queue-metric" title="Time waiting for the GPU worker. May overlap CPU lookahead preparation; a breakdown, not another value to add to GPU + CPU + overhead."><dt>Queue wait</dt><dd id="queue-time">—</dd></div>
           <div class="metric" id="input-metric" title="Tokens in the full request: context, input, images and questions"><dt>Input tokens</dt><dd id="input-tokens">—</dd></div>
           <div class="metric" id="cached-metric" title="Input tokens reused from the cache instead of being processed again"><dt>Cached input</dt><dd id="cached-tokens">—</dd></div>
           <div class="metric" id="gpu-metric" title="Peak GPU memory used by tensors during the request"><dt>Peak GPU</dt><dd id="gpu-memory">—</dd></div>

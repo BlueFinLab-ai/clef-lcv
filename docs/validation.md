@@ -1,5 +1,30 @@
 # Validation record
 
+## 2026-10-07 — RX580 lossless NF4 repacking
+
+- Compiled two custom gfx803 HIP variants in an existing builder image, keeping compilers out of the production runtime. Codes and per-block scales are repacked once; weights stay 4-bit, and no dense weight cache is retained.
+- Verified bitwise agreement of the real tested matrix's decoded FP16 weights, finite operator outputs and relative-L2 errors below 0.002 across 8, 17, 128, 512 and 1024 activation rows.
+- Warmed native/candidate/native tests gave 22.454→20.226 s for 2,042-token text (1.110×), 3.813→3.559 s for short text (1.071×), and 4.205→4.035 s for two small photos (1.042×). All tested choices matched; maximum response-value delta was 0.0002. These are representative handler workloads, not a full email/vision accuracy benchmark.
+- Expanded scale storage adds 288 MiB; prototype preparation took about 15 s. First-prototype short/image controls had startup effects and are not used as the primary speedup claim.
+- Fixed an initial test-only hipBLASLt selection error by explicitly choosing rocBLAS before Torch import/setup. Both completed trials restored the original RX580 container; final live API checks passed typed answers, a repeat cache hit and zero queue failures. Kernels remain disabled; source and compiled binaries are in ignored `.dev/`.
+
+## 2026-10-07 — CPU timing card
+
+- Added `cpu_time_ms`/`cpu_time_estimated` and a portal CPU Time card for browser image preparation plus estimated server processing outside inference; overhead is the remainder after GPU and CPU time.
+- Tested inline preparation counted once, lookahead included, shared/pre-prepared work bounded by the request window, zero GPU time, rounding and missing/invalid timings. The real queue test verifies the added API fields.
+- Validated Flash on a spare RTX 3090 with text, image/cache repeats and eight concurrent calls, including actual lookahead preparation and two-request batches. Checked browser arithmetic and older-server fallback.
+- Deployed `clef:lcv-cpu-timing-ui-20261007` to Flash on RTX 3070 Ti (8070) and Full on the 400 W RTX 3090 (8071); both passed warmup and synthetic-image API checks. Rollback containers are retained.
+- The live Flash portal showed 0.246 s GPU + approximately 0.017 s CPU + 0.020 s overhead. CPU is an elapsed-time estimate, not utilization. Cache lookup/admission outside inference is included; in-model cache work remains in the GPU window. Queue wait can overlap CPU preparation and must not be added again.
+
+## 2026-10-07 — GPU and overhead timing
+
+- Added `gpu_time_ms` device-event windows for single inference and shared text batches; existing API timing fields remain available.
+- Verified Flash and Full on a spare RTX 3090 with text, synthetic-image typed answers, cached-image repeats and eight concurrent requests that exercised real two-request batches.
+- Checked the actual single-request handler on CPU mocks, including inline/overlapped preparation, cache opt-outs and a failed GPU attempt followed by OOM retry.
+- Verified portal arithmetic, zero timing, older-server fallback and rounding; the live Flash browser showed 0.271 s total as 0.230 s GPU Time plus 0.041 s Overhead Wait.
+- Deployed `clef:lcv-timing-ui-20261007` to Flash on the RTX 3070 Ti (8070) and Full on the 400 W RTX 3090 (8071); both passed startup warmup and live synthetic-image checks. Retained stopped rollback containers.
+- Overhead includes queue wait. Device windows include launch gaps/transfers and shared work, so they are not kernel-only GPU utilization measurements. These checks are correctness tests, not performance benchmarks.
+
 Saved October 3, 2026. Original deployed services were tested on their GPUs before
 this project was packaged. This file contains aggregate measurements only.
 
@@ -780,3 +805,49 @@ vision suffix insertion, global positions and complete head input. Queue,
 preparation, warmup, memory admission and project checks also passed.
 Run `scripts/test_image_prefix_index.py`, `scripts/test_image_prefix_runtime.py`
 and `scripts/test_multimodal_prefill.py` for the new checks.
+
+## Dependency security review — October 6, 2026
+
+Trivy 0.75.0 and Grype 0.120.0 scanned exported final runtime filesystems with
+digest-pinned scanners and October 6 database snapshots. No ignore lists,
+fixed-only filtering or version relabeling were used. Counts are package/advisory
+matches and include duplicates across package copies.
+
+| Runtime / scanner | Critical before → after | High before → after | Medium after |
+|---|---:|---:|---:|
+| CUDA / Trivy | 0 → 0 | 15 → 0 | 9 |
+| CUDA / Grype | 0 → 0 | 16 → 0 | 168 |
+| ROCm / Trivy | 0 → 0 | 4 → 0 | 31 |
+| ROCm / Grype | 0 → 0 | 17 → 0 | 101 |
+
+Fixes update CUDA Python to 3.11.17 and setuptools to 84.0.0, apply Ubuntu
+security updates, remove unused GnuPG tools and ROCm OpenCV/FFmpeg, and remove
+pip/ensurepip plus their complete vendor trees from final images. Build stages
+retain installation tools. The ROCm Python ABI remains 3.12.15.
+
+Flash and Full passed text/image, all typed heads, startup warmup and image cache
+checks on an isolated RTX 3090 before rollout. Security-only images preserve
+deployed application code and now run on the Flash RTX 3070 Ti, Full 400W RTX
+3090 and Flash RX 580; all passed live synthetic PNG/typed-answer validation.
+Compiler exclusion, artifact ABI, installer-removal and fail-closed scanner gates
+passed. Medium/low findings remain; host drivers/kernels, weights and application
+logic were outside this dependency audit. See [security scanning](security-scanning.md).
+
+## CUDA dependency trimming — October 6, 2026
+
+Removed the unused `cuda-compat-12-9` driver package plus five remaining GnuPG
+support packages. On the same vulnerability database snapshots, Trivy medium
+matches remained 9; Grype medium matches fell from 168 to 66. High and critical
+counts remain zero in both tools. All 102 indirect compatibility driver-package
+matches disappeared. The active process loads the host driver 610.57.04.
+
+Flash and Full passed warmup, text/image requests, all typed heads and image
+cache reuse on an isolated RTX 3090. SSL/SQLite/readline/compression imports passed.
+The documented R575+ host requirement is unchanged; a build-only compatibility
+opt-in exists but older-driver deployments were not tested. No force-removal or
+package metadata editing was used.
+
+The trimmed image was deployed to Flash on the RTX 3070 Ti (8070) and Full on
+the 400W RTX 3090 (8071). Both passed live synthetic image/typed-answer validation,
+reported healthy with zero failed requests, and confirmed the compatibility
+package absent. Pre-trim containers were kept stopped for rollback.

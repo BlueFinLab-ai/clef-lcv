@@ -145,9 +145,13 @@ checkpoints are never substituted for each other. Model licenses stay with weigh
 `--offline` disables downloads. It can prepare from an already downloaded pinned
 source, or serve an existing checkpoint. Without either it fails. `prepare` does
 the same preparation and exits; `download` fetches source without requiring a GPU.
-Optional `HF_TOKEN` is read by Hugging Face for authenticated downloads. It is
-not stored in the image or checkpoint manifest. Both currently pinned releases
-can be downloaded without authentication.
+For authenticated Hugging Face downloads, pass a token with `HF_TOKEN`, or as a
+file with `--hf-token-file PATH` or `HF_TOKEN_FILE` (not both). A token file is
+read once at startup and must contain one printable-ASCII token. The token is
+never stored in the image, volume or checkpoint manifest, and the launcher
+removes it from the service's environment once the checkpoint is ready, since
+serving runs offline. Both currently pinned releases can be downloaded without
+authentication.
 
 ## Reuse existing prepared weights
 
@@ -273,3 +277,12 @@ cold requests can incur extra snapshot work. Existing memory limits, admission,
 eviction and RAM spill policies apply: a checkpoint may be evicted or rejected
 under pressure, and such requests recompute safely. `prefix_cache: false` disables
 these checkpoints. No additional runtime dependencies or compilers are required.
+
+### Host-driver library policy
+
+Final CUDA images use the host-provided NVIDIA driver and omit the optional
+CUDA 12.9 forward-compatibility driver package by default. The documented
+R575+ / CUDA 12.9+ host requirement still applies. A separately validated older
+data-center-driver deployment may build with
+`--build-arg CLEF_INCLUDE_CUDA_COMPAT=1`; this is not a guarantee of support for
+older GeForce drivers. See [security scanning](security-scanning.md#cuda-runtime-trimming).

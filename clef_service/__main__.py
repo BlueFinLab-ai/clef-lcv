@@ -8,7 +8,7 @@ from pathlib import Path
 from .hardware import configure_strategy, detect_strategy, select_gpu, prepare_runtime, runtime_backend_from_build
 from .prebuilt_launchers import install_prebuilt_launchers
 from .models import ROOT, download_source, ensure_checkpoint, profile_config
-from .access import configured_api_key
+from .access import configured_api_key, configured_hf_token
 
 
 def main(argv=None):
@@ -31,6 +31,8 @@ def main(argv=None):
     keys.add_argument("--api-key-file", type=Path, help="Require the Bearer key from this secret file")
     parser.add_argument("--require-api-key", action="store_true", help="Fail startup if no API key is configured")
     parser.add_argument("--demo", action="store_true", help="Replace server addresses in the portal with placeholders")
+    parser.add_argument("--hf-token-file", type=Path,
+                        help="Hugging Face token file for model downloads; or set HF_TOKEN / HF_TOKEN_FILE")
     parser.add_argument("--max-length", type=int, help="Override computed admission with a fixed token cap")
     parser.add_argument("--max-image-length", help="Image token limit, or auto")
     parser.add_argument("--context-reserve-mib", type=int)
@@ -56,10 +58,18 @@ def main(argv=None):
         os.environ["CLEF_REQUIRE_API_KEY"] = "1"
     if args.demo:
         os.environ["CLEF_DEMO_MODE"] = "1"
+    if args.hf_token_file is not None:
+        os.environ.pop("HF_TOKEN", None)
+        os.environ["HF_TOKEN_FILE"] = str(args.hf_token_file)
     try:
         configured_api_key()
+        # huggingface_hub reads HF_TOKEN itself; resolve a token file into it.
+        hf_token = configured_hf_token()
     except ValueError as exc:
         parser.exit(2, f"Clef startup: {exc}\n")
+    os.environ.pop("HF_TOKEN_FILE", None)
+    if hf_token:
+        os.environ["HF_TOKEN"] = hf_token
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     profile = "full" if args.full else args.model
     config = profile_config(profile)
@@ -112,6 +122,8 @@ def main(argv=None):
         print(f"Checkpoint ready: {checkpoint}")
         return
     os.environ["CLEF_MODEL_DIR"] = str(checkpoint)
+    # Serving is offline, so the download token is no longer needed.
+    os.environ.pop("HF_TOKEN", None)
     os.environ["HF_HUB_OFFLINE"] = "1"
     os.environ["TRANSFORMERS_OFFLINE"] = "1"
     # Keep compiled kernels separate across architectures and dtype.

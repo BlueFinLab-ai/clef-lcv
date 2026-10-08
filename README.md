@@ -269,6 +269,27 @@ Flash and Full are stored separately in the volume. To switch back, run
 `docker stop clef-full && docker start clef`. Run `docker run --rm clef:local --help`
 for all startup options.
 
+### Hugging Face token
+
+The pinned Flash and Full releases download without logging in, so most setups
+don't need a token. If your network or account requires authenticated Hugging Face
+downloads, pass a token when the container first downloads the model.
+
+A token file keeps it out of `docker inspect` and the process list:
+
+```sh
+docker run -d --name clef --restart unless-stopped --gpus device=0 \
+  -p 8080:8080 -v clef-cache:/data \
+  --mount type=bind,src=/absolute/private/hf-token,dst=/run/secrets/hf-token,readonly \
+  clef:local --hf-token-file /run/secrets/hf-token
+```
+
+Or pass it as a variable with `-e HF_TOKEN`, which reads the value from your
+shell without writing it into the command. The token is used only for the
+download: it is never written into the image, the volume or the checkpoint, and
+it is cleared from the service once the model is ready. A read-only token is
+enough.
+
 ### With Compose
 
 ```sh
@@ -288,6 +309,7 @@ file beside `compose.yaml`; the main ones are listed at the top of that file:
 | `CLEF_PORT` | `8080` | Host port |
 | `CLEF_BIND` | `0.0.0.0` | Host address; `127.0.0.1` keeps it on this machine only |
 | `CLEF_API_KEY_FILE` | unset | Path to an API key file on the host, mounted read-only |
+| `HF_TOKEN_FILE` | unset | Path to a Hugging Face token file on the host, mounted read-only; or set `HF_TOKEN` |
 
 `docker compose down` stops the service and keeps the model volume;
 **`docker compose down -v` also deletes the volume, including the downloaded and
@@ -424,10 +446,26 @@ The example uses the Flash model ID, `clef-flash`. For Full, change `model` to
 in the editor.
 
 The response contains `answers` and `usage`. Usage includes `latency_ms`
-(processing), `queue_wait_ms`, `server_total_ms`, `input_tokens` and
+(processing), `gpu_time_ms` (elapsed device-stream inference window),
+`cpu_time_ms` (estimated server processing outside that window),
+`queue_wait_ms`, `server_total_ms`, `input_tokens` and
 `peak_allocated_mib`. A `noul` answer is a probability, not generated text;
 `choice` and `score` answers are limited to the criteria you supply. This API
 returns decisions, not free-form text.
+
+The portal shows **GPU Time**, **CPU Time** and **Overhead Wait**. CPU Time adds
+browser image preparation to the server's elapsed non-inference estimate; it is
+marked `≈` and is not CPU utilization or summed core time. Inline preprocessing
+is counted once; lookahead preprocessing is added separately and bounded by the
+request's server window. Cache lookup/admission outside inference is included;
+in-model cache work remains in the GPU window. Overhead is browser total minus
+GPU Time and CPU Time, covering HTTP upload, proxy/network transit, remaining
+queue wait and unmeasured work. Queue wait is a breakdown that can overlap CPU
+preparation, not additional time to add to those three cards. Device timing
+includes launches, transfers and cache work, and is not a GPU utilization or
+kernel-only measurement. A batch reports its shared GPU window for each member;
+an interleaved request's window includes work serviced during its prefill.
+Older servers without `gpu_time_ms` show **Processing** instead of GPU Time.
 
 Images are sent as base64 data URLs (PNG, JPEG or WebP), up to 10 MiB and 20
 million pixels each. They count toward the input token limit after the vision
@@ -557,6 +595,7 @@ All requests succeeded and category choices matched the serial runs. See
 
 | Topic | Document |
 |---|---|
+| Security scans | [Trivy and Grype workflow](docs/security-scanning.md) |
 | Docker, cache layout and startup | [Unified service and container](docs/unified-service.md) |
 | GPU targets and builds | [GPU support](docs/gpu-support.md) |
 | Native installs and environment variables | [Model profiles](docs/builds.md) |

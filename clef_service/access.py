@@ -11,24 +11,46 @@ from urllib.parse import urlsplit
 from starlette.responses import JSONResponse, Response
 
 
+def read_secret_file(file, label):
+    """Read one printable-ASCII secret from a small file; never log the value."""
+    try:
+        with Path(file).open('rb') as stream:
+            raw = stream.read(65537)
+        if len(raw) > 65536:
+            raise ValueError(f'{label} file is too large')
+        value = raw.decode('ascii').rstrip('\r\n')
+    except (OSError, UnicodeError):
+        raise ValueError(f'Cannot read an ASCII {label} file') from None
+    if not value:
+        raise ValueError(f'{label} file is empty')
+    return value
+
+
+def check_printable(value, label):
+    if value and any(ord(char) < 33 or ord(char) > 126 for char in value):
+        raise ValueError(f'{label} must contain printable ASCII without spaces')
+
+
+def configured_hf_token(environ=None):
+    """Hugging Face download token from HF_TOKEN or HF_TOKEN_FILE, or ''."""
+    env = os.environ if environ is None else environ
+    value, file = env.get('HF_TOKEN', ''), env.get('HF_TOKEN_FILE', '')
+    if value and file:
+        raise ValueError('Set only one of HF_TOKEN or HF_TOKEN_FILE')
+    if file:
+        value = read_secret_file(file, 'Hugging Face token')
+    check_printable(value, 'Hugging Face token')
+    return value
+
+
 def configured_api_key(environ=None):
     env = os.environ if environ is None else environ
     value, file = env.get('CLEF_API_KEY', ''), env.get('CLEF_API_KEY_FILE', '')
     if value and file:
         raise ValueError('Set only one of CLEF_API_KEY or CLEF_API_KEY_FILE')
     if file:
-        try:
-            with Path(file).open('rb') as stream:
-                raw = stream.read(65537)
-            if len(raw) > 65536:
-                raise ValueError('API key file is too large')
-            value = raw.decode('ascii').rstrip('\r\n')
-        except (OSError, UnicodeError):
-            raise ValueError('Cannot read an ASCII API key file') from None
-        if not value:
-            raise ValueError('API key file is empty')
-    if value and any(ord(char) < 33 or ord(char) > 126 for char in value):
-        raise ValueError('API key must contain printable ASCII without spaces')
+        value = read_secret_file(file, 'API key')
+    check_printable(value, 'API key')
     if env.get('CLEF_REQUIRE_API_KEY', '0') == '1' and not value:
         raise ValueError('API key required: set CLEF_API_KEY or CLEF_API_KEY_FILE')
     return value

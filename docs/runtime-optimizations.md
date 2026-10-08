@@ -389,6 +389,28 @@ timeout, and shows detailed 413 counts. External callers should choose timeouts
 longer than queue wait plus expected inference duration and avoid automatic
 retries that can duplicate active work.
 
+`gpu_time_ms` uses device events around each inference attempt, including a
+failed attempt followed by an OOM retry. CPU input preparation, admission and
+cache preparation before inference are outside this window. It is elapsed
+device-stream time, including host launch gaps, inference cache work and
+transfers, rather than a sum of kernel execution times. Batched members share
+the batch window; interleaved work is included in its parent's window. The
+API adds `cpu_time_ms` and `cpu_time_estimated:true`: elapsed handler processing
+minus the GPU window, plus preprocessing done by queued lookahead, bounded by
+the request's server elapsed time minus GPU time. Inline preprocessing is
+already in the handler window and is not added twice. This is an estimate of
+elapsed non-inference work, not CPU utilization; in-model cache work and launch
+gaps remain in the GPU window. Shared batch processing windows are attributed
+to each member, not divided by batch size.
+
+The portal's CPU Time also includes browser image preparation. Overhead Wait
+is `max(0, browser_total_ms - gpu_time_ms - displayed_cpu_time_ms)`, covering
+upload, proxy/network transit, remaining queue wait and unmeasured work. Queue
+wait can overlap lookahead CPU preparation; it must not be added separately.
+An older GPU-timed server uses an equivalent estimate from existing usage
+fields. Without GPU timing, the portal labels `latency_ms` Processing and
+shows browser preparation only in CPU Time, avoiding double-counting server CPU.
+
 `/health.queue` exposes active/waiting/admitted counts, admitted wire MiB,
 limits, accepting state and completed/failed/cancelled/timed-out/rejected counts.
 GPU/cache discovery uses the previous idle snapshot while inference is running;

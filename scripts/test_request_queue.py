@@ -29,7 +29,7 @@ async def serialization():
         threads.add(threading.get_ident()); order.append(value)
         time.sleep(.005)
         active -= 1
-        return {'value': value, 'usage': {'latency_ms': 5}}
+        return {'value': value, 'usage': {'latency_ms': 5, 'gpu_time_ms': 3}}
     q = DecisionQueue(handler, max_waiting=16)
     await q.start()
     try:
@@ -37,6 +37,7 @@ async def serialization():
         assert order == list(range(12)) and peak == 1 and len(threads) == 1
         assert [r['value'] for r in rows] == order
         assert rows[-1]['usage']['queue_wait_ms'] > 20
+        assert all(r['usage']['cpu_time_ms'] == 2 and r['usage']['cpu_time_estimated'] for r in rows)
         assert q.stats()['completed'] == 12
     finally:
         await q.close()

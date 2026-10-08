@@ -1,12 +1,24 @@
 # syntax=docker/dockerfile:1
 ARG CLEF_BINARIES_IMAGE=clef:cuda-binaries
-ARG PYTHON_IMAGE=python:3.11.16-slim-bookworm
+ARG PYTHON_IMAGE=python:3.11.17-slim-bookworm
 FROM ${PYTHON_IMAGE} AS python
+# Refresh both the global interpreter and the service venv packaging vendors.
+RUN python -m pip install --no-cache-dir --no-deps setuptools==84.0.0
 FROM ${CLEF_BINARIES_IMAGE} AS cuda-binaries
 FROM nvidia/cuda:12.9.1-base-ubuntu24.04 AS runtime
+# Set to 1 only for an explicitly validated older-driver forward-compatibility setup.
+ARG CLEF_INCLUDE_CUDA_COMPAT=0
 COPY --from=python /usr/local/ /usr/local/
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libssl3t64 libffi8 libsqlite3-0 libbz2-1.0 liblzma5 ca-certificates libgomp1 \
+    libssl3t64 libffi8 libsqlite3-0 libbz2-1.0 liblzma5 ca-certificates libgomp1 libreadline8t64 \
+    && apt-get upgrade -y --no-install-recommends \
+    && apt-get purge -y gnupg gnupg2 gnupg-utils gpg gpg-agent gpgconf gpgsm dirmngr keyboxd \
+    && apt-get purge -y libksba8 libldap2 libsasl2-2 libsasl2-modules-db pinentry-curses \
+    && case "${CLEF_INCLUDE_CUDA_COMPAT}" in \
+         0) apt-get purge -y cuda-compat-12-9 ;; \
+         1) : ;; \
+         *) echo "CLEF_INCLUDE_CUDA_COMPAT must be 0 or 1" >&2; exit 1 ;; \
+       esac \
     && rm -rf /var/lib/apt/lists/* \
     && if getent passwd ubuntu >/dev/null; then userdel ubuntu; fi \
     && if getent group ubuntu >/dev/null; then groupdel ubuntu; fi \
@@ -14,7 +26,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && mkdir -p /data && chown clef:clef /data
 COPY --from=cuda-binaries /opt/venv /opt/venv
 COPY --from=cuda-binaries /artifacts /app/artifacts
-RUN rm -rf /usr/local/include
+RUN /opt/venv/bin/python -m pip install --no-cache-dir --no-deps setuptools==84.0.0 \
+    && rm -rf /usr/local/include
 WORKDIR /app
 COPY clef_service/ clef_service/
 COPY --from=cuda-binaries /kernel-build.json clef_service/kernel-build.json
@@ -24,12 +37,14 @@ COPY vendor/ vendor/
 COPY web/ web/
 COPY scripts/kernel_smoke.py scripts/kernel_smoke.py
 COPY scripts/assert_runtime_tools.py scripts/assert_runtime_tools.py
+COPY scripts/strip_runtime_installers.py /tmp/strip_runtime_installers.py
 COPY THIRD_PARTY.md README.md LICENSE ./
 ENV PATH=/opt/venv/bin:/usr/local/bin:/usr/bin:/bin \
     PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 \
     CLEF_PREBUILT_LAUNCHERS_DIR=/app/artifacts/triton-host \
     CLEF_CACHE_DIR=/data NVIDIA_DRIVER_CAPABILITIES=compute,utility
-RUN python scripts/assert_runtime_tools.py
+RUN python /tmp/strip_runtime_installers.py && rm /tmp/strip_runtime_installers.py \
+    && python scripts/assert_runtime_tools.py
 USER clef
 VOLUME ["/data"]
 EXPOSE 8080

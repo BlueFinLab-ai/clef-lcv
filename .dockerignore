@@ -19,6 +19,7 @@
 !scripts/build_container_kernel.py
 !scripts/kernel_smoke.py
 !scripts/assert_runtime_tools.py
+!scripts/strip_runtime_installers.py
 !README.md
 !THIRD_PARTY.md
 !LICENSE

@@ -71,6 +71,7 @@ from image_request import IMAGE_FIDELITIES, media_options
 from reusable_inputs import InputCache, cpu_bytes
 from ram_cache_budget import RAMCacheBudget
 from cpu_preparation import PreparedDecision, preparation_fits
+from gpu_timer import GPUTimer
 from media_prefix import MediaPrefix
 from request_queue import DecisionQueue, QueueAdmissionMiddleware, QueueError
 from text_batching import BatchUnavailable, TextBatchAdmission, shared_tokens
@@ -708,10 +709,11 @@ def run_decision(request: DecisionRequest):
             initial_chunk = min(initial_chunk, ROCM_LONG_CHUNK_TOKENS)
             chunk_size = min(chunk_size, ROCM_LONG_CHUNK_TOKENS)
         engine.progress_hook = offer_short_request if not request_queue.nesting else None
+        gpu_timer = GPUTimer(torch.cuda)
         def infer(cache, features=True):
             attention = (sdpa_kernel(SDPBackend.EFFICIENT_ATTENTION) if ATTENTION_BACKEND == "efficient"
                          else sdpa_kernel(SDPBackend.MATH) if ATTENTION_BACKEND == "math" else nullcontext())
-            with attention:
+            with attention, gpu_timer.measure():
                 return engine.forward(model, processor, encoded, boundary, input_key,
                     pooling=request.image_pooling, cache_enabled=cache, checkpoint_boundaries=checkpoints,
                     feature_cache_enabled=features and reuse_inputs and GPU_CACHE_SUPPORTED,
@@ -760,7 +762,8 @@ def run_decision(request: DecisionRequest):
                                context_limit_mode=limits["context_limit"]["mode"])
         json.dumps(result, allow_nan=False)
         torch.cuda.synchronize()
-        result["usage"].update(latency_ms=round((time.perf_counter() - started) * 1000, 1),
+        result["usage"].update(gpu_time_ms=round(gpu_timer.elapsed_ms, 1),
+            latency_ms=round((time.perf_counter() - started) * 1000, 1),
             peak_allocated_mib=round(max(torch.cuda.max_memory_allocated(),gpu_profiles.stack[-1]['peak']) / 2**20, 1))
         if request.images:
             grid = encoded.media.get("original_grid_thw", encoded.media["image_grid_thw"])
@@ -876,7 +879,8 @@ def run_decision_batch(requests, emit):
                             attention = sdpa_kernel(SDPBackend.EFFICIENT_ATTENTION)
                             caching = requests[indices[0]].prefix_cache and PREFIX_CACHE_ENABLED and GPU_CACHE_SUPPORTED
                             key = hashlib.sha256(json.dumps([[],None],separators=(',',':')).encode()).hexdigest()
-                            with attention:
+                            gpu_timer = GPUTimer(torch.cuda)
+                            with attention, gpu_timer.measure():
                                 logits, usage = engine.forward_text_batch(model, processor, encoded, boundaries, key,
                                     cache_enabled=caching, checkpoint_boundaries=[p[5] for p in prepared], cache_plan=plan)
                             torch.cuda.synchronize()
@@ -893,6 +897,7 @@ def run_decision_batch(requests, emit):
                                     'batch_size':len(indices),'batch_padded_tokens':len(indices)*max(lengths),
                                     'batch_padding_tokens':len(indices)*max(lengths)-sum(lengths),
                                     'batch_worker_wait_ms':round((started-batch_started)*1000,1),
+                                    'gpu_time_ms':round(gpu_timer.elapsed_ms,1),
                                     'latency_ms':round(elapsed,1),'peak_allocated_mib':round(peak/2**20,1)}}
                                 json.dumps(result,allow_nan=False)
                                 emit(index,result)

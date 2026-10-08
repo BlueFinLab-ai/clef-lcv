@@ -36,7 +36,7 @@ EXPOSE 8080
 ENTRYPOINT ["python", "-m", "clef_service"]
 
 FROM build AS collect
-RUN python -m pip uninstall -y triton onnxruntime-migraphx ninja scikit-build-core trove-classifiers wheel
+RUN python -m pip uninstall -y triton onnxruntime-migraphx ninja scikit-build-core trove-classifiers wheel opencv-python opencv-python-headless opencv-contrib-python opencv-contrib-python-headless
 COPY experimental/rocm/collect_runtime.py /tmp/collect_runtime.py
 RUN python /tmp/collect_runtime.py
 
@@ -59,13 +59,15 @@ COPY web/ web/
 COPY experimental/rocm/probe.py /app/probe.py
 COPY experimental/rocm/tunable-rx580-2026-10-04.csv /app/tuning/gfx803.csv
 COPY scripts/assert_runtime_tools.py scripts/assert_runtime_tools.py
+COPY scripts/strip_runtime_installers.py /tmp/strip_runtime_installers.py
 ENV PATH=/opt/venv/bin:/opt/python/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
     PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 CLEF_EXPERIMENTAL_ROCM=1 CLEF_CACHE_DIR=/data \
     ROCM_PATH=/opt/rocm HSA_OVERRIDE_GFX_VERSION=8.0.3 TORCH_BLAS_PREFER_HIPBLASLT=0 \
     LD_PRELOAD=/opt/rocm/lib/libgfx803_sgemm_shim.so \
     LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/lib/llvm/lib:/opt/rocm/lib/host-math/lib:/opt/rocm/lib/rocm_sysdeps/lib
 RUN printf '/opt/rocm/lib\n/opt/rocm/lib/llvm/lib\n/opt/rocm/lib/host-math/lib\n/opt/rocm/lib/rocm_sysdeps/lib\n' > /etc/ld.so.conf.d/clef-rocm.conf \
-    && ldconfig && python scripts/assert_runtime_tools.py \
+    && ldconfig && python /tmp/strip_runtime_installers.py && rm /tmp/strip_runtime_installers.py \
+    && python scripts/assert_runtime_tools.py \
     && python -c "import torch,bitsandbytes; assert torch.version.hip"
 EXPOSE 8080
 ENTRYPOINT ["python","-m","clef_service"]

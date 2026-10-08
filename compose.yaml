@@ -6,6 +6,9 @@
 #                      your network); use 127.0.0.1 for this machine only
 #   CLEF_API_KEY_FILE  absolute path to an API key file on the host (recommended),
 #                      mounted read-only; or set CLEF_API_KEY, not both
+#   HF_TOKEN_FILE      absolute path to a Hugging Face token file on the host,
+#                      mounted read-only; or set HF_TOKEN, not both. Only needed
+#                      for authenticated downloads; the pinned models are public.
 services:
   clef:
     build: .
@@ -27,10 +30,12 @@ services:
       CLEF_PORTAL_AUTO_AUTH: ${CLEF_PORTAL_AUTO_AUTH:-1}
       # Optional for authenticated model downloads; not stored in the image.
       HF_TOKEN: ${HF_TOKEN:-}
+      HF_TOKEN_FILE: ${HF_TOKEN_FILE:+/run/secrets/hf-token}
     volumes:
       - clef-cache:/data
       # Without CLEF_API_KEY_FILE an empty placeholder is mounted and ignored.
       - ${CLEF_API_KEY_FILE:-/dev/null}:/run/secrets/clef-api-key:ro
+      - ${HF_TOKEN_FILE:-/dev/null}:/run/secrets/hf-token:ro
     deploy:
       resources:
         reservations:

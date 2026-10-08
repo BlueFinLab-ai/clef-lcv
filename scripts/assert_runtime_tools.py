@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import shutil
 
-names=['gcc','g++','cc','c++','clang','clang++','cmake','make','ninja','nvcc','hipcc','git','rustc']
+names=['gcc','g++','cc','c++','clang','clang++','cmake','make','ninja','nvcc','hipcc','git','rustc','pip','pip3']
 found={name:shutil.which(name) for name in names if shutil.which(name)}
 for pattern in ['/usr/bin/gcc-[0-9]*','/usr/bin/g++-[0-9]*','/usr/bin/clang*',
                 '/opt/rocm/lib/llvm/bin/clang*','/opt/rocm/bin/hipcc']:

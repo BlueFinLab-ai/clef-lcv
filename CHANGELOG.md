@@ -1,9 +1,40 @@
 # Changelog
 
+## 2026-10-07 — CPU timing breakdown
+
+- Add a CPU Time card for browser image preparation and estimated server work outside the GPU inference window, including queued preprocessing once.
+- Report `cpu_time_ms`/`cpu_time_estimated` and subtract the CPU estimate from Overhead Wait; retain queue wait as an overlapping breakdown.
+- Clarify that cache work inside inference remains in the GPU window and these are elapsed-time estimates, not utilization measurements.
+
+## 2026-10-07 — GPU and overhead timing
+
+- Measure inference windows with device events and report `gpu_time_ms` for single requests and text batches.
+- Replace the portal's Server card with GPU Time and add Overhead Wait as total response time minus inference time, including queue wait.
+- Preserve existing API timings; older servers show Processing rather than a misleading GPU label.
+
+## 2026-10-06 — Trim CUDA runtime dependencies
+
+- Remove the unused CUDA 12.9 compatibility driver and five GnuPG support packages from final CUDA images; preserve Python native libraries and package-manager dependencies.
+- Default to the host driver, with `CLEF_INCLUDE_CUDA_COMPAT=1` as an explicit build opt-in for separately validated older-driver configurations.
+- Grype medium matches drop from 168 to 66; both scanners retain zero high/critical matches.
+
+
+## 2026-10-06 — Runtime security remediation
+
+- Update CUDA Python to 3.11.17, setuptools to 84.0.0 in both interpreter environments, and final-image Ubuntu packages; remove unused GnuPG tools.
+- Remove unused OpenCV/FFmpeg from experimental ROCm runtime builds, and pip/ensurepip with their vendored libraries from final CUDA/ROCm runtimes.
+- Add isolated digest-pinned Trivy/Grype scans, raw reports and critical/high release gates, plus a manual GitHub scan workflow.
+
+
 Dated summaries of notable changes. Measurements and test details are in the
 [validation record](docs/validation.md) and the linked documents.
 
 ## 2026-10-06
+
+### Hugging Face token
+- Pass a download token as a file with `--hf-token-file` or `HF_TOKEN_FILE`, as
+  well as `HF_TOKEN`. Compose mounts a token file read-only. The token is cleared
+  from the service once the model is ready.
 
 ### Image caching
 - When a request's later images change, are removed or are added, Flash and Full

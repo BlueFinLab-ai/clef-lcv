@@ -1,0 +1,43 @@
+name: Container vulnerability scan
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: 'Public final image reference or digest to scan'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Scan gate tests
+        run: python3 scripts/test_security_scan.py
+      - name: Free space for exported runtime images
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup
+          df -h .
+      - name: Pull the selected final image
+        env:
+          SCAN_IMAGE: ${{ inputs.image }}
+        run: docker pull "$SCAN_IMAGE"
+      - name: Trivy and Grype — all critical/high findings fail
+        env:
+          SCAN_IMAGE: ${{ inputs.image }}
+        run: python3 scripts/security_scan.py --image "$SCAN_IMAGE" --output-dir local/security
+      - name: Save findings even if the gate fails
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: container-security
+          path: |
+            local/security/*.json
+            local/security/*.txt
+            local/security/*.log
+          retention-days: 30

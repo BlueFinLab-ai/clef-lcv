@@ -10,7 +10,7 @@ image handling, decision heads, queues and prefix caching are unchanged.
 
 ## Build
 
-Use Linux x86_64, a portable Python 3.11.16 distribution (for example uv), and
+Use Linux x86_64, a portable Python 3.11.17 distribution (for example uv), and
 Docker usable by your account. The interpreter and its base distribution must be
 readable at their existing host paths from Docker bind mounts. Set `PYTHON` when
 creating the environment. A system Python is not supported by this container

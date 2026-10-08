@@ -95,6 +95,20 @@ layout paths, and native-layout GEMV-M. Faster raw multiplication did not produc
 a net gain for this NF4 prefill deployment. A separate text batching prototype
 reduced an eight-email run by 11.1%; production FIFO behavior is unchanged.
 
+The October 7 lossless NF4 repacking experiment used custom gfx803 kernels
+that consume packed K×N codes and expanded/transposed FP32 block scales,
+avoiding persistent dense weights and per-call weight transposes. A second
+variant shares scaled NF4 lookup values in each workgroup. Warmed native /
+candidate / native comparisons gave 1.110× for 2,042-token text, 1.071× for
+229-token text and 1.042× for two 256-pixel photos (268 tokens). This is three
+representative direct-handler workloads, not a 100-email benchmark or a 4× gain.
+All tested choices matched; maximum response-value difference was 0.0002.
+Expanded scales add 288 MiB to GPU storage; prototype startup preparation took
+approximately 15 seconds. These kernels remain disabled. Sources and compiled
+libraries are retained in Git-ignored `.dev/nf4-repack-20261007/`; no compiler
+or kernel was added to the production image. The original service was restored
+and passed typed-answer and repeated-prefix-cache API checks.
+
 [Experimental build and hardware gate](../experimental/rocm/README.md).
 The startup policy explicitly requires gfx803, at least 8GB VRAM, Flash and
 `CLEF_EXPERIMENTAL_ROCM=1`. It selects FP16, native PyTorch gated-delta kernels,

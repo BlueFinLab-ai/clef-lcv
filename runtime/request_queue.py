@@ -7,6 +7,7 @@ import os
 import time
 
 from starlette.responses import JSONResponse
+from cpu_timing import cpu_timing
 
 
 class QueueError(Exception):
@@ -321,6 +322,7 @@ class DecisionQueue:
         total_ms = round((time.perf_counter() - job.submitted) * 1000, 1)
         if isinstance(result, dict) and "usage" in result:
             result["usage"].update(queue_wait_ms=wait_ms, server_total_ms=total_ms)
+            result["usage"].update(cpu_timing(result["usage"], total_ms))
         elif isinstance(result, JSONResponse):
             result.headers["X-Clef-Queue-Wait-Ms"] = str(wait_ms)
             result.headers["X-Clef-Server-Time-Ms"] = str(total_ms)

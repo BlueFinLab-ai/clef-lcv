@@ -329,7 +329,7 @@ function cachedInputDetail(usage) {
   return {reused, title: parts.join(' ')};
 }
 function resetMetrics() {
-  for (const id of ['server-time', 'queue-time', 'input-tokens', 'cached-tokens', 'gpu-memory']) $(id).textContent = '—';
+  for (const id of ['server-time', 'cpu-time', 'overhead-time', 'queue-time', 'input-tokens', 'cached-tokens', 'gpu-memory']) $(id).textContent = '—';
   $('total-block').title = '';
 }
 // Reduce any answer type to its displayed winner, confidence and probability bars.
@@ -368,7 +368,23 @@ function renderRun(run) {
   const usage = run.response?.usage || {};
   resetMetrics();
   $('total-block').title = `Measured in this browser: ${images ? `${duration(run.clientImageMs || 0)} image preparation, ` : ''}a ${((run.uploadBytes || 0) / 1024).toFixed(0)} KiB upload, queueing, processing and the response.`;
-  if (typeof usage.latency_ms === 'number') setMetric('server-time', duration(usage.latency_ms));
+  const deviceTiming = Number.isFinite(usage.gpu_time_ms) && usage.gpu_time_ms >= 0;
+  const processingMs = deviceTiming ? usage.gpu_time_ms : usage.latency_ms;
+  $('processing-label').textContent = deviceTiming ? 'GPU Time' : 'Processing';
+  if (Number.isFinite(processingMs) && processingMs >= 0) {
+    setMetric('server-time', duration(processingMs), deviceTiming
+      ? 'Elapsed GPU inference window measured with device events. Includes launches, transfers and cache work; not GPU-busy time. Shared for batched or interleaved work.'
+      : 'This server does not report GPU timing. Showing server processing time, including CPU work.');
+    const browserCpuMs = Number.isFinite(run.clientImageMs) ? Math.max(0, run.clientImageMs) : 0;
+    const serverCpuMs = deviceTiming && Number.isFinite(usage.cpu_time_ms) ? Math.max(0, usage.cpu_time_ms) : null;
+    // Older GPU-timed servers can still provide a non-inference estimate.
+    const cpuEstimate = serverCpuMs ?? (deviceTiming && Number.isFinite(usage.latency_ms)
+      ? Math.max(0, usage.latency_ms - processingMs) + (usage.cpu_preparation_overlapped ? Math.max(0, usage.preprocessing_ms || 0) : 0) : 0);
+    const cpuMs = Math.min(Math.max(0, run.totalMs - processingMs), browserCpuMs + cpuEstimate);
+    setMetric('cpu-time', `≈ ${duration(cpuMs)}`, `Estimated elapsed CPU processing: browser image preparation ${duration(browserCpuMs)} plus server non-inference processing ${duration(cpuEstimate)}. Includes cache lookup/admission outside the inference window. In-model cache work remains in GPU Time. Lookahead preparation is counted once. Not CPU utilization or summed core time.${deviceTiming ? '' : ' This older server includes its CPU work in Processing; CPU Time here covers browser preparation only.'}`);
+    const overheadMs = Math.max(0, run.totalMs - processingMs - cpuMs);
+    setMetric('overhead-time', duration(overheadMs), `Total ${duration(run.totalMs)} minus ${deviceTiming ? 'GPU Time' : 'processing'} ${duration(processingMs)} and CPU estimate ${duration(cpuMs)}. Includes upload (${((run.uploadBytes || 0) / 1024).toFixed(0)} KiB), proxy/network transit, remaining queue wait and unmeasured work. Queue wait may overlap CPU preparation; do not add it separately.`);
+  }
   if (typeof usage.queue_wait_ms === 'number') setMetric('queue-time', duration(usage.queue_wait_ms));
   if (typeof usage.input_tokens === 'number') {
     setMetric('input-tokens', usage.input_tokens.toLocaleString());
