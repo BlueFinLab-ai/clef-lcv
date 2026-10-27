@@ -4,7 +4,7 @@ from host_memory import available_memory
 
 
 class RAMCacheBudget:
-    def __init__(self, reserve_fraction=.25, memory_probe=None):
+    def __init__(self, reserve_fraction=.20, memory_probe=None):
         if not 0 <= reserve_fraction < 1:
             raise ValueError('RAM reserve fraction must be in [0, 1)')
         self.reserve_fraction = reserve_fraction
@@ -25,6 +25,21 @@ class RAMCacheBudget:
         capacity = sample['available_bytes'] + sum(size() for size, _, _ in self.owners.values()) + sum(size() for size in self.pending.values())
         reserve = int(capacity * self.reserve_fraction)
         return int((capacity-reserve) * self.owners[owner][2]), reserve, sample
+
+    def stats(self):
+        """Read-only capacity sample; never trim from a telemetry request."""
+        with self.lock:
+            sample = self.memory_probe()
+            retained = {name: size() for name, (size, _, _) in self.owners.items()}
+            pending = {name: size() for name, size in self.pending.items()}
+            capacity = None if sample is None else sample['available_bytes'] + sum(retained.values()) + sum(pending.values())
+            reserve = None if capacity is None else int(capacity * self.reserve_fraction)
+            return {'available_bytes': None if sample is None else sample['available_bytes'],
+                    'system_available_bytes': None if sample is None else sample['system_available_bytes'],
+                    'cgroup_available_bytes': None if sample is None else sample['cgroup_available_bytes'],
+                    'retained_bytes_by_tier': retained, 'pending_bytes_by_tier': pending,
+                    'service_capacity_bytes': capacity, 'reserve_fraction': self.reserve_fraction,
+                    'reserve_bytes': reserve, 'total_cache_budget_bytes': None if capacity is None else capacity-reserve}
 
     def admit(self, owner, addition=0, maximum=None):
         """Caller holds lock through publication, so retained copies cannot race."""

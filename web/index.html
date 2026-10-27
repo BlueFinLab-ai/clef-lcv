@@ -7,9 +7,9 @@
   <meta name="description" content="Clef Local Inference, Caching, and Vision">
   <title>Clef LCV · Questions & timing</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b50d9'/%3E%3Cpath d='M23 10a9 9 0 1 0 0 12' fill='none' stroke='white' stroke-width='4'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/ui/styles.css?v=20261007-timing-row-3">
+  <link rel="stylesheet" href="/ui/styles.css?v=20261011-cold-benchmark-1">
   <script src="/ui/image-input.js?v=20261004-queue-1" defer></script>
-  <script src="/ui/app.js?v=20261008-friendly-errors-1" defer></script>
+  <script src="/ui/app.js?v=20261011-cold-benchmark-1" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -57,6 +57,10 @@
         <div class="questions-heading"><h2>Questions</h2><span><span id="question-count">1 question</span> · answered together</span></div>
         <div id="questions"></div>
         <button id="add-question" type="button" class="add-button"><span aria-hidden="true">+</span> Add question</button>
+        <section class="panel panel-body benchmark-option">
+          <label class="inline-field"><input id="cold-benchmark" type="checkbox" aria-describedby="cold-benchmark-note"> Cold-pass benchmark</label>
+          <p id="cold-benchmark-note" class="help">Recompute this input with CPU and GPU cache reuse disabled. Reports backbone and end-to-end tokens/s. Model startup is excluded. Auto-run is paused in this mode.</p>
+        </section>
       </fieldset>
       <p id="form-error" class="error" role="alert" hidden></p>
       <p class="limit"><span id="limit-note">8,192 total input tokens</span></p>
@@ -88,6 +92,14 @@
         </div>
       </div>
       <div id="result-announcement" role="status" class="sr-only"></div>
+      <section id="cold-throughput" class="cold-throughput" aria-labelledby="cold-throughput-heading" hidden>
+        <h3 id="cold-throughput-heading">Cold-pass throughput</h3>
+        <dl class="throughput-values">
+          <div><dt>Backbone tokens/s</dt><dd id="backbone-rate">—</dd></div>
+          <div><dt>End-to-end tokens/s</dt><dd id="end-to-end-rate">—</dd></div>
+        </dl>
+        <p id="throughput-note" class="help"></p>
+      </section>
       <div id="results" aria-busy="false">
         <div class="empty-state"><svg aria-hidden="true" width="40" height="40" viewBox="0 0 44 44"><path d="M13 13h18v18H13zM8 18H3v8h5M36 18h5v8h-5M18 8V3h8v5M18 36v5h8v-5"/><path d="m17 23 4 4 7-10"/></svg><h3>Make your first request</h3><p>Write a question on the left, then choose Ask Clef or press <kbd>⌘↵</kbd>.<br>Each answer appears here beside its timing.</p></div>
       </div>

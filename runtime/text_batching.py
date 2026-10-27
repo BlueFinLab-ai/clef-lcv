@@ -46,6 +46,8 @@ class TextBatchAdmission:
         self.oom_limits = {}
         self.batches = self.requests = self.oom_fallbacks = 0
         self.fallbacks = {}
+        self.independent_enabled=False
+        self.independent_batches=self.independent_requests=0
 
     def reason(self, lengths):
         maximum = max(lengths)
@@ -96,7 +98,7 @@ class TextBatchAdmission:
         self.fallback('gpu_oom')
 
     def stats(self):
-        return {'text_only': True, 'padded_token_budget': self.padded_tokens,
+        return {'independent_cache':{'enabled':self.independent_enabled,'gpu_batches':self.independent_batches,'batched_requests':self.independent_requests,'qualification':'CUDA Flash FP16 text; no pending checkpoint'},'text_only': True, 'padded_token_budget': self.padded_tokens,
                 'max_record_tokens': self.record_tokens, 'minimum_length_ratio': self.length_ratio,
                 'gpu_batch_sizes': dict(self.sizes), 'gpu_batches': self.batches, 'batched_requests': self.requests,
                 'fallbacks': dict(self.fallbacks), 'oom_fallbacks': self.oom_fallbacks,

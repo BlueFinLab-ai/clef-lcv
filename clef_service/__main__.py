@@ -2,6 +2,7 @@
 import argparse
 import json
 import logging
+import math
 import os
 from pathlib import Path
 
@@ -38,14 +39,85 @@ def main(argv=None):
     parser.add_argument("--context-reserve-mib", type=int)
     parser.add_argument("--prefill-initial-chunk-tokens", type=int)
     parser.add_argument("--prefill-chunk-tokens", type=int)
+    parser.add_argument('--prefill-policy', choices=['fixed','memory'],
+                        help='Choose prefill chunks from reusable VRAM (CUDA default) or retain fixed chunks')
+    parser.add_argument('--prefill-max-chunk-tokens', type=int,
+                        help='Maximum new tokens per adaptive chunk (default 16384; VRAM may select less)')
+    parser.add_argument('--prefill-target-chunk-tokens',
+                        help='Preferred adaptive continuation size, or auto (native/tiled 4K, CPU-streamed 8K)')
     parser.add_argument("--allow-slow-kernels", action="store_true", help="Permit native fallback if FLA is unavailable")
     parser.add_argument("--linear-prefill-backend", choices=["auto", "torch", "fla", "adaptive"])
     parser.add_argument("--batch-size", type=int, choices=[1,2,4], help="Maximum opportunistic CUDA text batch; no collection delay")
+    independent = parser.add_mutually_exclusive_group()
+    independent.add_argument('--independent-cache-batching',action='store_true',help='Batch qualified CUDA Flash text suffixes with independent cached histories')
+    independent.add_argument('--no-independent-cache-batching',action='store_true',help='Disable independent cached-history batching')
+    matching = parser.add_mutually_exclusive_group()
+    matching.add_argument('--batch-matching', action='store_true', help='Match bounded queued text by length and exact cache ancestry')
+    matching.add_argument('--no-batch-matching', action='store_true', help='Use consecutive FIFO text batches')
+    parser.add_argument('--batch-lookahead', type=int, choices=range(1,17), help='Inspect at most this many waiting text requests (default 8)')
+    parser.add_argument('--batch-max-bypasses', type=int, choices=range(0,9), help='Stop a matching search at a request bypassed this many times (default 2)')
     parser.add_argument("--image-pooling", action="store_true", help="Enable optional experimental 2x2 pooling")
     parser.add_argument("--image-prefill", action="store_true", help="Compatibility flag; image prefill defaults on")
     parser.add_argument("--no-prefix-cache", action="store_true")
+    parser.add_argument("--cache-frequency-decay-seconds", type=float,
+                        default=os.environ.get("CLEF_CACHE_FREQUENCY_DECAY_SECONDS", "900"),
+                        help="Halve CPU prefix/image eviction frequency each interval (default 900 seconds; 0 disables aging)")
+    parser.add_argument("--ram-cache-reserve-fraction", type=float,
+                        default=os.environ.get("CLEF_PREFIX_HOST_CACHE_RESERVE_FRACTION", "0.20"),
+                        help="Fraction of service-allocatable CPU RAM reserved outside shared caches (default 0.20 = 20%%)")
     parser.add_argument("--no-warmup", action="store_true", help="Skip default startup text/image warmup before readiness")
+    metric_flags = parser.add_mutually_exclusive_group()
+    metric_flags.add_argument('--metrics', action='store_true', help='Enable best-effort background metrics at protected /metrics')
+    metric_flags.add_argument('--no-metrics', action='store_true', help='Disable optional metrics collection')
+    parser.add_argument('--request-log-mode', choices=['off','metadata','payload'],
+                        default=os.environ.get('CLEF_REQUEST_LOG_MODE','off'))
+    parser.add_argument('--request-log-dir', type=Path,
+                        default=Path(os.environ['CLEF_REQUEST_LOG_DIR']) if os.environ.get('CLEF_REQUEST_LOG_DIR') else None)
+    parser.add_argument('--request-log-images', action='store_true', help='Include received image bytes in optional payload archive')
+    parser.add_argument('--request-log-queue-mib', type=int)
+    parser.add_argument('--request-log-rotate-mib', type=int)
+    parser.add_argument('--request-log-backups', type=int)
+    parser.add_argument('--request-log-retention-days', type=float)
+    parser.add_argument('--request-log-archive-mib', type=int)
     args = parser.parse_args(argv)
+    if args.independent_cache_batching or args.no_independent_cache_batching:
+        os.environ['CLEF_INDEPENDENT_CACHE_BATCHING']='1' if args.independent_cache_batching else '0'
+    if args.batch_matching or args.no_batch_matching:
+        os.environ['CLEF_BATCH_MATCHING'] = '1' if args.batch_matching else '0'
+    if args.batch_lookahead is not None:
+        os.environ['CLEF_BATCH_LOOKAHEAD'] = str(args.batch_lookahead)
+    if args.batch_max_bypasses is not None:
+        os.environ['CLEF_BATCH_MAX_BYPASSES'] = str(args.batch_max_bypasses)
+    if args.prefill_max_chunk_tokens is not None and args.prefill_max_chunk_tokens<1:
+        parser.error('--prefill-max-chunk-tokens must be positive')
+    if args.prefill_target_chunk_tokens is not None and args.prefill_target_chunk_tokens!='auto':
+        try:
+            if int(args.prefill_target_chunk_tokens)<1:raise ValueError
+        except ValueError:
+            parser.error('--prefill-target-chunk-tokens must be auto or a positive integer')
+    if args.metrics or args.no_metrics:
+        os.environ['CLEF_METRICS'] = '1' if args.metrics else '0'
+    os.environ['CLEF_REQUEST_LOG_MODE'] = args.request_log_mode
+    if args.request_log_dir is not None:
+        os.environ['CLEF_REQUEST_LOG_DIR'] = str(args.request_log_dir)
+    if args.request_log_images:
+        os.environ['CLEF_REQUEST_LOG_IMAGES'] = '1'
+    for field in ('queue_mib','rotate_mib','backups','retention_days','archive_mib'):
+        value = getattr(args, 'request_log_'+field)
+        if value is not None:
+            os.environ['CLEF_REQUEST_LOG_'+field.upper()] = str(value)
+    from runtime.observability import ObservationConfig
+    try:
+        ObservationConfig.from_env()
+    except (ValueError, OverflowError) as exc:
+        parser.error(str(exc))
+    if (not math.isfinite(args.cache_frequency_decay_seconds) or args.cache_frequency_decay_seconds < 0
+            or 0 < args.cache_frequency_decay_seconds < 1e-9):
+        parser.error("--cache-frequency-decay-seconds must be finite and nonnegative (at least 1 ns when enabled)")
+    os.environ["CLEF_CACHE_FREQUENCY_DECAY_SECONDS"] = str(args.cache_frequency_decay_seconds)
+    if not math.isfinite(args.ram_cache_reserve_fraction) or not 0 <= args.ram_cache_reserve_fraction < 1:
+        parser.error("--ram-cache-reserve-fraction must be finite and in [0, 1)")
+    os.environ["CLEF_PREFIX_HOST_CACHE_RESERVE_FRACTION"] = str(args.ram_cache_reserve_fraction)
     if args.api_key is not None:
         if not args.api_key:
             parser.error("--api-key cannot be empty")
@@ -83,6 +155,9 @@ def main(argv=None):
                        ("context_reserve_mib", "CLEF_CONTEXT_RESERVE_MIB"),
                        ("prefill_initial_chunk_tokens", "CLEF_PREFILL_INITIAL_CHUNK_TOKENS"),
                        ("prefill_chunk_tokens", "CLEF_PREFILL_CHUNK_TOKENS"),
+                       ('prefill_policy', 'CLEF_PREFILL_POLICY'),
+                       ('prefill_max_chunk_tokens', 'CLEF_PREFILL_MAX_CHUNK_TOKENS'),
+                       ('prefill_target_chunk_tokens', 'CLEF_PREFILL_TARGET_CHUNK_TOKENS'),
                        ("linear_prefill_backend", "CLEF_LINEAR_PREFILL_BACKEND")]:
         if getattr(args, field) is not None:
             os.environ[env] = str(getattr(args, field))

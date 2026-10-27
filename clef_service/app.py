@@ -22,7 +22,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import Security
 from fastapi.security import HTTPBearer
 from .access import APIKeyMiddleware, configured_api_key
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 from PIL import Image, ImageOps, UnidentifiedImageError
 import torch
 from torch.nn.attention import SDPBackend, sdpa_kernel
@@ -72,11 +72,14 @@ from reusable_inputs import InputCache, cpu_bytes
 from ram_cache_budget import RAMCacheBudget
 from cpu_preparation import PreparedDecision, preparation_fits
 from gpu_timer import GPUTimer
+from cold_benchmark import ColdPassTiming
 from media_prefix import MediaPrefix
 from request_queue import DecisionQueue, QueueAdmissionMiddleware, QueueError
+from observability import ObservationConfig, Observability, ObservationMiddleware
 from text_batching import BatchUnavailable, TextBatchAdmission, shared_tokens
+from independent_cache_batch import plan_histories, lease_histories, forward_histories, IncompatibleHistory
 from optimized_inference import available_cuda_memory, InferenceEngine, encode_compact, pool_record, remap_checkpoints, answers
-ram_budget = RAMCacheBudget(float(os.environ.get("CLEF_PREFIX_HOST_CACHE_RESERVE_FRACTION", "0.25")))
+ram_budget = RAMCacheBudget(float(os.environ.get("CLEF_PREFIX_HOST_CACHE_RESERVE_FRACTION", "0.20")))
 engine = InferenceEngine(os.environ.get("CLEF_PREFIX_CACHE_MIB", "auto"),
     int(os.environ.get("CLEF_PREFIX_CACHE_ENTRIES", "32")),
     reserve_mib=int(os.environ.get("CLEF_PREFIX_CACHE_RESERVE_MIB", "256")),
@@ -95,7 +98,17 @@ engine = InferenceEngine(os.environ.get("CLEF_PREFIX_CACHE_MIB", "auto"),
     async_restore=os.environ.get("CLEF_PREFIX_ASYNC_RESTORE", "0") == "1",
     restore_staging_mib=int(os.environ.get("CLEF_PREFIX_RESTORE_STAGING_MIB", "128")),
     shared_host_blocks=os.environ.get("CLEF_PREFIX_SHARED_HOST_BLOCKS", "0") == "1",
-    active_context_offload=os.environ.get("CLEF_ACTIVE_CONTEXT_OFFLOAD", "none"))
+    active_context_offload=os.environ.get("CLEF_ACTIVE_CONTEXT_OFFLOAD", "none"),
+    telemetry_events=int(os.environ.get("CLEF_CACHE_TELEMETRY_EVENTS", "2048")),
+    frequency_decay_seconds=float(os.environ.get("CLEF_CACHE_FREQUENCY_DECAY_SECONDS", "900")),
+    prefill_policy=os.environ.get('CLEF_PREFILL_POLICY','fixed'),
+    prefill_max_chunk_tokens=int(os.environ.get('CLEF_PREFILL_MAX_CHUNK_TOKENS','16384')),
+    prefill_target_chunk_tokens=os.environ.get('CLEF_PREFILL_TARGET_CHUNK_TOKENS','auto'),
+    prefill_implicit_attention=COMPUTE_DTYPE==torch.float16,
+    prefill_preserve_partitions=COMPUTE_DTYPE==torch.bfloat16)
+if (engine.prefill_policy=='memory' and engine.prefill_preserve_partitions
+        and engine.prefill_max_chunk_tokens<max(PREFILL_INITIAL_CHUNK_TOKENS,PREFILL_CHUNK_TOKENS)):
+    raise ValueError('BF16 canonical prefill ceiling must cover the configured initial and continuation chunks')
 IMAGE_PREFILL_ENABLED = os.environ.get("CLEF_IMAGE_PREFILL", "0") == "1"
 PREFIX_CACHE_ENABLED = os.environ.get("CLEF_PREFIX_CACHE", "1") == "1"
 INPUT_CACHE_ENABLED = os.environ.get("CLEF_INPUT_CACHE", "1") == "1"
@@ -108,7 +121,34 @@ model = processor = context_budget = None
 request_queue = DecisionQueue.from_env(lambda request: run_decision(request),
     batch_handler=lambda requests, emit: run_decision_batch(requests, emit),
     batch_key=lambda request: text_batch_key(request),
+    batch_selector=lambda requests, maximum: select_decision_batch(requests, maximum),
     prepare_handler=lambda request: prepare_queued_decision(request))
+def prefill_queue_pressure():
+    if os.environ.get('CLEF_CHUNK_INTERLEAVE','0')!='1':return False
+    prepared=request_queue.peek_prepared()
+    return (prepared is not None and not prepared.images
+            and len(prepared.encoded.input_ids)<=int(os.environ.get('CLEF_INTERLEAVE_MAX_TOKENS','2048')))
+
+engine.prefill_queue_pressure = prefill_queue_pressure
+
+
+def observation_gauges():
+    # Read only existing CPU integers. No CUDA/NVML queries, inference lock,
+    # tensor traversal, inventory building, or RAM-budget recomputation.
+    return {'queue_waiting_requests':len(request_queue.pending),
+            'queue_active_requests':len(request_queue.active or ()),
+            'queue_payload_bytes':request_queue.budget.bytes,
+            'gpu_retained_cache_bytes':engine._byte_total,
+            'gpu_prefix_cache_entries':len(engine.entries),
+            'gpu_image_feature_entries':len(engine.features),
+            'cpu_prefix_cache_bytes':engine.host.bytes,
+            'cpu_prefix_cache_entries':len(engine.host.entries),
+            'gpu_cache_evictions_total':engine.evictions,
+            'cpu_cache_evictions_total':engine.host.evictions}
+
+
+observations = Observability(ObservationConfig.from_env(), profile=PROFILE_NAME,
+                            gauges=observation_gauges)
 
 
 class Question(BaseModel):
@@ -119,6 +159,7 @@ class Question(BaseModel):
 
 
 class DecisionRequest(BaseModel):
+    _cold_benchmark: bool = PrivateAttr(default=False)
     model_config = ConfigDict(extra="forbid")
     model: str = MODEL_ID
     state: str | dict | list | int | float | bool | None
@@ -166,10 +207,13 @@ def load_model():
     if not MODEL_DIR.exists():
         kwargs["quantization_config"] = quant
     compact_checkpoint = (MODEL_DIR / "compact_quantization.json").is_file()
-    loaded, proc = load_release_model(
-        MODEL_DIR if MODEL_DIR.exists() else ROOT / "source",
-        device="cpu" if compact_checkpoint else "cuda:0", dtype=COMPUTE_DTYPE, **kwargs,
-    )
+    if compact_checkpoint:
+        from clef_service.compact_quant import skip_replaced_embedding_initialization
+    with skip_replaced_embedding_initialization(MODEL_DIR) if compact_checkpoint else nullcontext():
+        loaded, proc = load_release_model(
+            MODEL_DIR if MODEL_DIR.exists() else ROOT / "source",
+            device="cpu" if compact_checkpoint else "cuda:0", dtype=COMPUTE_DTYPE, **kwargs,
+        )
     quantized = [m for m in loaded.language_model.modules() if isinstance(m, bnb.nn.Linear4bit)]
     count = len(quantized)
     if count != PROFILE["nf4_linear_layers"]:
@@ -185,6 +229,9 @@ def load_model():
         from clef_service.compact_quant import load_embeddings
         from accelerate.hooks import remove_hook_from_module
         load_embeddings(loaded, MODEL_DIR)
+        if not all(isinstance(m,bnb.nn.EmbeddingNF4) for m in
+                   (loaded.language_model.get_input_embeddings(),loaded.language_model.get_output_embeddings())):
+            raise RuntimeError('Saved compact embeddings did not replace the temporary dense tables')
         remove_hook_from_module(loaded.language_model, recurse=True)
         loaded.to(device="cuda:0")
         loaded.language_model.hf_device_map = {"": "cuda:0"}
@@ -324,12 +371,17 @@ async def lifespan(app):
                 'capability':f'{properties.major}.{properties.minor}','profile':PROFILE_NAME,
                 'revision':SOURCE_REVISION,'dtype':str(COMPUTE_DTYPE),'torch':torch.__version__,
                 'cuda':torch.version.cuda,'initial':PREFILL_INITIAL_CHUNK_TOKENS,'chunk':PREFILL_CHUNK_TOKENS,
+                'prefill_policy':engine.prefill_policy,'prefill_target':engine.prefill_target_chunk_tokens,
+                'prefill_maximum':engine.prefill_max_chunk_tokens,'implicit_prefill_revision':1,
+                'prefill_implicit_attention':engine.prefill_implicit_attention,
+                'prefill_preserve_partitions':engine.prefill_preserve_partitions,
                 'head_width':model.head.memory_projection.out_features,'config':config.to_dict(),
                 'linear':app.state.linear_attention})
     app.state.text_batching = TextBatchAdmission(config,
         padded_tokens=int(os.environ.get("CLEF_BATCH_PADDED_TOKENS", "6000")),
         record_tokens=int(os.environ.get("CLEF_BATCH_RECORD_TOKENS", "4096")),
         length_ratio=float(os.environ.get("CLEF_BATCH_LENGTH_RATIO", ".75")))
+    app.state.text_batching.independent_enabled = independent_cache_enabled()
     if request_queue.max_batch_size > 1 and STARTUP_STRATEGY.get("runtime_backend") != "cuda":
         raise RuntimeError("Opportunistic text batching is currently CUDA-only")
     refresh_context_budget()
@@ -355,11 +407,13 @@ async def lifespan(app):
             log.exception("Startup warmup failed; service will not become ready")
             raise
         app.state.cache_stats = {"prefix_cache": engine.stats(), "input_cache": input_cache.stats()}
+        observations.start()
         app.state.startup_ready = True
         yield
     finally:
         app.state.startup_ready = False
         await request_queue.close()
+        observations.stop()
 
 
 API_KEY = configured_api_key()
@@ -371,6 +425,8 @@ app.add_middleware(QueueAdmissionMiddleware, budget=request_queue.budget)
 app.add_middleware(APIKeyMiddleware, api_key=API_KEY,
                    portal_auto_auth=os.environ.get("CLEF_PORTAL_AUTO_AUTH", "1") == "1",
                    cookie_secure=os.environ.get("CLEF_PORTAL_COOKIE_SECURE", "0") == "1")
+# Outermost: count rejected requests too, without reading their headers/bodies.
+app.add_middleware(ObservationMiddleware, observer=observations)
 
 
 @app.get("/ui-config", include_in_schema=False)
@@ -442,6 +498,23 @@ def runtime_cache_stats():
     return app.state.cache_stats
 
 
+@app.get("/cache/diagnostics")
+def cache_diagnostics(after: int = 0, limit: int = 512):
+    """Protected like /health. Busy workers return the last idle inventory."""
+    if after < 0 or not 1 <= limit <= 512:
+        raise HTTPException(400, "after must be nonnegative; limit must be 1–512")
+    idle = lock.acquire(blocking=False)
+    if idle:
+        try:
+            app.state.cache_diagnostics = engine.diagnostics()
+        finally:
+            lock.release()
+    return JSONResponse({"snapshot_status": "idle" if idle else "last_idle_busy",
+                         **getattr(app.state, 'cache_diagnostics', {}),
+                         "telemetry": engine.telemetry.read(after, limit)},
+                        headers={"Cache-Control": "no-store"})
+
+
 @app.get("/health")
 def health():
     return {
@@ -456,6 +529,7 @@ def health():
         "linear_attention": app.state.linear_attention,
         "vision_attention": app.state.vision_attention,
         "matrix_tuning": app.state.matrix_tuning,
+        "observability": observations.stats(),
         **context_metadata(),
         "input": ["text", "json", "images"],
         "image_input": {"format": "base64 data URL", "max_images": 16,
@@ -467,11 +541,17 @@ def health():
                         "pooling_default": POOLING_DEFAULT, "pooling_factor": 2},
         "attention_backend": ATTENTION_BACKEND,
         "optimizations": {"compact_schema": True, "single_pass_preprocessing": True,
+                          "cold_benchmark": {"header":"X-Clef-Benchmark: cold","cache_bypass":True,"phase_events":"opt_in","gpu_batch_size":1},
                           "observed_chunked_workspace_admission": (STARTUP_STRATEGY.get("runtime_backend") == "rocm"
                               and os.environ.get("CLEF_ROCM_OBSERVED_PREFILL_WORKSPACE", "0") == "1"),
                           "chunked_prefill": {"enabled": PREFILL_CHUNK_TOKENS > 0, "text_only": not IMAGE_PREFILL_ENABLED, "images_enabled": IMAGE_PREFILL_ENABLED, "vision_batch_images": 1,
                                               "initial_chunk_tokens": PREFILL_INITIAL_CHUNK_TOKENS,
                                               "chunk_tokens": PREFILL_CHUNK_TOKENS,
+                                              "policy": engine.prefill_policy,
+                                              "max_chunk_tokens": engine.prefill_max_chunk_tokens,
+                                              "target_chunk_tokens": engine.prefill_target_chunk_tokens,
+                                              "preserve_partitions": engine.prefill_preserve_partitions,
+                                              "implicit_attention": engine.prefill_implicit_attention,
                                               "active_context_offload": engine.active_context_offload,
                                               "cpu_head_prepare": os.environ.get("CLEF_HEAD_CPU_PREPARE", "0") == "1",
                                               "head_prepare_chunk_tokens": int(os.environ.get("CLEF_HEAD_PREPARE_CHUNK_TOKENS", "4096")),
@@ -485,6 +565,17 @@ def health():
         "reserved_mib": round(torch.cuda.memory_reserved() / 2**20, 1),
         "free_device_mib": round(torch.cuda.mem_get_info()[0] / 2**20, 1),
     }
+
+
+@app.get('/metrics', include_in_schema=False)
+def metrics():
+    if not observations.config.metrics:
+        raise HTTPException(404, 'Metrics are disabled')
+    # A preformatted immutable string; scrapes do not touch the GPU or its lock.
+    from starlette.responses import Response
+    return Response(observations.snapshot,
+                    media_type='text/plain; version=0.0.4; charset=utf-8',
+                    headers={'Cache-Control':'no-store'})
 
 
 def decode_image(value: str) -> Image.Image:
@@ -513,7 +604,8 @@ input_cache = InputCache(
         else int(os.environ["CLEF_PREPROCESS_CACHE_ENTRIES"]),
     token_mib=int(os.environ.get("CLEF_TOKEN_CACHE_MIB", "8")),
     token_entries=int(os.environ.get("CLEF_TOKEN_CACHE_ENTRIES", "1024")), decode=decode_image,
-    ram_budget=ram_budget, image_fraction=float(os.environ.get("CLEF_PREPROCESS_CACHE_RAM_FRACTION", "0.25")))
+    ram_budget=ram_budget, image_fraction=float(os.environ.get("CLEF_PREPROCESS_CACHE_RAM_FRACTION", "0.25")),
+    frequency=engine.frequency)
 
 
 @app.get("/v1/models")
@@ -525,10 +617,33 @@ def models():
 
 @app.post("/v1/systemone")
 async def decide(request: DecisionRequest, http_request: Request):
+    benchmark=http_request.headers.get('x-clef-benchmark')
+    if benchmark not in (None,'cold'):
+        raise HTTPException(400,'X-Clef-Benchmark must be cold or omitted')
+    if benchmark=='cold':
+        request=request.model_copy(update={'prefix_cache':False,'input_cache':False})
+        request._cold_benchmark=True
+    if observations.config.log_mode == 'payload':
+        http_request.scope['clef_capture_request'] = request
     try:
-        return await request_queue.run(request, http_request)
+        result = await request_queue.run(request, http_request)
     except QueueError as exc:
-        return exc.response()
+        result = exc.response()
+    except HTTPException as exc:
+        if observations.config.log_mode == 'payload':
+            http_request.scope['clef_capture_result'] = {'status':exc.status_code, 'detail':exc.detail}
+        raise
+    except Exception as exc:
+        if observations.config.log_mode == 'payload':
+            http_request.scope['clef_capture_result'] = {'status':500, 'error_type':type(exc).__name__}
+        raise
+    if observations.enabled:
+        if isinstance(result, dict):
+            http_request.scope['clef_observation_usage'] = result.get('usage', {})
+        if observations.config.log_mode == 'payload':
+            http_request.scope['clef_capture_result'] = (result if isinstance(result, dict)
+                else (result.status_code, result.body))
+    return result
 
 
 def request_record(request: DecisionRequest):
@@ -590,11 +705,12 @@ def prepare_decision(request, overlapped=False, record=None):
 
 def prepare_queued_decision(request):
     cap = int(os.environ.get('CLEF_CPU_PREPARE_MIB','1024'))
+    slots = int(os.environ.get('CLEF_CPU_PREPARE_SLOTS','1'))
     record = request_record(request)
     if os.environ.get('CLEF_CPU_PREPARE_OVERLAP','0')!='1':
         maximum=int(os.environ.get('CLEF_INTERLEAVE_MAX_TOKENS','2048'))
         if request.images or len(str(request.state))+len(str(request.context))>maximum*4:return None
-        if not preparation_fits(request,cap):return None
+        if not preparation_fits(request,cap,slots=slots):return None
         prepared=prepare_decision(request,True,record)
         return prepared if len(prepared.encoded.input_ids)<=maximum else None
     if request.images and request.input_cache and INPUT_CACHE_ENABLED:
@@ -602,10 +718,11 @@ def prepare_queued_decision(request):
         sample = ram_budget.memory_probe()
         if snapshots is not None and sample is not None:
             size = sum(size for _, _, size in snapshots)
-            if size*1.25 <= min(cap*2**20,sample['available_bytes']//8):
+            text_workspace = (len(str(request.state))+len(str(request.context))+len(str(request.questions)))*8+2**20
+            if size*1.25+text_workspace <= min(cap*2**20,sample['available_bytes']//8)//slots:
                 record['_cache_image_snapshots'] = snapshots
                 return prepare_decision(request,True,record)
-    if not preparation_fits(request, cap):
+    if not preparation_fits(request, cap, slots=slots):
         return None
     return prepare_decision(request, True, record)
 
@@ -643,11 +760,18 @@ def run_decision(request: DecisionRequest):
     lock.acquire()
     if not hasattr(gpu_profiles,'stack'):gpu_profiles.stack=[]
     gpu_profiles.stack.append({'peak':0})
+    cache_scope = engine.telemetry.begin()
     try:
+        preprocessing_external = isinstance(request, PreparedDecision)
         prepared = request if isinstance(request, PreparedDecision) else prepare_decision(request)
         request, record = prepared.request, prepared.record
         encoded, boundary, checkpoints = prepared.encoded, prepared.boundary, prepared.checkpoints
+        cold=bool(getattr(request,'_cold_benchmark',False))
+        phase_timing=ColdPassTiming(model,torch.cuda) if cold else None
         preprocess_usage = {key:value for key,value in prepared.usage.items() if not key.startswith('_')}
+        # Serial batch fallbacks were encoded before this handler's timer.
+        preprocess_usage['preprocessing_outside_handler_ms'] = (
+            prepared.usage.get('preprocessing_ms', 0) if preprocessing_external else 0)
         reuse_inputs = request.input_cache and INPUT_CACHE_ENABLED
         original_tokens = len(encoded.input_ids)
         # Vision encoding precedes optional feature pooling and has its own
@@ -684,7 +808,7 @@ def run_decision(request: DecisionRequest):
             schema_bytes=max((b-a for a,b in spans),default=0)*engine.context_policy.hidden*2
             media_start=encoded.media['token_offset'] if encoded.media else None
             media_end=media_start+len(encoded.media['mm_token_type_ids']) if encoded.media else 0
-            match,_=engine._match(model,encoded.input_ids,boundary,input_key,request.image_pooling,media_start,media_end)
+            match,_=engine._match(model,encoded.input_ids,boundary,input_key,request.image_pooling,media_start,media_end) if request.prefix_cache and PREFIX_CACHE_ENABLED and GPU_CACHE_SUPPORTED else (None,0)
             source=engine.host.entries.get(match)
             protected_cpu=source['bytes'] if source else 0
             cached_tokens=len(source['ids']) if source else 0
@@ -708,12 +832,12 @@ def run_decision(request: DecisionRequest):
                 and len(encoded.input_ids) > ROCM_LONG_PROMPT_THRESHOLD and chunk_size):
             initial_chunk = min(initial_chunk, ROCM_LONG_CHUNK_TOKENS)
             chunk_size = min(chunk_size, ROCM_LONG_CHUNK_TOKENS)
-        engine.progress_hook = offer_short_request if not request_queue.nesting else None
+        engine.progress_hook = offer_short_request if not cold and not request_queue.nesting else None
         gpu_timer = GPUTimer(torch.cuda)
         def infer(cache, features=True):
             attention = (sdpa_kernel(SDPBackend.EFFICIENT_ATTENTION) if ATTENTION_BACKEND == "efficient"
                          else sdpa_kernel(SDPBackend.MATH) if ATTENTION_BACKEND == "math" else nullcontext())
-            with attention, gpu_timer.measure():
+            with attention, gpu_timer.measure(), phase_timing.capture() if phase_timing is not None else nullcontext():
                 return engine.forward(model, processor, encoded, boundary, input_key,
                     pooling=request.image_pooling, cache_enabled=cache, checkpoint_boundaries=checkpoints,
                     feature_cache_enabled=features and reuse_inputs and GPU_CACHE_SUPPORTED,
@@ -765,6 +889,9 @@ def run_decision(request: DecisionRequest):
         result["usage"].update(gpu_time_ms=round(gpu_timer.elapsed_ms, 1),
             latency_ms=round((time.perf_counter() - started) * 1000, 1),
             peak_allocated_mib=round(max(torch.cuda.max_memory_allocated(),gpu_profiles.stack[-1]['peak']) / 2**20, 1))
+        if phase_timing is not None:
+            result['usage']['cold_benchmark']={**phase_timing.summary(result['usage']),
+                'gpu':STARTUP_STRATEGY.get('gpu_name'),'profile':PROFILE_NAME,'compute_dtype':PROFILE['compute_dtype']}
         if request.images:
             grid = encoded.media.get("original_grid_thw", encoded.media["image_grid_thw"])
             patch = processor.image_processor.patch_size
@@ -789,23 +916,177 @@ def run_decision(request: DecisionRequest):
             engine.finish_request()
             engine.progress_hook=None
         finally:
+            trace = engine.telemetry.end(cache_scope)
+            if isinstance(locals().get('result'), dict):
+                result['usage']['cache_trace'] = trace
             gpu_profiles.stack.pop()
             lock.release()
 
 
 def text_batch_key(request):
     if isinstance(request, PreparedDecision): request = request.request
-    # Raw context equality is a cheap first filter. GPU execution additionally
-    # checks exact encoded prefix identity and each row's actual token count.
-    if request.images:
+    # Text rows have independent masks, positions and decision schemas. Context
+    # equality is not required to run the backbone together. Cache planning
+    # still checks exact token ancestry and prefers a better individual hit.
+    if request.images or getattr(request,'_cold_benchmark',False):
         return None
-    return (request.model, request.prefix_cache, request.input_cache, request.context)
+    return (request.model, request.prefix_cache, request.input_cache)
+
+
+def independent_cache_enabled():
+    # Other precision/backend families retain their qualified native path.
+    return (os.environ.get('CLEF_INDEPENDENT_CACHE_BATCHING','0')=='1'
+            and PROFILE_NAME=='flash' and COMPUTE_DTYPE==torch.float16
+            and not torch.version.hip and ATTENTION_BACKEND=='efficient')
+
+
+def independent_plan(group, admission, caching):
+    return plan_histories(engine,model,[p.encoded for p in group],[p.boundary for p in group],
+        [p.checkpoints for p in group],[p.input_key for p in group],admission,
+        caching and independent_cache_enabled())
+
+
+def select_decision_batch(requests, maximum):
+    """Bounded CPU-only matching on the sole GPU worker, before GPU execution.
+
+    Retained-prefix planning reads exact token ancestry; it never restores,
+    clones, evicts, or mutates a cache state. Prepared inputs stay request-owned
+    and are reused when a skipped request becomes the next oldest anchor.
+    """
+    prepared = [None] * len(requests)
+    admission = app.state.text_batching
+    cap = int(os.environ.get('CLEF_BATCH_MATCH_PREPARE_MIB','128'))
+    def prepare(index):
+        request = requests[index]
+        if isinstance(request, PreparedDecision):
+            prepared[index] = request
+        elif not request.images and preparation_fits(request, cap,
+                slots=request_queue.max_waiting+request_queue.max_batch_size):
+            try:
+                prepared[index] = prepare_decision(request)
+            except Exception:
+                pass  # Validation errors remain isolated in the normal handler.
+        return prepared[index]
+    with lock:
+        anchor = prepare(0)
+        if anchor is None or len(anchor.encoded.input_ids) > admission.record_tokens:
+            return [0], prepared
+        caching = anchor.prefix_cache and PREFIX_CACHE_ENABLED and GPU_CACHE_SUPPORTED
+        best_tokens = 0
+        if caching and engine.max_entries > 0:
+            key, _ = engine._match(model, anchor.encoded.input_ids, anchor.boundary,
+                                   anchor.input_key, False, None, 0)
+            entry = engine._lookup(key) if key is not None else None
+            best_tokens = len(entry['ids']) if entry is not None else 0
+        candidates = []
+        for index, request in enumerate(requests[1:],1):
+            # An exact full-prefix hit cannot be shared with different source
+            # context/state. Avoid tokenizing every queued row just to reject
+            # that valuable individual hit. Equal raw input is only a hint;
+            # exact encoded ancestry is still checked below.
+            if not independent_cache_enabled() and best_tokens >= anchor.boundary and best_tokens > 0 and (
+                    request.context != anchor.context or request.state != anchor.state):
+                continue
+            candidate = prepare(index)
+            if candidate is not None:
+                candidates.append(index)
+        # Prefer minimal padding; FIFO order breaks ties. The oldest anchor is
+        # mandatory, and the queue bounds bypasses/images/control barriers.
+        length = len(anchor.encoded.input_ids)
+        def distance(index):
+            if independent_cache_enabled() and caching and best_tokens:
+                p=prepared[index]
+                key,_=engine._match(model,p.encoded.input_ids,p.boundary,p.input_key,False,None,0)
+                entry=engine._lookup(key) if key is not None else None
+                if entry is not None:
+                    history=len(entry['ids'])
+                    return (abs(history-best_tokens)+2*abs(len(p.encoded.input_ids)-history-(length-best_tokens)),index)
+            return (abs(len(prepared[index].encoded.input_ids)-length),index)
+        candidates.sort(key=distance)
+        selected = [0]
+        for index in candidates:
+            group = [prepared[i] for i in [*selected,index]]
+            lengths = [len(p.encoded.input_ids) for p in group]
+            if admission.reason(lengths) is not None:
+                continue
+            plan = engine.plan_text_batch(model, [p.encoded for p in group],
+                [p.boundary for p in group], anchor.input_key, caching)
+            if plan['reason'] is not None and (not independent_cache_enabled() or independent_plan(group,admission,caching)['reason'] is not None):
+                continue
+            selected.append(index)
+            if len(selected) == maximum:
+                break
+        return selected, prepared
+
+
+def execute_independent_batch(prepared,plan,started,batch_started,emit):
+    admission=app.state.text_batching
+    lengths=[len(p[3].input_ids) for p in prepared]
+    projected=plan['workspace']
+    try:
+        with lease_histories(engine,plan['keys']) as (entries,tiers):
+            # Only unleased retention is reclaimable. Headroom is checked again
+            # after trimming; an admission rejection falls back before GPU work.
+            cache_preparation=engine.prepare_request(projected)
+            if available_cuda_memory()<projected+engine.prefill_reserve_bytes:
+                admission.fallback('independent_memory_headroom');return False
+            preprocess_ms=(time.perf_counter()-started)*1000
+            retained=engine._bytes();torch.cuda.reset_peak_memory_stats()
+            timer=GPUTimer(torch.cuda)
+            with sdpa_kernel(SDPBackend.EFFICIENT_ATTENTION),timer.measure():
+                logits,usages=forward_histories(engine,model,processor,[p[3] for p in prepared],
+                    [p[4] for p in prepared],[requests_key(p) for p in prepared],plan,entries,tiers)
+            torch.cuda.synchronize()
+            peak=torch.cuda.max_memory_allocated();elapsed=(time.perf_counter()-started)*1000
+            admission.observe(lengths,max(0,peak-(engine.base_bytes or 0)-min(retained,engine._bytes())))
+            results=[]
+            for p,row,usage in zip(prepared,logits,usages):
+                index,request,record,e,boundary,points,limit,prep=p
+                result={'model':request.model,'answers':answers(record,e,row),'usage':{
+                    'input_tokens':len(e.input_ids),'output_tokens':0,'unpooled_input_tokens':len(e.input_ids),
+                    'compact_schema':True,'image_pooling':False,'preprocessing_ms':round(preprocess_ms,1),
+                    **prep,**cache_preparation,**usage,'prefix_tokens':boundary,
+                    'new_prefix_tokens':boundary-usage['reused_prefix_tokens'],
+                    'accepted_max_input_tokens':limit,'context_limit_mode':context_budget.mode,
+                    'batch_size':len(prepared),'batch_padded_tokens':plan['physical_tokens'],
+                    'batch_padding_tokens':plan['physical_tokens']-sum(lengths),
+                    'batch_worker_wait_ms':round((started-batch_started)*1000,1),
+                    'gpu_time_ms':round(timer.elapsed_ms,1),'latency_ms':round(elapsed,1),
+                    'peak_allocated_mib':round(peak/2**20,1)}}
+                json.dumps(result,allow_nan=False);results.append((index,result))
+            del logits
+            admission.independent_batches+=1
+            admission.independent_requests+=len(prepared)
+        for index,result in results:emit(index,result)
+        return True
+    except torch.cuda.OutOfMemoryError as exc:
+        exc.__traceback__=None
+        # Leases release first; no retained source is cleared or mutated by an
+        # aggregate failure. Retry on the existing serial/smaller-batch path.
+        admission.oom(lengths);gc.collect();torch.cuda.empty_cache()
+        admission.fallback('independent_gpu_oom')
+    except IncompatibleHistory as exc:
+        exc.__traceback__=None;admission.fallback(str(exc))
+    except Exception as exc:
+        exc.__traceback__=None;admission.fallback('independent_runtime_error')
+        log.exception('Independent cached batch failed; isolating requests')
+    finally:
+        engine.finish_request()
+    return False
+
+
+def requests_key(prepared):
+    # Text input namespaces remain independent of image bytes.
+    return hashlib.sha256(json.dumps([[],None],separators=(',',':')).encode()).hexdigest()
 
 
 def run_decision_batch(requests, emit):
     """One worker, zero collection wait; split or emit serial replies immediately."""
     batch_started = time.perf_counter()
     admission = app.state.text_batching
+    # Preserve preprocessing across 4 -> 2 -> 1 retries and serial cache fallbacks.
+    # Keep the caller's list unchanged; these immutable CPU inputs are request-owned.
+    requests = list(requests)
 
     def single(index, reason):
         began = time.perf_counter()
@@ -831,6 +1112,7 @@ def run_decision_batch(requests, emit):
                 request = requests[index]
                 try:
                     cached = request if isinstance(request, PreparedDecision) else prepare_decision(request)
+                    requests[index] = cached
                     request, record = cached.request, cached.record
                     e, boundary, points = cached.encoded, cached.boundary, cached.checkpoints
                     limit = refresh_context_budget()['max_input_tokens']
@@ -859,6 +1141,12 @@ def run_decision_batch(requests, emit):
                 caching = requests[indices[0]].prefix_cache and PREFIX_CACHE_ENABLED and GPU_CACHE_SUPPORTED
                 key = hashlib.sha256(json.dumps([[],None],separators=(',',':')).encode()).hexdigest()
                 plan = engine.plan_text_batch(model, encoded, boundaries, key, caching)
+                if plan['reason'] is not None and independent_cache_enabled():
+                    independent = independent_plan([requests[i] for i in indices],admission,caching)
+                    if independent['reason'] is None:
+                        if execute_independent_batch(prepared,independent,started,batch_started,emit):return
+                        reason='independent_fallback'
+                    # Standard shared-prefix/native fallback preserves canonical cuts.
                 projected = admission.workspace(lengths, common if plan['enabled'] else 0)
                 # Cache bytes can be reclaimed before inference; never count
                 # them as both live workspace and extra free capacity.

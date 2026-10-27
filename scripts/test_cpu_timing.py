@@ -22,6 +22,13 @@ class CPUTimingTests(unittest.TestCase):
                  'cpu_preparation_overlapped': True}
         self.assertEqual(cpu_timing(usage, 250)['cpu_time_ms'], 50)
 
+    def test_serial_fallback_preparation_counted_once(self):
+        usage = {'gpu_time_ms': 200, 'latency_ms': 215, 'preprocessing_ms': 25,
+                 'preprocessing_outside_handler_ms': 25}
+        self.assertEqual(cpu_timing(usage, 350)['cpu_time_ms'], 40)
+        usage['cpu_preparation_overlapped'] = True
+        self.assertEqual(cpu_timing(usage, 350)['cpu_time_ms'], 40)
+
     def test_rounding_and_zero_gpu(self):
         self.assertEqual(cpu_timing({'gpu_time_ms': 10.1, 'latency_ms': 10}, 10)['cpu_time_ms'], 0)
         self.assertEqual(cpu_timing({'gpu_time_ms': 0, 'latency_ms': 10}, 20)['cpu_time_ms'], 10)

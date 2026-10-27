@@ -1,13 +1,14 @@
 """Bounded, process-local CPU snapshots. No disk storage or GPU allocations here."""
 import copy
 import time
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 from threading import RLock
 from functools import wraps
 
 import torch
 from host_memory import available_memory
 from shared_host_blocks import FrozenTensor, SnapshotPlan, storages
+from frequency_aging import FrequencyAging
 
 
 def copy_bytes(value, seen=None):
@@ -69,7 +70,10 @@ def synchronized(method):
 
 
 class HostPrefixCache:
-    def __init__(self, limit_mib=0, max_entries=128, reserve_fraction=.25, memory_probe=None, budget=None, shared_blocks=False):
+    def __init__(self, limit_mib=0, max_entries=128, reserve_fraction=.20, memory_probe=None, budget=None, shared_blocks=False, telemetry=None,
+                 frequency_decay_seconds=900, frequency=None):
+        self.telemetry = telemetry
+        self.frequency = frequency if frequency is not None else FrequencyAging(frequency_decay_seconds)
         self.auto = str(limit_mib).lower() == 'auto'
         if (not self.auto and int(limit_mib) < 0) or (max_entries is not None and max_entries < 0):
             raise ValueError('Host prefix cache limits must be nonnegative')
@@ -78,11 +82,12 @@ class HostPrefixCache:
         self.configured_bytes = None if self.auto else int(limit_mib) * 2**20
         self.limit_bytes = self.configured_bytes or 0
         self.max_entries = None if max_entries is None else int(max_entries)
-        self.reserve_fraction = reserve_fraction
+        self.reserve_fraction = budget.reserve_fraction if budget is not None else reserve_fraction
         self.memory_probe = memory_probe or available_memory
         self.memory_sample = None
         self.reserve_bytes = 0
         self.entries = OrderedDict()
+        self.pins = Counter()
         self.bytes = 0
         self.shared_blocks = shared_blocks
         self.storage_refs = {}
@@ -123,13 +128,21 @@ class HostPrefixCache:
         return (self.auto or self.configured_bytes > 0) and self.max_entries != 0
 
     @synchronized
-    def _evict(self,protected=None):
-        # LFU; least recent access breaks ties deterministically. Reads of cache
+    def _event(self, action, key=None, entry=None, **fields):
+        if self.telemetry is not None:
+            self.telemetry.record(action, 'cpu', key, entry=entry,
+                                  retained_bytes=self.bytes, limit_bytes=self.limit_bytes, **fields)
+
+    @synchronized
+    def _evict(self,protected=None, *, reason='explicit'):
+        # Aged LFU; least recent access breaks ties deterministically. Reads of cache
         # metadata and repeated snapshot writes are not counted as actual reuse.
-        candidates=[key for key in self.entries if key!=protected]
+        candidates=[key for key in self.entries if key!=protected and not self.pins.get(key,0)]
         if not candidates:return False
-        key = min(candidates, key=lambda k: (self.entries[k].get('uses', 0), self.entries[k]['last_use']))
+        now = self.frequency.clock()
+        key = min(candidates, key=lambda k: (self.frequency.effective(self.entries[k], now), self.entries[k]['last_use']))
         old = self.entries.pop(key)
+        before = self.bytes
         if self.shared_blocks:
             for ident in old['storage_ids']:
                 size, refs = self.storage_refs[ident]
@@ -138,12 +151,14 @@ class HostPrefixCache:
                 else:self.storage_refs[ident]=(size,refs-1)
         else:self.bytes -= old['bytes']
         self.evictions += 1
+        self._event('evict', key, old, reason=reason, released_bytes=before-self.bytes,
+                    eviction_frequency=self.frequency.effective(old, now))
         return True
 
     @synchronized
-    def evict_one(self,protected=None):
+    def evict_one(self,protected=None, *, reason='shared_ram_budget'):
         if not self.entries: return False
-        return self._evict(protected)
+        return self._evict(protected, reason=reason)
 
     @synchronized
     def trim(self):
@@ -153,14 +168,12 @@ class HostPrefixCache:
         self.refresh_budget()
         while self.entries and (self.bytes > self.limit_bytes or
                 (self.max_entries is not None and len(self.entries) > self.max_entries)):
-            self._evict()
+            if not self._evict(reason='entry_limit' if self.max_entries is not None and len(self.entries)>self.max_entries else 'trim_byte_budget'):break
 
     @synchronized
     def touch(self, key, uses=1):
         if key in self.entries:
-            entry = self.entries[key]
-            entry['uses'] = entry.get('uses', 0) + uses
-            entry['last_use'] = time.monotonic_ns()
+            self.frequency.touch(self.entries[key], uses)
 
     @synchronized
     def put(self, key, entry, byte_counter, *, adopt_cpu=False):
@@ -172,7 +185,9 @@ class HostPrefixCache:
     def _put(self, key, entry, byte_counter, *, adopt_cpu=False):
         self.trim()
         if not self.enabled:
+            self._event('reject', key, reason='disabled', tokens=len(entry.get('ids', ())))
             return False
+        self._event('admit_attempt', key, entry, adopt_cpu=adopt_cpu)
         # Different views can share GPU storage but require independent compact
         # CPU allocations. Check the copy's size before allocating, not the GPU
         # storage total; repeated references to the same tensor still count once.
@@ -186,11 +201,11 @@ class HostPrefixCache:
                 parent=None
         plan = SnapshotPlan(entry,parent) if self.shared_blocks and not adopt_cpu else None
         if key in self.entries:
-            self.entries[key]['uses'] = max(self.entries[key]['uses'], entry.get('uses', 0))
-            self.entries[key]['last_use'] = max(self.entries[key]['last_use'], entry.get('last_use', 0))
+            self.frequency.merge(self.entries[key], entry)
+            self._event('duplicate', key, self.entries[key])
             return True
         estimate = (lambda:plan.retained_increment(self.storage_refs)) if plan is not None else (lambda:copy_bytes((entry['cache'],entry['chunks'])))
-        if not adopt_cpu and not self._admit_snapshot(estimate,check_count=True):return False
+        if not adopt_cpu and not self._admit_snapshot(estimate,check_count=True,key=key):return False
         started = time.perf_counter()
         try:
             if adopt_cpu:
@@ -209,13 +224,14 @@ class HostPrefixCache:
             else:cache, chunks = plan.copy() if plan is not None else copy_to_device((entry['cache'], entry['chunks']), 'cpu')
         except (MemoryError, RuntimeError):
             self.failures += 1
+            self._event('reject', key, reason='copy_failed', elapsed_ms=round((time.perf_counter()-started)*1000, 1))
             return False
         storage_map=storages((cache,chunks)) if self.shared_blocks else None
         increment = (lambda:sum(length for ident,length in storage_map.items() if ident not in self.storage_refs)) if storage_map is not None else (lambda:byte_counter((cache,chunks)))
         self.pending=increment
         if self.budget is not None:self.budget.pending['prefix']=increment
         try:
-            admitted=self._admit_snapshot(increment)
+            admitted=self._admit_snapshot(increment,key=key)
         finally:
             self.pending=None
             if self.budget is not None:self.budget.pending.pop('prefix',None)
@@ -223,7 +239,8 @@ class HostPrefixCache:
         size=increment()
         self.entries[key] = {'cache': cache, 'chunks': chunks, 'ids': entry['ids'],
                              'media_key': entry['media_key'], 'bytes': copy_bytes((cache,chunks)) if self.shared_blocks else size,
-                             'uses': entry.get('uses', 0), 'last_use': entry.get('last_use', time.monotonic_ns())}
+                             **self.frequency.snapshot(entry),
+                             'created_ns': entry.get('created_ns', time.monotonic_ns())}
         self.bytes += size
         if self.shared_blocks:
             self.entries[key]['storage_ids']=tuple(storage_map)
@@ -231,24 +248,34 @@ class HostPrefixCache:
                 self.storage_refs[ident]=(length,self.storage_refs.get(ident,(length,0))[1]+1)
             if plan is not None and plan.reused:self.shared_saves+=1
         self.offloads += 1
-        self.offload_ms += (time.perf_counter() - started) * 1000
+        elapsed = (time.perf_counter() - started) * 1000
+        self.offload_ms += elapsed
+        self._event('admit', key, self.entries[key], incremental_bytes=size, elapsed_ms=round(elapsed, 1))
         return True
 
-    def _admit_snapshot(self,increment,check_count=False):
+    def _admit_snapshot(self,increment,check_count=False,key=None):
         while True:
             self.refresh_budget();size=increment()
-            if size>self.limit_bytes:return False
+            if size>self.limit_bytes:
+                self._event('reject', key, reason='snapshot_exceeds_byte_budget', requested_bytes=size)
+                return False
             count_full=check_count and self.max_entries is not None and len(self.entries)>=self.max_entries
             if count_full or self.bytes+size>self.limit_bytes:
-                if not self.evict_one():return False
+                if not self.evict_one(reason='entry_limit' if count_full else 'admit_byte_budget'):
+                    self._event('reject', key, reason='no_evictable_entry', requested_bytes=size)
+                    return False
                 continue
             if self.budget is not None:
-                if not self.budget.admit('prefix',size,self.configured_bytes):return False
+                if not self.budget.admit('prefix',size,self.configured_bytes):
+                    self._event('reject', key, reason='shared_ram_budget', requested_bytes=size)
+                    return False
                 if increment()!=size:continue  # A shared ancestor may have been evicted.
             return True
 
     @synchronized
     def clear(self):
+        if self.pins:raise RuntimeError('Cannot clear leased CPU prefixes')
+        self._event('clear', reason='explicit', released_bytes=self.bytes, entry_count=len(self.entries))
         self.entries.clear()
         self.bytes = 0
         self.storage_refs.clear()
@@ -260,7 +287,8 @@ class HostPrefixCache:
         limit, reserve, sample = self.estimate_budget()
         return {'entries': len(self.entries), 'mib': round(self.bytes / 2**20, 2),
                 'limit_mib': limit / 2**20, 'max_entries': self.max_entries,
-                'budget_mode': 'auto' if self.auto else 'fixed', 'eviction_policy': 'lfu_lru_tiebreak',
+                'budget_mode': 'auto' if self.auto else 'fixed', 'eviction_policy': self.frequency.policy,
+                'frequency_aging': self.frequency.stats(),
                 'reserve_fraction': self.reserve_fraction, 'reserve_mib': round(reserve / 2**20, 2),
                 'available_mib': None if sample is None else round(sample['available_bytes'] / 2**20, 2),
                 'cgroup_available_mib': None if sample is None or sample['cgroup_available_bytes'] is None

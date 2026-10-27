@@ -29,6 +29,24 @@
 Dated summaries of notable changes. Measurements and test details are in the
 [validation record](docs/validation.md) and the linked documents.
 
+## 2026-10-27
+
+### Recover deployed runtime changes
+- Bring the runtime and portal in sync with the RTX 3070 Ti deployment built
+  October 17. The recovered source and image digest are recorded in
+  [runtime source provenance](docs/runtime-source.json).
+- Add the portal's opt-in cold-pass benchmark and a repeatable command-line
+  benchmark. Requests bypass input/prefix reuse and report language-forward and
+  end-to-end throughput. See [cold throughput](docs/cold-throughput.md).
+- Restore memory-based prefill scheduling, aged cache-frequency eviction, cache
+  diagnostics, optional metrics/request logging, bounded queue matching, and
+  opt-in independent cached-history batching.
+- Default the shared CPU cache reserve to 20%; expose the reserve and frequency
+  decay settings in Docker Compose. Context limits continue to depend on the
+  model, available GPU/system memory, and container memory limits.
+- Include regression coverage for cold timing, memory admission, telemetry,
+  cache aging, independent-history isolation, and generated benchmark examples.
+
 ## 2026-10-06
 
 ### Hugging Face token

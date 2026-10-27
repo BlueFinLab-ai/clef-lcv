@@ -13,7 +13,7 @@ def probe():
  total=sum(size() for size,_,_ in pool.owners.values()) if pool else 0
  available=max(0,physical-extra[0]-total-sum(size() for size in pool.pending.values()))
  return {'available_bytes':available,'system_available_bytes':available,'cgroup_available_bytes':None}
-pool=RAMCacheBudget(memory_probe=probe)
+pool=RAMCacheBudget(reserve_fraction=.25,memory_probe=probe)
 host=HostPrefixCache('auto',None,budget=pool)
 images=InputCache('auto',None,ram_budget=pool,image_fraction=.25)
 entry={'cache':SimpleNamespace(keys=torch.zeros(10*2**18)), 'chunks':(), 'ids':tuple(range(128)), 'media_key':('text',False)}
@@ -33,6 +33,6 @@ for i in range(140):images._put_image(i,((),{'pixels':torch.ones(1)}))
 assert len(images.images)==140
 images.max_entries=2
 images.clear();images._put_image('hot',((),{}));images._put_image('cold',((),{}))
-images.image_uses['hot']=(5,1);images._put_image('new',((),{}))
+images._touch_image('hot',5);images._put_image('new',((),{}))
 assert set(images.images)=={'hot','new'}
 print('PASS: shared RAM headroom, cross-tier eviction, pressure shrink, image fraction, unlimited count and LFU')

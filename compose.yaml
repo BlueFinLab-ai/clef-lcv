@@ -19,6 +19,8 @@ services:
       - "${CLEF_BIND:-0.0.0.0}:${CLEF_PORT:-8080}:8080"
     environment:
       CLEF_PROFILE: ${CLEF_PROFILE:-flash}
+      CLEF_PREFIX_HOST_CACHE_RESERVE_FRACTION: ${CLEF_PREFIX_HOST_CACHE_RESERVE_FRACTION:-0.20}
+      CLEF_CACHE_FREQUENCY_DECAY_SECONDS: ${CLEF_CACHE_FREQUENCY_DECAY_SECONDS:-900}
       CLEF_API_KEY: ${CLEF_API_KEY:-}
       # Points at the mounted file only when CLEF_API_KEY_FILE is set.
       CLEF_API_KEY_FILE: ${CLEF_API_KEY_FILE:+/run/secrets/clef-api-key}

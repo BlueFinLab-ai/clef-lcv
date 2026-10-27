@@ -19,6 +19,7 @@ class Event:
 class Engine:
  base_bytes=0
  context_policy=None
+ telemetry=NS(begin=lambda:None,end=lambda scope:{})
  def __init__(self):self.calls=[];self.finishes=0
  def prepare_request(self,*a,**kw):return {}
  def forward(self,*a,**kw):self.calls.append(kw);return [[0]],{'prefill_mode':'single_pass','reused_prefix_tokens':0}

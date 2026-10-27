@@ -115,3 +115,27 @@ benchmark. Runtime source was commit `45d17cb`; this study changes no runtime
 implementation or model weights.
 
 Raw observations are kept outside this repository.
+
+## October 10 prefill qualification
+
+A new cache-aware scheduling investigation reproduced BF16 implementation
+sensitivity on three approximately 10K-token, 32-choice Oida packets. This is
+separate from maximum-context capacity and does not establish a new token cap.
+
+Changing only the attention mask implementation to implicit lower-right CUDA
+attention shifted some probabilities by up to 3.75 percentage points across ten
+paired requests. Winning choices stayed the same, but two screening decisions
+at a 0.50 `no` cutoff and twelve at 0.95 changed. Repeated calls within each
+configuration were stable; this was not timing noise or missing cached state.
+
+Keeping explicit attention but enlarging the first resumed block shifted up to
+3.43 points across seven paired requests. Winning choices stayed the same;
+three decisions at the 0.95 cutoff changed and none at 0.50. These experiments
+measure implementation agreement, not independent relevance accuracy.
+
+Both changes were rejected for BF16 Full. The selected runtime keeps original
+attention and canonical 8K-cold/4K-resumed partitions, preserving checkpoint
+boundaries. Its memory preflight changes execution strategy when a canonical
+block cannot fit rather than silently choosing different partitions. Flash's
+FP16 implementation has a separate qualified cache-aware policy. No global
+minimum prefix/cache-entry size was introduced.

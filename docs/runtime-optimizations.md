@@ -1,5 +1,9 @@
 # Runtime optimizations
 
+Optional [bounded queue matching](queue-matching.md) selects similarly sized
+waiting text requests while preserving exact prefix-cache reuse. It keeps the
+oldest anchor, immediate lone-request dispatch and existing memory admission.
+
 Both Full and Flash accept up to 16 images per request and use compact schema
 labels and one image preprocessing pass. Combined context and VRAM limits still
 apply; 16 high-fidelity images may exceed those limits.
@@ -74,6 +78,64 @@ Direct API calls use native processor defaults or explicit `media_kwargs`;
 `image_fidelity` is now an optional deprecated server-resizing extension. See
 [client resizing and API compatibility](client-image-resizing.md).
 
+## Memory-based prefill scheduling
+
+CUDA Full and Flash use `--prefill-policy memory` by default. The service chooses
+new-token chunks from reusable GPU VRAM, model activation/KV dimensions, existing
+history, remaining work and the next context/image/schema checkpoint. Flash
+uses the 8K initial allowance for its first block of new work even after a cache
+hit. Later Flash native/GPU-tiled blocks prefer 4K, while CPU-streamed blocks
+prefer 8K to reduce repeated history uploads. These preferences were measured;
+they are not memory limits. `--prefill-target-chunk-tokens auto` is the default;
+an explicit positive size overrides the continuation preference. A separate
+16K operator ceiling (`--prefill-max-chunk-tokens N`) bounds both allowances.
+Flash can process a 5K suffix as one first block when it fits the next checkpoint.
+It can select smaller blocks when VRAM is occupied. CPU-streamed history is accounted separately from GPU-resident KV;
+CPU RAM capacity checks and adaptive context routing still apply.
+
+The validated FP16 unpadded Qwen3.5 CUDA path uses PyTorch's lower-right causal attention bias
+for cached history. This keeps cached keys visible and hides future keys without
+creating the ordinary query-by-history mask. Vision encoding is unchanged. BF16 Full keeps its existing explicit attention
+calculation because implicit-mask qualification changed some confidence values.
+Full also preserves its established partitions: BF16 qualification found
+confidence shifts when cache-resume boundaries changed. Its scheduler includes
+explicit-mask workspace in the memory estimate and changes memory strategy
+instead of splitting a canonical chunk when that chunk cannot fit. The
+request-local attention configuration is restored on success/error and suspended
+while the queue runs a nested short request. Padded batches and ROCm keep their
+existing attention paths. Short requests keep their existing prefix behavior;
+there is no new minimum cache-entry or reusable-prefix token count.
+
+When a native request has a cached prefix and no more than one continuation
+block of new work, it uses the existing cached-suffix fast path without installing
+implicit attention or sampling planner memory. This avoids setup work on nearly
+complete cache hits. The response exposes `prefill_cached_suffix_fast_path`.
+
+Compact Flash startup skips random initialization of the dense input/output
+vocabulary placeholders that are immediately replaced by saved NF4 embeddings.
+Other initialization is unchanged; both replacement files and module types are
+validated, and the initializer override is restored even when loading fails.
+Stored-weight regression checks matched the previous fixed-policy outputs exactly.
+
+The scheduler reserves the existing prefill headroom (512 MiB by default).
+Driver VRAM samples are taken at coarse boundaries; between them, CPU allocator
+counters account for this process's live allocation/release changes. External
+allocations can still invalidate estimates. A queued short request limits a
+Flash native chunk to the configured continuation size so it can run at the next safe
+boundary. The existing whole-request OOM recovery discards mutable working state
+before changing execution strategy; the scheduler never retries a partly mutated
+backbone chunk in place.
+
+`--prefill-policy fixed` / `CLEF_PREFILL_POLICY=fixed` restores the previous
+8K-initial/4K-continuation policy. `CLEF_PREFILL_MAX_CHUNK_TOKENS` is the environment
+form of the adaptive ceiling; `CLEF_PREFILL_TARGET_CHUNK_TOKENS` sets the preferred target. Discovery exposes the requested policy and ceiling
+in `/health.optimizations.chunked_prefill`. Responses report the actual policy,
+attention method, effective chunk sizes, memory/queue limitations and projected
+workspace. `prefill_chunk_sizes` retains at most 64 entries and explicitly reports
+whether its diagnostic list was shortened; the prompt itself is never truncated.
+Larger observed workspace raises the existing admission calibration. A memory
+estimate does not guarantee that the largest fitting chunk is fastest.
+
 ## Branching exact-prefix reuse
 
 Prefix reuse is enabled by default with the memory-efficient attention backend.
@@ -120,6 +182,15 @@ overrides automatic sizing. Checkpoints grow on demand; the cache does not
 preallocate or fill idle memory with unused tensors. Least recently used entries
 are evicted before retaining new ones or when request headroom becomes tight.
 Actual allocator-free memory includes unused blocks reserved by PyTorch.
+
+VRAM storage accounting is reused while the retained tensor banks are unchanged.
+Admission, replacement, eviction and clearing invalidate that total; recency and
+frequency updates do not. The refreshed total still counts shared physical
+storage once across prefix checkpoints and image features. This avoids repeated
+CPU traversal between short requests with a populated cache. Admission continues
+to read available memory and apply the active request's workspace requirements.
+Retained tensor snapshots are immutable; execution uses independent working
+copies, and a changed snapshot must replace its bank value.
 
 Mutable KV, recurrent and convolution states are cloned before each branch.
 The short path shares immutable hidden-state chunks between related checkpoints
@@ -449,6 +520,16 @@ profiles. Other CUDA families stay at one until explicitly enabled.
 Maximum batch size is selected with `--batch-size 1|2|4` or
 `CLEF_BATCH_MAX_SIZE`. Size one disables grouping. Actual groups can be smaller.
 
+Compatibility requires the same model and input/prefix-cache controls, with no
+images. Text contexts and question schemas may differ: each row has its own
+encoded inputs, attention mask, positions and native decision-head outputs.
+Prefix planning compares actual encoded token ancestry before reusing any
+checkpoint; it never assumes that unrelated contexts share state. A better
+individual cache hit or a CPU-tier prefix still selects the existing individual
+path. This also applies to one-question requests and to calls without a shared
+reusable context.
+
+
 CPU encoding supplies actual token counts. Admission limits padded tokens,
 record length and padding ratio, then estimates KV, hybrid recurrent state,
 hidden/attention buffers and temporary workspace against reclaimable memory
@@ -464,12 +545,61 @@ better individual cached prefix use the single path, preserving existing reuse.
 Exact repeated states can use that path to promote their own checkpoints.
 This works with generic Clef text/state/context and typed questions, not just emails.
 
+`CLEF_BATCH_RECORD_TOKENS` limits the complete encoded input of each batched
+request, including the context, state and question schema, even when part is
+cached. Its project-wide default remains `4096`. Longer valid requests stay in
+the queue and run individually with the normal context budget.
+`CLEF_BATCH_PADDED_TOKENS` limits the number of rows multiplied by the longest
+encoded input; defaults are `6000` for Full or GPUs below 16 GiB, and `12000`
+for larger Flash GPUs. Length-ratio and estimated-memory admission still apply.
+
+Flash on the 24 GiB RTX 3090 has also been qualified with these opt-in settings:
+
+```sh
+CLEF_BATCH_RECORD_TOKENS=8192 CLEF_BATCH_PADDED_TOKENS=16384 \
+  python -m clef_service --model flash --batch-size 2
+```
+
+For Docker, pass the two limits with `-e`, or add them to the service's Compose
+`environment` mapping. They are not automatically forwarded from a host `.env`
+file by the default Compose configuration. The higher limits are enabled on the
+tested GPU3 Flash deployment; other deployments and project-wide defaults are
+unchanged.
+
+Three warmed 16-request passes at client concurrency four improved median wall
+time from 32.41 to 31.68 seconds (2.3%), with p95 increasing from 8.19 to 8.54
+seconds (4.2%). Actual requests contained 7,680–8,192 encoded tokens, extended
+from public synthetic emails with their existing synthetic footer. All 48
+selected categories matched individual execution; the largest probability
+difference was 0.08 percentage points. There were no batch OOM or runtime
+fallbacks. Peak allocated VRAM was 7.33 GiB. Exact repeats and cached-guide
+batching also passed. This small measured gain is workload-specific and does
+not establish quality on real long emails. An 8K email body plus guide/schema
+can exceed this batching cutoff and will run individually.
+
+
 Images, optional pooling, long prompts and their incremental prefill remain
 single-request operations in this initial version. RX 580 batching stays off.
 `/health` reports queue grouping and actual GPU batch counts separately. Responses
 report `usage.batch_size`, padding, worker wait and any fallback reason. Batch
 latency is the group's work duration, not that duration divided by row count.
 
+
+The October 10 one-question follow-up used 100 independent 256-token requests
+and 64 independent 1,024-token requests per timed pass, eight concurrent clients
+and three passes per setting. On the idle RTX 3090 at a fixed temporary 180W,
+median 256-token pass time was 22.56 s with batch size one, 17.06 s with two and
+16.60 s with four. The corresponding 1,024-token times were 35.84 s, 32.35 s and
+29.49 s. CPU lookahead gave no consistent additional gain; serial calls had no
+collection wait. This is a synthetic scheduler/numerical consistency workload,
+not a general accuracy benchmark.
+
+The relaxed context filter was separately qualified with different source
+contexts and mixed binary/choice questions, with cache both off and on. Better
+individual cache hits remained preferred. GPU3 Flash received that change while
+keeping its existing maximum batch size of two, 8K record cutoff and 16K padded
+budget. Maximum four remains opt-in. GPU2 was released and its original 250W
+limit restored.
 
 ## CPU-backed prefix checkpoints
 
@@ -485,17 +615,17 @@ cache grows on demand; it does not allocate or reserve its full budget upfront.
 The budget is recomputed on request preparation, restoration, retention and
 completion from Linux `MemAvailable`, constrained by remaining memory in visible
 cgroup v1/v2 ancestors (including v2 `memory.high`). Swap is never counted.
-The default leaves 25% of allocatable RAM free:
+The default reserves 15% of service-allocatable RAM:
 
 ```text
 available = min(system MemAvailable, visible cgroup headroom)
-capacity = available + this service's current CPU prefix tensor bytes
-cache limit = 0.75 × capacity
+capacity = available + this service's retained CPU prefix/image bytes + pending copies
+cache limit = 0.85 × capacity
 ```
 
 Adding back this tier's own allocations keeps its budget stable as it fills;
 RAM used by other services and non-cache workloads reduces the budget. This is
-a per-process live budget, not a reservation of 75% of total installed RAM for
+a per-process live budget, not a reservation of 85% of total installed RAM for
 every service. Under pressure the worker trims retained snapshots before CPU
 copies or request processing. Idle caches are trimmed when the next request
 runs; this is not an OS memory reservation or a guarantee against unrelated
@@ -505,20 +635,29 @@ inspected; use an explicit container memory limit when isolation is required.
 
 Set `CLEF_PREFIX_HOST_CACHE_MIB` to a positive MiB value for a fixed maximum
 (still constrained by sampled headroom), or `0` to disable the RAM tier.
-`CLEF_PREFIX_HOST_CACHE_RESERVE_FRACTION` defaults to `0.25` and accepts values
+`CLEF_PREFIX_HOST_CACHE_RESERVE_FRACTION` (or `--ram-cache-reserve-fraction`)
+defaults to `0.15` and accepts values
 from 0 inclusive to 1 exclusive. `CLEF_PREFIX_HOST_CACHE_ENTRIES=auto` removes
 the default entry-count cap; a positive integer adds a cap, and `0` disables
 the tier. Limits apply to retained tensor storage; token metadata and temporary
 copy buffers add overhead covered by the free-memory margin.
 
-RAM eviction uses least-frequently-used (LFU) checkpoints; least recent reuse
-breaks ties. Newly built checkpoints start at zero uses, actual GPU/CPU prefix
-reuse increments usage, and GPU use counts survive offload to RAM. Metadata
-lookups and duplicate snapshot writes do not count as reuse. Usage is cumulative
-for a retained checkpoint's lifetime, without aging. GPU eviction continues to
+RAM eviction uses aged least-frequently-used (LFU) checkpoints; least recent reuse
+breaks ties. Newly built checkpoints start at zero frequency, and actual GPU/CPU
+prefix reuse increments it. `CLEF_CACHE_FREQUENCY_DECAY_SECONDS` (also
+`--cache-frequency-decay-seconds`) defaults to 900: each complete interval halves
+the integer score, rounding down until an inactive entry reaches zero. The
+calculation is lazy and preserves partial elapsed intervals across hits; frequent
+hits do not keep postponing decay. Set the interval to `0` for lifetime LFU.
+Lifetime use counts remain separate and cumulative for telemetry. Aging metadata
+survives GPU/CPU transfers, and duplicate snapshots reconcile overlapping histories
+without adding hits or refreshing the age. Metadata lookups and rejected restores
+are not reuse. Aging affects priority, not expiry: an old entry stays cached when
+there is room. GPU eviction continues to
 use its existing elastic/LRU policy. RAM entries vanish on process restart or
 cache clear. There is no disk storage or new runtime compiler. Image-feature
-caching and CPU preprocessing caches retain their separate policies. A larger
+caching retains LRU; CPU processed images use the same aging calculation in their
+separate RAM pool. Tokenization retains its bounded LRU policy. A larger
 RAM tier uses compressed radix lookup by default; the optional shared CPU
 segments described below reduce duplication among related checkpoints.
 
@@ -564,12 +703,13 @@ unchanged. `scan` retains the prior lookup implementation for controlled compari
 
 `CLEF_PREPROCESS_CACHE_MIB=auto` and `CLEF_PREPROCESS_CACHE_ENTRIES=auto` replace
 the old 256 MiB / 128-image defaults. Processed CPU images and CPU prefix states
-share one service-local RAM allowance using the 25% reserve fraction. By default
+share one service-local RAM allowance using the 15% reserve fraction. By default
 processed images can use at most 25% of that allowance, configured through
 `CLEF_PREPROCESS_CACHE_RAM_FRACTION`. Prefix states can use the remainder, or the
 whole allowance when image occupancy is low. The banks can evict each other to
 make room, rather than independently claiming the same available RAM. Both use
-LFU with oldest actual access breaking ties. Fixed MiB caps and zero to disable
+aged LFU with oldest actual access breaking ties, using the shared decay interval
+above. There is no global frequency ranking across the two pools. Fixed MiB caps and zero to disable
 remain supported. Tokenization's separate small bounded cache stays unchanged.
 
 The processed-image cache contains exact processor output, not compressed image
@@ -580,19 +720,50 @@ introduced by these optimizations.
 
 ## Bounded preparation and transfer experiments
 
-`CLEF_CPU_PREPARE_OVERLAP=1` enables one CPU preparation worker and at most one
-queued preparation slot. The first request dispatches immediately. Already
-waiting requests may tokenize/preprocess while the GPU worker runs, without
+`CLEF_CPU_PREPARE_OVERLAP=1` enables one CPU preparation worker.
+`CLEF_CPU_PREPARE_SLOTS` sets the bounded lookahead to 1 (default), 2 or 4
+requests; 2 can prepare both members of the next two-request text batch. The first
+request dispatches immediately. Already waiting requests may tokenize/preprocess while the GPU worker runs, without
 GPU work on the preparation thread. Wire tickets survive cancelled CPU work
 until it actually completes. Preparation errors remain isolated per request.
-`CLEF_CPU_PREPARE_MIB` defaults to 1024 and bounds estimated preparation workspace;
-it is also capped at one eighth of sampled available RAM. Unknown/oversized
-images remain inline. Cached image snapshots can qualify by their known size,
+`CLEF_CPU_PREPARE_MIB` defaults to 1024 and bounds estimated preparation workspace
+across all configured slots; that total is also capped at one eighth of sampled
+available RAM. Each slot gets an equal share. Text, question schemas and image
+workspace are checked before preparation. Cancelled unfinished work retains its
+slot and wire admission until it completes; cancellation cannot grow lookahead
+without bound. Unknown/oversized images remain inline. Cached image snapshots can qualify by their known size,
 with 25% extra workspace slack. Per-request cache counters are thread-local.
+Prepared CPU inputs survive batch downsizing and serial fallbacks, avoiding duplicate tokenization. Queued
+preparation never calls the model or allocates GPU tensors.
+
+Responses expose `cpu_preparation_used`, `cpu_preparation_wait_ms` (GPU worker
+waiting for unfinished preparation), `cpu_preparation_lead_ms` (how early the
+prepared input was ready before the worker consumed it), and `worker_handoff_ms`
+(time from previous worker teardown to the next worker start, including idle
+arrival gaps). These timings are not measurements of exclusive CPU core use or
+GPU kernel utilization. The existing `cpu_preparation_overlapped` marks work
+performed on the lookahead path; it does not prove every millisecond overlapped a
+running GPU kernel. `preprocessing_ms` reports that request's preparation time.
+`preprocessing_outside_handler_ms` preserves CPU-time attribution when a serial
+batch fallback receives an input prepared before its handler timer. It is counted
+once, including when the same preparation also used lookahead.
 
 CPU overlap defaults off: the initial cached-original-image concurrency test
 showed no meaningful throughput gain. Enable only after benchmarking the target
 workload. It does not add a batch-collection delay or change FIFO ordering.
+
+The October 10 8K text follow-up prepared 45/48 timed requests ahead of consumption
+with two slots, zero reported preparation wait and a mean worker handoff of
+0.57 ms. Median time for 16 synthetic requests was 31.49 s inline versus
+31.85 s with lookahead (three passes each); this does not establish a speed gain.
+All 48 selected categories agreed, with at most 0.02 percentage points of
+probability difference. The isolated text collation/copy experiment moved
+256 KiB in 2.68 ms; transfers from already-prepared pinned inputs took 0.058 ms,
+excluding their construction/pinning. That potential saving is below 0.1% of a
+roughly 3.7-second inference window, so pinned text staging was not deployed.
+GPU3 retains lookahead disabled while receiving prepared-input reuse across
+fallbacks and the new timing fields. The 3070 Ti and other services were not
+changed.
 
 `CLEF_PREFIX_ASYNC_RESTORE=1` enables experimental CUDA-only per-layer cache
 restoration. A dedicated copy stream and I/O worker use two pinned staging

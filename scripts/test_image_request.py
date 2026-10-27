@@ -4,7 +4,7 @@ from pathlib import Path
 import sys
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "runtime"))
@@ -29,7 +29,7 @@ for profile in ("full", "flash"):
     source = ast.parse((ROOT / "clef_service/app.py").read_text())
     schema = ast.Module(body=[n for n in source.body if isinstance(n, ast.ClassDef)
                              and n.name in {"Question", "DecisionRequest"}], type_ignores=[])
-    namespace = dict(BaseModel=BaseModel, ConfigDict=ConfigDict, Field=Field,
+    namespace = dict(BaseModel=BaseModel, ConfigDict=ConfigDict, Field=Field, PrivateAttr=PrivateAttr,
                      Literal=Literal, POOLING_DEFAULT=False, MODEL_ID="clef" if profile == "full" else "clef-flash", __name__=__name__)
     exec(compile(schema, str(ROOT / "clef_service/app.py"), "exec"), namespace)
     request_type = namespace["DecisionRequest"]
@@ -40,5 +40,6 @@ for profile in ("full", "flash"):
         assert request.media_kwargs == options
         dumped = request.model_dump(exclude_none=True)
         assert "image_fidelity" not in dumped
+        assert not request._cold_benchmark and "_cold_benchmark" not in dumped
     assert request_type.model_json_schema()["properties"]["image_fidelity"]["deprecated"]
 print("PASS: native defaults/options, no-resize input, legacy limits/conflicts and both request schemas")

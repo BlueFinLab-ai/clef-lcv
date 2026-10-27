@@ -124,8 +124,12 @@ beginnings, so a later request only processes what's new.
 - **Two memory tiers, no disk.** Checkpoints live in GPU memory while there is
   room, sized automatically around the model and the active request. When the GPU
   needs space, they move to system RAM instead of being dropped. The RAM tier
-  grows as needed while leaving 25% of available memory free, respects container
-  memory limits, and evicts the least-frequently-used entries first. Cached state
+  grows as needed while reserving 20% of service-allocatable RAM, respects container
+  memory limits, and evicts entries with the lowest aged frequency first. CPU
+  prefix and processed-image scores halve every 15 minutes; least recent access
+  breaks ties, while lifetime hit counts stay intact for telemetry. Set
+  `CLEF_CACHE_FREQUENCY_DECAY_SECONDS` (or `--cache-frequency-decay-seconds`) to
+  configure the interval; `0` restores lifetime LFU. Cached state
   is never written to disk, so the caches start empty after each restart. (Only
   small memory-calibration records are saved, so routing decisions survive restarts.)
 - **Images too.** Processed images are kept in RAM, and image encodings on the
@@ -143,6 +147,18 @@ category guide. Each response reports `reused_prefix_tokens` and
 **Cached input**. `/health` has hit, eviction and memory statistics. Set
 `CLEF_PREFIX_HOST_CACHE_MIB=0` to turn off the RAM tier. See
 [caching controls](docs/runtime-optimizations.md#cpu-backed-prefix-checkpoints).
+
+The shared CPU cache reserve is configurable through
+`CLEF_PREFIX_HOST_CACHE_RESERVE_FRACTION` or `--ram-cache-reserve-fraction`
+(default `0.20`, meaning 20% reserved). The remaining 80% applies to available RAM plus this service's
+existing cache allocations, not total installed RAM; other processes and cgroup
+limits reduce the allowance. Prefix and processed-image caches share this budget.
+For Docker Compose, set `CLEF_PREFIX_HOST_CACHE_RESERVE_FRACTION=0.20` in `.env`
+and recreate the service with `docker compose up -d`. For the launcher, use
+`python -m clef_service --ram-cache-reserve-fraction 0.20`. The CLI flag overrides
+the environment. Values must be finite and at least `0` but less than `1`;
+changes take effect at startup. `/health` reports the effective reserve under
+`optimizations.prefix_cache.host.reserve_fraction`.
 
 ### Long context
 
@@ -269,6 +285,26 @@ docker run -d --name clef-full --restart unless-stopped --gpus device=0 \
 Flash and Full are stored separately in the volume. To switch back, run
 `docker stop clef-full && docker start clef`. Run `docker run --rm clef:local --help`
 for all startup options.
+
+### Adaptive prefill and cache reuse
+
+CUDA Full and Flash account for long-request prefill workspace, including GPU/CPU
+cache hits. Flash's first block of new work has an 8K allowance even after a
+cache hit; later blocks prefer 4K for native/tiled execution and 8K for CPU
+streaming. VRAM headroom and context/image checkpoints can select less. BF16 Full
+keeps its established attention and partitions to preserve confidence values,
+and changes memory strategy when a canonical chunk cannot fit. CPU KV streaming
+still handles contexts that do not fit in GPU VRAM. Short-prompt caching remains
+enabled; no minimum cache-hit size is imposed.
+
+Use `--prefill-target-chunk-tokens N` to change the preference,
+`--prefill-max-chunk-tokens N` to change the ceiling, or
+`--prefill-policy fixed` to restore the previous 8K-first/4K-continuation behavior.
+The corresponding environment variables are `CLEF_PREFILL_MAX_CHUNK_TOKENS` and
+`CLEF_PREFILL_POLICY` (and `CLEF_PREFILL_TARGET_CHUNK_TOKENS` for the target).
+ROCm keeps fixed scheduling. See
+[runtime optimizations](docs/runtime-optimizations.md#memory-based-prefill-scheduling)
+for the memory model, fallback behavior and response telemetry.
 
 ### Hugging Face token
 
@@ -585,7 +621,10 @@ All requests succeeded and category choices matched the serial runs. See
 - **Untested GPUs:** A100, RTX 4090, H100 and RTX 5090 are build targets only.
 - **Limited batching:** each service has one GPU worker. Small text requests can
   run two at a time on SM86 GPUs; long and streamed requests run one at a time.
-  See [scheduling and batching](docs/scheduling-batching.md).
+  Optional `--batch-matching` searches a bounded backlog for compatible lengths
+  and cache ancestry, with an immediate oldest anchor. Four remains an explicit
+  workload experiment. See [queue matching](docs/queue-matching.md) and
+  [scheduling and batching](docs/scheduling-batching.md).
 - **Long-context validation:** the 131K tests used Flash and Full with synthetic
   text on two GPUs; long image requests and other GPU families are less tested.
 - **AMD:** the [RX 580 ROCm path](experimental/rocm/README.md) is experimental.
@@ -607,7 +646,7 @@ All requests succeeded and category choices matched the serial runs. See
 | Contributing locally | [Local development assets](docs/development.md) |
 | Kernel builds and tuning | [Optimized kernels](docs/optimized-kernels.md) |
 | Image handling | [Image scaling](docs/image-scaling.md), [client image resizing](docs/client-image-resizing.md), [incremental prefill](docs/multimodal-prefill.md) |
-| Caching | [Prefix cache benchmarks](docs/prefix-cache-benchmarks.md), [input cache benchmarks](docs/input-cache-benchmarks.md), [long-request cache](docs/long-request-cache.md), [cache accounting](docs/cache-accounting.md) |
+| Caching | [Prefix cache benchmarks](docs/prefix-cache-benchmarks.md), [input cache benchmarks](docs/input-cache-benchmarks.md), [long-request cache](docs/long-request-cache.md), [cache accounting](docs/cache-accounting.md), [cache diagnostics](docs/cache-diagnostics.md) |
 | Experiments | [Language performance](docs/language-performance.md), [scheduling and batching](docs/scheduling-batching.md), [Full context quality](docs/full-context-quality.md) |
 | Test results | [Validation record](docs/validation.md) |
 | History | [Changelog](CHANGELOG.md) |
@@ -653,3 +692,29 @@ The code in this repository is licensed under the [Apache License 2.0](LICENSE).
 The vendored Cloudflare wrapper keeps its own license, and model weights are
 downloaded at runtime under Cloudflare's release terms. See
 [THIRD_PARTY.md](THIRD_PARTY.md).
+
+### Optional metrics and request logging
+
+Enable `--metrics` for protected Prometheus-format `/metrics`, and
+`--request-log-mode metadata --request-log-dir /data/logs/<instance>` for
+background JSONL request summaries. Both default off. Collection uses existing
+usage fields and nonblocking bounded queues; storage failures cannot fail
+inference. Text/results and lossless image capture require separate payload-mode
+flags and remain off by default. See [observability](docs/observability.md) for
+performance limits, retention, queue budgets and Docker persistence.
+
+
+Independent cached-history batching is available as an opt-in for CUDA Clef Flash
+FP16: `--batch-matching --batch-size 4 --independent-cache-batching`. It groups
+eligible queued text continuations while preserving exact ancestry and checkpoint
+boundaries; images, Full BF16 and long streamed requests use their existing paths.
+See [queue matching](docs/queue-matching.md) for memory admission and timing semantics.
+
+
+### Cold-input throughput
+
+Enable **Cold-pass benchmark** in the portal to process the current input with all
+CPU/GPU reuse bypassed and see backbone and end-to-end input tokens/s. For repeatable
+GPU comparisons, use `python scripts/benchmark_throughput.py --url URL --words 1024
+4096 --repeats 3 --output results.json`. It measures actual server tokens, keeps the
+model loaded, and never clears other users' caches. See [cold throughput](docs/cold-throughput.md).

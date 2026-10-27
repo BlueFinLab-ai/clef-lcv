@@ -122,23 +122,44 @@ class Job:
     started: float | None = None
     delivered: bool = False
     preparation: object = None
+    preparation_started: float | None = None
+    preparation_finished: float | None = None
+    preparation_wait_ms: float = 0
+    preparation_lead_ms: float = 0
+    preparation_used: bool = False
+    worker_handoff_ms: float = 0
     interleaves: int = 0
+    matched_payload: object = None
+    match_bypasses: int = 0
+    matching_ms: float = 0
+    matching_candidates: int = 0
 
 
 class DecisionQueue:
     def __init__(self, handler, *, max_waiting=64, wait_seconds=300,
                  payload_mib=256, request_mib=224, max_batch_size=1, batch_handler=None, batch_key=None,
-                 prepare_handler=None):
+                 prepare_handler=None, prepare_slots=1, batch_selector=None,
+                 match_lookahead=8, match_max_bypasses=2):
         if max_waiting < 1 or wait_seconds <= 0 or payload_mib <= 0 or request_mib <= 0:
             raise ValueError("Queue limits must be positive")
         if max_batch_size not in {1, 2, 4}:
             raise ValueError("Batch size must be 1, 2 or 4")
         if max_batch_size > 1 and (batch_handler is None or batch_key is None):
             raise ValueError("Batching requires a batch handler and compatibility key")
+        if prepare_slots not in {1, 2, 4}:
+            raise ValueError("Preparation slots must be 1, 2 or 4")
+        if not 1 <= match_lookahead <= 16 or not 0 <= match_max_bypasses <= 8:
+            raise ValueError("Matching lookahead must be 1..16 and bypass limit 0..8")
         self.max_batch_size, self.batch_handler, self.batch_key = max_batch_size, batch_handler, batch_key
         self.handler, self.max_waiting, self.wait_seconds = handler, max_waiting, wait_seconds
+        self.batch_selector = batch_selector
+        self.match_lookahead, self.match_max_bypasses = match_lookahead, match_max_bypasses
+        self.match_dispatches = self.match_scanned = self.match_selected = self.match_bypasses = self.match_failures = 0
         self.prepare_handler = prepare_handler
-        self.prepare_executor = self.prepare_slot = None
+        self.prepare_executor = None
+        self.max_prepare_slots = prepare_slots
+        self.preparing = {}  # Pending results and unfinished cancelled/active work.
+        self.worker_finished = None
         self.prepared_requests = self.preparation_skips = self.preparation_failures = 0
         self.interleaved_requests = 0
         self.nesting = False
@@ -154,7 +175,7 @@ class DecisionQueue:
         self.closing = False
 
     @classmethod
-    def from_env(cls, handler, *, batch_handler=None, batch_key=None, prepare_handler=None):
+    def from_env(cls, handler, *, batch_handler=None, batch_key=None, prepare_handler=None, batch_selector=None):
         return cls(handler, max_waiting=int(os.environ.get("CLEF_QUEUE_MAX_WAITING", "64")),
                    wait_seconds=float(os.environ.get("CLEF_QUEUE_WAIT_SECONDS", "300")),
                    payload_mib=float(os.environ.get("CLEF_QUEUE_PAYLOAD_MIB", "256")),
@@ -162,7 +183,11 @@ class DecisionQueue:
                    max_batch_size=int(os.environ.get("CLEF_BATCH_MAX_SIZE", "1")),
                    batch_handler=batch_handler, batch_key=batch_key,
                    prepare_handler=prepare_handler if (os.environ.get('CLEF_CPU_PREPARE_OVERLAP','0') == '1'
-                       or os.environ.get('CLEF_CHUNK_INTERLEAVE','0') == '1') else None)
+                       or os.environ.get('CLEF_CHUNK_INTERLEAVE','0') == '1') else None,
+                   prepare_slots=int(os.environ.get('CLEF_CPU_PREPARE_SLOTS', '1')),
+                   batch_selector=batch_selector if os.environ.get('CLEF_BATCH_MATCHING','0') == '1' else None,
+                   match_lookahead=int(os.environ.get('CLEF_BATCH_LOOKAHEAD','8')),
+                   match_max_bypasses=int(os.environ.get('CLEF_BATCH_MAX_BYPASSES','2')))
 
     async def start(self):
         self.loop = asyncio.get_running_loop()
@@ -190,7 +215,7 @@ class DecisionQueue:
             await asyncio.sleep(0)  # Deliver retained-ticket completion callbacks.
 
     def stats(self):
-        return {"enabled": True, "policy": "opportunistic_fifo" if self.max_batch_size > 1 else "fifo", "gpu_workers": 1,
+        return {"enabled": True, "policy": ("oldest_anchor_matching" if self.batch_selector is not None else "opportunistic_fifo") if self.max_batch_size > 1 else "fifo", "gpu_workers": 1,
                 "active_requests": len(self.active) if self.active is not None else 0,
                 "max_batch_size": self.max_batch_size, "collection_delay_ms": 0,
                 "batch_dispatches": self.batch_dispatches, "grouped_requests": self.grouped_requests, "waiting_requests": len(self.pending),
@@ -201,23 +226,46 @@ class DecisionQueue:
                 "completed": self.completed, "failed": self.failed, "cancelled": self.cancelled,
                 "timed_out": self.timed_out, "rejected": self.budget.rejected,
                 "cpu_preparation": {"enabled":self.prepare_handler is not None, "workers":1 if self.prepare_executor is not None else 0,
-                    "queued_slots":int(self.prepare_slot is not None), "max_queued_slots":1,
+                    "queued_slots":len(self.preparing), "max_queued_slots":self.max_prepare_slots,
                     "prepared_requests":self.prepared_requests,"skipped_requests":self.preparation_skips,
                     "failed_requests":self.preparation_failures},
                 "interleaved_requests":self.interleaved_requests,
+                "matching": {"enabled":self.batch_selector is not None and self.max_batch_size > 1,
+                    "lookahead":self.match_lookahead,"max_bypasses":self.match_max_bypasses,
+                    "dispatches":self.match_dispatches,"scanned_requests":self.match_scanned,
+                    "selected_requests":self.match_selected,"bypasses":self.match_bypasses,
+                    "failures":self.match_failures},
                 "accepting": not self.closing}
 
     def _schedule_prepare(self):
-        if self.closing or self.active is None or self.prepare_executor is None or self.prepare_slot is not None or not self.pending:
+        if self.closing or self.active is None or self.prepare_executor is None:
             return
-        job = self.pending[0]
-        if job.future.done() or job.started is not None:
-            return
-        self.prepare_slot = job
+        for job in self.pending:
+            if len(self.preparing) >= self.max_prepare_slots:
+                break
+            if job.future.done() or job.started is not None or job.preparation is not None or job.matched_payload is not None:
+                continue
+            self._prepare(job)
+
+    @property
+    def prepare_slot(self):
+        # Interleaving may only inspect the oldest FIFO candidate.
+        return self.pending[0] if self.pending and (self.pending[0] in self.preparing
+            or self.pending[0].matched_payload is not None) else None
+
+    def _prepare(self, job):
         ticket = job.ticket
         if ticket is not None: ticket.retain()
         loop = asyncio.get_running_loop()
-        job.preparation = self.prepare_executor.submit(self.prepare_handler, job.payload)
+        payload = job.payload
+        def prepare():
+            job.preparation_started = time.perf_counter()
+            try:
+                return self.prepare_handler(payload)
+            finally:
+                job.preparation_finished = time.perf_counter()
+        job.preparation = self.prepare_executor.submit(prepare)
+        self.preparing[job] = job.preparation
         def complete(future):
             def finish():
                 try:
@@ -227,12 +275,17 @@ class DecisionQueue:
                     self.preparation_failures += 1
                 finally:
                     if ticket is not None: ticket.release()
+                    if job.started is not None or job.future.done():
+                        self.preparing.pop(job, None)
+                    self._schedule_prepare()
             loop.call_soon_threadsafe(finish)
         job.preparation.add_done_callback(complete)
 
     def peek_prepared(self):
         job=self.prepare_slot
-        if job is None or job.preparation is None or not job.preparation.done():return None
+        if job is None:return None
+        if job.matched_payload is not None:return job.matched_payload
+        if job.preparation is None or not job.preparation.done():return None
         try:return job.preparation.result()
         except Exception:return None
 
@@ -241,10 +294,13 @@ class DecisionQueue:
         parent=self.active[0]
         if parent.interleaves>=max_per_parent:return None
         job=self.pending[0]
-        if (job.future.done() or time.perf_counter()-job.submitted>=self.wait_seconds
-                or job.preparation is None or not job.preparation.done()):return None
+        if (job.future.done() or time.perf_counter()-job.submitted>=self.wait_seconds):return None
         try:
-            if job.preparation.result() is not prepared:return None
+            value = job.matched_payload
+            if value is None:
+                if job.preparation is None or not job.preparation.done():return None
+                value = job.preparation.result()
+            if value is not prepared:return None
         except Exception:return None
         job=self._take()
         if job is None:return None
@@ -269,8 +325,10 @@ class DecisionQueue:
         return True
 
     def _release(self, job):
-        if self.prepare_slot is job: self.prepare_slot = None
+        if job.preparation is not None and job.preparation.done():
+            self.preparing.pop(job, None)
         job.preparation = None
+        job.matched_payload = None
         job.payload = None
         if job.ticket is not None:
             job.ticket.release()
@@ -284,6 +342,7 @@ class DecisionQueue:
             self.pending.remove(job)
             self.pending_bytes -= job.ticket.bytes if job.ticket else 0
             self._release(job)
+            self._schedule_prepare()
 
     async def run(self, payload, request=None):
         if self.closing or self.worker is None:
@@ -321,7 +380,13 @@ class DecisionQueue:
         wait_ms = round((job.started - job.submitted) * 1000, 1)
         total_ms = round((time.perf_counter() - job.submitted) * 1000, 1)
         if isinstance(result, dict) and "usage" in result:
-            result["usage"].update(queue_wait_ms=wait_ms, server_total_ms=total_ms)
+            result["usage"].update(queue_wait_ms=wait_ms, server_total_ms=total_ms,
+                cpu_preparation_used=job.preparation_used,
+                cpu_preparation_wait_ms=round(job.preparation_wait_ms, 1),
+                cpu_preparation_lead_ms=round(job.preparation_lead_ms, 1),
+                worker_handoff_ms=round(job.worker_handoff_ms, 1))
+            result['usage'].update(scheduler_matching_ms=round(job.matching_ms, 3),
+                scheduler_candidates=job.matching_candidates, scheduler_bypasses=job.match_bypasses)
             result["usage"].update(cpu_timing(result["usage"], total_ms))
         elif isinstance(result, JSONResponse):
             result.headers["X-Clef-Queue-Wait-Ms"] = str(wait_ms)
@@ -354,9 +419,92 @@ class DecisionQueue:
                 job.future.set_exception(QueueError(504, "queue_timeout", "Request exceeded the queue wait deadline; retry later"))
                 self._release(job)
             else:
-                if self.prepare_slot is job: self.prepare_slot = None
+                if job.preparation is not None and job.preparation.done():
+                    self.preparing.pop(job, None)
                 return job
         return None
+
+    async def _match_jobs(self, first, key):
+        """Probe bounded CPU inputs on the sole model worker, then claim on ASGI.
+
+        The oldest request always anchors. An image/control boundary or a job
+        already bypassed twice stops the search. No collection timer, GPU work,
+        pending removal, or inference occurs during selection.
+        """
+        candidates = []
+        for job in list(self.pending)[:self.match_lookahead]:
+            if job.future.done() or time.perf_counter()-job.submitted >= self.wait_seconds:
+                continue  # Normal take/expiry owns teardown.
+            if self.batch_key(job.payload) != key:
+                break
+            candidates.append(job)
+            if job.match_bypasses >= self.match_max_bypasses:
+                break
+        if not candidates:
+            return [first]
+        probes = [first, *candidates]
+        # Cancellation can release a pending job while the CPU selector holds
+        # its decoded body. Keep its wire admission until that probe completes.
+        retained = [j.ticket for j in candidates if j.ticket is not None]
+        for ticket in retained:
+            ticket.retain()
+        # Snapshot references on ASGI, before cancellation can clear the Job.
+        # The worker must never re-read mutable admission/preparation fields.
+        snapshots = [(j.payload, j.matched_payload, j.preparation) for j in probes]
+        def value(raw, matched, preparation):
+            if matched is not None:
+                return matched
+            if preparation is not None:
+                try:
+                    prepared = preparation.result()
+                    if prepared is not None:
+                        return prepared
+                except Exception:
+                    pass  # The normal handler will report this member's error.
+            return raw
+        def select():
+            payloads = [value(*snapshot) for snapshot in snapshots]
+            return self.batch_selector(payloads, self.max_batch_size)
+        began = time.perf_counter()
+        try:
+            selected, prepared = await asyncio.get_running_loop().run_in_executor(self.executor, select)
+            if (len(prepared) != len(probes) or not selected or selected[0] != 0
+                    or len(selected) > self.max_batch_size or len(set(selected)) != len(selected)
+                    or any(type(i) is not int or not 0 <= i < len(probes) for i in selected)):
+                raise ValueError('Invalid bounded batch selection')
+            jobs = [first]
+            self.match_dispatches += 1
+            self.match_scanned += len(candidates)
+            for job, payload in zip(probes, prepared):
+                if payload is not None and not job.future.done():
+                    job.matched_payload = payload
+            for index in selected[1:]:
+                job = probes[index]
+                if job not in self.pending or job.future.done() or time.perf_counter()-job.submitted >= self.wait_seconds:
+                    continue
+                self.pending.remove(job)
+                self.pending_bytes -= job.ticket.bytes if job.ticket else 0
+                if job.preparation is not None and job.preparation.done():
+                    self.preparing.pop(job, None)
+                jobs.append(job)
+            # Count only requests actually passed by a claimed later member.
+            positions = [probes.index(j) for j in jobs]
+            last = max(positions)
+            for index,job in enumerate(probes[1:],1):
+                if index < last and job in self.pending and not job.future.done():
+                    job.match_bypasses += 1
+                    self.match_bypasses += 1
+            self.match_selected += len(jobs)
+            for job in jobs:
+                job.matching_candidates = len(candidates)
+            return jobs
+        except Exception:
+            self.match_failures += 1
+            return [first]  # A selector failure must not fail valid inference.
+        finally:
+            first.matching_ms = (time.perf_counter()-began)*1000
+            for ticket in retained:
+                ticket.release()
 
     async def _work(self):
         while True:
@@ -368,10 +516,16 @@ class DecisionQueue:
                     return
                 continue
             jobs = [first]
+            # Keep the anchor active while its bounded selector executes; the
+            # CPU overlap path may prepare later arrivals without CUDA work.
+            self.active = jobs
             # No collection timer: only already waiting consecutive requests
             # can join. Never bypass an older incompatible/image request.
             key = self.batch_key(first.payload) if self.max_batch_size > 1 else None
-            while key is not None and len(jobs) < self.max_batch_size and self.pending:
+            if key is not None and self.batch_selector is not None:
+                first.started = time.perf_counter()
+                jobs = await self._match_jobs(first, key)
+            while self.batch_selector is None and key is not None and len(jobs) < self.max_batch_size and self.pending:
                 candidate = self.pending[0]
                 if candidate.future.done() or time.perf_counter()-candidate.submitted >= self.wait_seconds:
                     # Let _take remove this cancelled/expired head without
@@ -388,7 +542,8 @@ class DecisionQueue:
                 jobs.append(self._take())
             self.active = jobs
             for job in jobs:
-                job.started = time.perf_counter()
+                if job.started is None:
+                    job.started = time.perf_counter()
             self._schedule_prepare()
             loop = asyncio.get_running_loop()
             if len(jobs) > 1:
@@ -400,9 +555,19 @@ class DecisionQueue:
 
             def execute():
                 def payload(job):
+                    if job.matched_payload is not None:
+                        return job.matched_payload
                     if job.preparation is None: return job.payload
+                    began = time.perf_counter()
                     value = job.preparation.result()
+                    ended = time.perf_counter()
+                    job.preparation_wait_ms = (ended-began)*1000
+                    job.preparation_lead_ms = max(0, began-(job.preparation_finished or began))*1000
+                    job.preparation_used = value is not None
                     return job.payload if value is None else value
+                began = time.perf_counter()
+                for job in jobs:
+                    job.worker_handoff_ms = max(0, began-(self.worker_finished or began))*1000
                 if len(jobs) == 1:
                     try: result = self.handler(payload(jobs[0]))
                     except Exception as exc: result = exc
@@ -436,6 +601,7 @@ class DecisionQueue:
                     if not job.delivered:
                         self._deliver(job, RuntimeError("Batch worker did not deliver a result"))
                     self._release(job)
+                self.worker_finished = time.perf_counter()
                 self.active = None
             if self.pending or self.closing:
                 self.ready.set()

@@ -1,6 +1,6 @@
 """Compressed exact-token metadata index. Never owns tensors or changes attention."""
-from collections import OrderedDict
 from threading import RLock
+from revision_bank import RevisionBank
 
 
 class Node:
@@ -160,7 +160,7 @@ class PrefixRadixIndex:
                 'cached_namespaces': len(self.cached), 'queries': self.queries}
 
 
-class IndexedBank(OrderedDict):
+class IndexedBank(RevisionBank):
     """Keep the index current on structural changes, including eviction/clear."""
     def __init__(self, index, source):
         super().__init__(); self.index, self.source = index, source
