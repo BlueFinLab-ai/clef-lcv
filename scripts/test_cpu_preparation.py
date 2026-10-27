@@ -34,6 +34,24 @@ async def main():
   assert [r['id'] for r in rows]==[0,1,2,3]
   assert handled[0]==(0,False) and handled[1]==(1,True)
  finally:release.set();await q.close()
+ # Prepare an entire next batch on one CPU worker while the first GPU job runs.
+ entered.clear();release.clear();prepared.clear();handled.clear()
+ def batch(ps,emit):
+  for i,p in enumerate(ps):emit(i,handler(p))
+ q=DecisionQueue(handler,prepare_handler=prepare,prepare_slots=2,max_batch_size=2,
+                 batch_handler=batch,batch_key=lambda p:'same')
+ await q.start()
+ try:
+  a=asyncio.create_task(q.run({'id':0}));await until(entered.is_set)
+  pending=[asyncio.create_task(q.run({'id':i})) for i in range(1,5)]
+  await until(lambda:prepared==[1,2]);await asyncio.sleep(.02)
+  assert prepared==[1,2] and q.stats()['cpu_preparation']['queued_slots']==2
+  release.set();rows=await asyncio.gather(a,*pending)
+  assert handled[:3]==[(0,False),(1,True),(2,True)],handled
+  assert all(r['usage']['cpu_preparation_used'] for r in rows[1:3])
+  assert all(r['usage']['cpu_preparation_wait_ms']<5 for r in rows[1:3])
+  assert q.stats()['cpu_preparation']['queued_slots']==0
+ finally:release.set();await q.close()
  # Preparation failure must not poison an otherwise compatible neighbour.
  entered.clear();release.clear()
  def bad(p):
@@ -65,6 +83,12 @@ async def main():
   try:await b
   except asyncio.CancelledError:pass
   ticket.release();assert q.budget.bytes==100
+  c=asyncio.create_task(q.run({'id':2}))
+  await asyncio.sleep(.02)
+  assert q.stats()['cpu_preparation']['queued_slots']==1 and q.pending[0].preparation is None
+  c.cancel()
+  try:await c
+  except asyncio.CancelledError:pass
   prep_release.set();await until(lambda:q.budget.bytes==0)
   release.set();await a
  finally:prep_release.set();release.set();await q.close()
@@ -73,7 +97,9 @@ b=BytesIO();Image.new('RGB',(512,512),'red').save(b,format='PNG')
 request=SimpleNamespace(state='text',context=None,images=['data:image/png;base64,'+base64.b64encode(b.getvalue()).decode()])
 assert preparation_fits(request,128,lambda:{'available_bytes':2**30})
 assert not preparation_fits(request,1,lambda:{'available_bytes':2**30})
+assert preparation_fits(request,32,lambda:{'available_bytes':2**30})
+assert not preparation_fits(request,32,lambda:{'available_bytes':2**30},slots=2)
 assert not preparation_fits(request,128,lambda:None)
 request.images=['invalid'];assert not preparation_fits(request,128,lambda:{'available_bytes':2**30})
 asyncio.run(main())
-print('PASS: immediate first request, real CPU/GPU overlap, one queued slot, decline, error isolation, retained wire tickets on cancellation, and memory/header bounds')
+print('PASS: immediate first request, real CPU/GPU overlap, bounded one/two queued slots, decline, error isolation, retained wire tickets on cancellation, and memory/header bounds')

@@ -7,12 +7,12 @@ from collections import OrderedDict
 import hashlib
 import json
 import sys
-import time
 from threading import local
 
 import torch
 import joint_schema_model as joint
 from ram_cache_budget import RAMCacheBudget
+from frequency_aging import FrequencyAging
 
 
 def cpu_bytes(value):
@@ -27,7 +27,7 @@ def cpu_bytes(value):
 
 class InputCache:
     def __init__(self, max_mib=256, max_entries=128, token_mib=8, token_entries=1024, decode=None,
-                 ram_budget=None, image_fraction=.25):
+                 ram_budget=None, image_fraction=.25, frequency_decay_seconds=900, frequency=None):
         self.images = OrderedDict()
         self.text = OrderedDict()
         self.auto = str(max_mib).lower() == 'auto'
@@ -36,6 +36,7 @@ class InputCache:
         self.max_entries = None if max_entries is None else max(0, int(max_entries))
         self.image_bytes = 0
         self.image_uses = {}
+        self.frequency = frequency if frequency is not None else FrequencyAging(frequency_decay_seconds)
         self.ram_budget = ram_budget or RAMCacheBudget()
         self.ram_budget.register('images', lambda: self.image_bytes, self._evict_image, image_fraction)
         self.token_limit = max(0, int(token_mib)) * 2**20
@@ -103,11 +104,17 @@ class InputCache:
 
     def _evict_image(self):
         if not self.images: return False
-        key = min(self.images, key=lambda k: self.image_uses[k])
+        now = self.frequency.clock()
+        key = min(self.images, key=lambda k: (self.frequency.effective(self.image_uses[k], now), self.image_uses[k]['last_use']))
         self.image_bytes -= self.images.pop(key)[1]
         del self.image_uses[key]
         self.image_evictions += 1
         return True
+
+    def _touch_image(self, key, uses=1):
+        with self.ram_budget.lock:
+            if key in self.image_uses:
+                self.frequency.touch(self.image_uses[key], uses)
 
     def _put_image(self, key, value):
         size = cpu_bytes((key, value))
@@ -123,7 +130,7 @@ class InputCache:
             if not self.ram_budget.admit('images', size, self.configured_bytes):
                 return
             self.images[key] = (value, size)
-            self.image_uses[key] = (0, time.monotonic_ns())
+            self.image_uses[key] = self.frequency.snapshot({})
             self.image_bytes += size
 
     def trim(self):
@@ -160,7 +167,7 @@ class InputCache:
                     self._count('image_hits')
                     if key in self.images:
                         self.images.move_to_end(key)
-                        self.image_uses[key] = (self.image_uses[key][0]+1, time.monotonic_ns())
+                        self._touch_image(key)
                     item_ids, item_media = cached[0]
                 else:
                     self._count('image_misses')
@@ -201,7 +208,8 @@ class InputCache:
             limit = min(limit, self.configured_bytes) if sample is not None else self.configured_bytes
         return {'image_entries': len(self.images), 'image_mib': round(self.image_bytes / 2**20, 2),
                 'image_limit_mib': limit / 2**20, 'image_max_entries': self.max_entries,
-                'image_budget_mode': 'auto' if self.auto else 'fixed', 'image_eviction_policy': 'lfu_lru_tiebreak',
+                'image_budget_mode': 'auto' if self.auto else 'fixed', 'image_eviction_policy': self.frequency.policy,
+                'image_frequency_aging': self.frequency.stats(),
                 'image_hits': self.image_hits, 'image_misses': self.image_misses, 'image_evictions': self.image_evictions,
                 'token_entries': len(self.text), 'token_mib': round(sum(v[1] for v in self.text.values()) / 2**20, 2),
                 'token_limit_mib': self.token_limit / 2**20, 'token_max_entries': self.token_entries,

@@ -52,7 +52,7 @@ auto = None
 def probe():
     available = max(0, 64 * 2**20 - external[0] - (auto.bytes if auto else 0) - (auto.pending() if auto and auto.pending else 0))
     return {'available_bytes': available, 'system_available_bytes': available, 'cgroup_available_bytes': None}
-auto = HostPrefixCache('auto', None, memory_probe=probe)
+auto = HostPrefixCache('auto', None, memory_probe=probe, reserve_fraction=.25)
 assert auto.limit_bytes == 48 * 2**20
 assert auto.put('hot', entry, tensor_bytes) and auto.put('cold', entry, tensor_bytes)
 auto.touch('hot')
@@ -68,7 +68,7 @@ assert auto.bytes <= auto.limit_bytes
 unknown = HostPrefixCache('auto', None, memory_probe=lambda: None)
 assert not unknown.put('a', entry, tensor_bytes), 'Auto capacity must fail closed without a memory reading'
 explicit = HostPrefixCache(8, memory_probe=lambda: {'available_bytes': 4 * 2**20,
-    'system_available_bytes': 4 * 2**20, 'cgroup_available_bytes': None})
+    'system_available_bytes': 4 * 2**20, 'cgroup_available_bytes': None}, reserve_fraction=.25)
 assert explicit.limit_bytes == 3 * 2**20, 'Explicit caps must also respect memory pressure'
 unlimited = HostPrefixCache(1, None)
 for i in range(140):

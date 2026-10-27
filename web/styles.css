@@ -228,3 +228,12 @@ select{padding:5px 8px;font-size:12.5px}
   .topbar{position:sticky;top:0;z-index:3}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* Opt-in throughput summary; ordinary answer layout is unchanged. */
+.benchmark-option{margin-top:14px}
+.cold-throughput{padding:12px 18px;border-bottom:1px solid var(--line,#dce4ef)}
+.cold-throughput h3{font-size:14px;margin:0 0 6px}
+.throughput-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:0}
+.throughput-values dt{font-size:12px;color:var(--muted,#53657f)}
+.throughput-values dd{font-size:23px;font-weight:650;margin:0;font-variant-numeric:tabular-nums}
+.cold-throughput .help{margin:6px 0 0}

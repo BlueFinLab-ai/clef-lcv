@@ -1,5 +1,30 @@
 # Validation record
 
+## 2026-10-27 — Recover the deployed October 17 runtime
+
+- Recovered `/app` from the running RTX 3070 Ti image
+  `clef:lcv-ram-reserve-20261017` and verified all 193 files against its live
+  filesystem. All 48 service/runtime/UI/profile source files in the update match
+  the recovered image byte-for-byte; generated kernel-build metadata is excluded.
+  [Source hashes and image digest](runtime-source.json) record the baseline.
+- Based the update on GitHub `main` at `6a36639`, retaining its Docker build and
+  installer-removal checks. Included the throughput CLI in both CUDA Dockerfiles
+  and exposed CPU cache reserve/aging settings through Compose.
+- Passed 46 CPU test scripts in an isolated container without GPU access, using
+  the deployed Python/runtime dependencies. This includes cold-event accounting
+  and failure cleanup, prefill memory admission, bounded/private telemetry,
+  aged-frequency eviction, shared-RAM pressure, independent-history padding and
+  ancestry, queue cancellation, CPU preparation, access controls, and timing.
+- Passed browser image-scaling tests, generated curl/Python example checks with
+  cold-mode/auth/demo combinations, JavaScript syntax checks, and project
+  syntax/provenance/profile/link validation. Recovery regression scripts are
+  runnable directly alongside the existing tests; the CI workflow is unchanged.
+- This source recovery did not rerun full-model GPU numerical/performance suites
+  or a clean CUDA image build. The running deployment provides the source baseline;
+  hardware-specific portability and performance still require deployment testing.
+  Equal source does not imply equal context capacity: available system/GPU RAM and
+  container limits continue to determine adaptive context admission.
+
 ## 2026-10-07 — RX580 lossless NF4 repacking
 
 - Compiled two custom gfx803 HIP variants in an existing builder image, keeping compilers out of the production runtime. Codes and per-block scales are repacked once; weights stay 4-bit, and no dense weight cache is retained.

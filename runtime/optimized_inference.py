@@ -15,7 +15,10 @@ import torch
 import torch.nn.functional as F
 import joint_schema_model as joint
 from host_prefix_cache import HostPrefixCache, copy_to_device
+from cache_telemetry import CacheTelemetry
+from frequency_aging import FrequencyAging
 from radix_index import PrefixRadixIndex, IndexedBank
+from revision_bank import RevisionBank
 from media_prefix import MediaPrefix, remaining_images
 from async_restore import AsyncRestoreRuntime
 from chunked_prefill import forward_chunked, image_features
@@ -151,11 +154,22 @@ class InferenceEngine:
     def __init__(self, max_cache_mib='auto', max_entries=32, reserve_mib=1024,
                  utilization=.90, checkpoint_tokens=0, min_prefix_tokens=128, feature_cache_mib=256, feature_cache_entries=64, elastic=False,
                  prefill_reserve_mib=512, promote_repeated_boundary=False, host_cache_mib=0, host_cache_entries=128,
-                 host_cache_reserve_fraction=.25, ram_budget=None, prefix_index="radix", async_restore=False, restore_staging_mib=128,
-                 shared_host_blocks=False, active_context_offload='none'):
+                 host_cache_reserve_fraction=.20, ram_budget=None, prefix_index="radix", async_restore=False, restore_staging_mib=128,
+                 shared_host_blocks=False, active_context_offload='none', telemetry_events=2048, frequency_decay_seconds=900,
+                 prefill_policy='fixed', prefill_max_chunk_tokens=16384, prefill_target_chunk_tokens='auto',
+                 prefill_implicit_attention=True, prefill_preserve_partitions=False):
+        if prefill_policy not in {'fixed','memory'} or prefill_max_chunk_tokens<1:raise ValueError('Invalid prefill schedule')
+        if str(prefill_target_chunk_tokens)!='auto' and int(prefill_target_chunk_tokens)<1:raise ValueError('Invalid prefill target')
+        self.prefill_policy, self.prefill_max_chunk_tokens = prefill_policy, prefill_max_chunk_tokens
+        self.prefill_target_chunk_tokens = 'auto' if str(prefill_target_chunk_tokens)=='auto' else int(prefill_target_chunk_tokens)
+        self.prefill_implicit_attention = bool(prefill_implicit_attention)
+        self.prefill_preserve_partitions = bool(prefill_preserve_partitions)
+        self.prefill_queue_pressure = None
         if active_context_offload not in {'none','auto','hidden','kv_hidden','kv_stream','kv_gpu'}:raise ValueError('Invalid active context offload mode')
         self.active_context_offload=active_context_offload
-        self.host = HostPrefixCache(host_cache_mib, host_cache_entries, host_cache_reserve_fraction, budget=ram_budget, shared_blocks=shared_host_blocks)
+        self.frequency = FrequencyAging(frequency_decay_seconds)
+        self.telemetry = CacheTelemetry(telemetry_events, frequency=self.frequency)
+        self.host = HostPrefixCache(host_cache_mib, host_cache_entries, host_cache_reserve_fraction, budget=ram_budget, shared_blocks=shared_host_blocks, telemetry=self.telemetry, frequency=self.frequency)
         if prefix_index not in {'radix', 'scan'}:
             raise ValueError('Prefix index must be radix or scan')
         self.prefix_index = PrefixRadixIndex() if prefix_index == 'radix' else None
@@ -164,9 +178,11 @@ class InferenceEngine:
         self.restore_ms = 0.0
         self.restore_rejections = 0
         self.async_restore = AsyncRestoreRuntime(restore_staging_mib) if async_restore and not torch.version.hip else None
-        self.entries = IndexedBank(self.prefix_index, 'gpu') if self.prefix_index is not None else OrderedDict()
+        self.entries = IndexedBank(self.prefix_index, 'gpu') if self.prefix_index is not None else RevisionBank()
         self.observations = IndexedBank(self.prefix_index, 'seen') if self.prefix_index is not None else OrderedDict()
-        self.features = OrderedDict()
+        self.features = RevisionBank()
+        self._byte_revision = None
+        self._byte_total = 0
         self.feature_limit = max(0, int(feature_cache_mib)) * 2**20
         self.feature_entries = max(0, int(feature_cache_entries))
         self.feature_hits = self.feature_misses = self.feature_evictions = 0
@@ -194,26 +210,37 @@ class InferenceEngine:
         self.context_policy = None
 
     def _bytes(self):
+        # Retained cache snapshots/features are immutable and cloned before
+        # use. Recompute unique physical storage only when either bank changes,
+        # rather than blocking every subsequent request on a full tensor walk.
+        revision = (id(self.entries), self.entries.revision,
+                    id(self.features), self.features.revision)
+        if revision == self._byte_revision:
+            return self._byte_total
         # Token ancestry, media keys and byte-count metadata contain no tensors.
         # Walking them on every budget check made long retained prompts a CPU
         # bottleneck. Use one traversal of tensor-bearing fields so immutable
         # hidden chunks shared by checkpoints/features still count only once.
         snapshots = [(entry['cache'], entry['chunks']) for entry in self.entries.values()]
-        return tensor_bytes([snapshots, list(self.features.values())])
+        self._byte_total = tensor_bytes([snapshots, list(self.features.values())])
+        self._byte_revision = revision
+        return self._byte_total
 
     def initialize_memory_budget(self):
         """Call after model loading, before request tensors are allocated."""
         self.base_bytes = torch.cuda.memory_allocated() - self._bytes()
         self._budget()
 
-    def _drop(self, protected=None):
+    def _drop(self, protected=None, *, reason='explicit'):
         # Prefer reclaiming large language snapshots over cheap reusable image
         # features. A protected hit survives unless the caller rejects its clone.
         for key in list(self.entries):
-            if key != protected:
-                self.host.put(key, self.entries[key], tensor_bytes)
+            if key != protected and not getattr(self,'_leased_keys',{}).get(key,0):
+                entry = self.entries[key]
+                retained = self.host.put(key, entry, tensor_bytes)
                 del self.entries[key]
                 self.evictions += 1
+                self.telemetry.record('evict', 'gpu', key, entry=entry, reason=reason, retained_in_cpu=retained)
                 return True
         if self.features:
             self.features.popitem(last=False)
@@ -277,10 +304,11 @@ class InferenceEngine:
         remaining = max(remaining, allocation) if request_clone else remaining + allocation
         return self._reserve() + remaining
 
-    def _reject_retention(self, reason, size):
+    def _reject_retention(self, reason, size, key=None):
         self.last_retention_rejection = reason
         self.last_rejected_checkpoint_bytes = size
         self.retention_rejections[reason] = self.retention_rejections.get(reason, 0) + 1
+        self.telemetry.record('reject', 'gpu', key, reason=reason, requested_bytes=size)
         return False
 
     def _budget(self):
@@ -299,7 +327,8 @@ class InferenceEngine:
         while (self.entries or self.features) and (self._bytes() > self.max_bytes
                 or len(self.entries) > self.max_entries
                 or available_cuda_memory() < needed):
-            if not self._drop(protected):
+            reason = 'entry_limit' if len(self.entries)>self.max_entries else 'trim_byte_budget' if self._bytes()>self.max_bytes else 'request_workspace'
+            if not self._drop(protected, reason=reason):
                 break
 
     @staticmethod
@@ -309,10 +338,18 @@ class InferenceEngine:
         return (id(model), namespace, bool(pooling) if namespace != 'text' else False)
 
     def _match(self, model, tokens, boundary, input_key, pooling, media_start, media_end):
+        started = time.perf_counter()
         if self.prefix_index is None:
-            return self._match_scan(model, tokens, boundary, input_key, pooling, media_start, media_end)
-        return self.prefix_index.match(id(model), tokens, boundary, input_key,
-                                      pooling, media_start, media_end)
+            key, common = self._match_scan(model, tokens, boundary, input_key, pooling, media_start, media_end)
+        else:
+            key, common = self.prefix_index.match(id(model), tokens, boundary, input_key,
+                                                 pooling, media_start, media_end)
+        entry = self._lookup(key) if key is not None else None
+        self.telemetry.record('lookup', 'index', key, entry=entry,
+                              reason='candidate' if key is not None else 'miss',
+                              boundary_tokens=boundary, common_tokens=common,
+                              lookup_ms=round((time.perf_counter()-started)*1000, 3))
+        return key, common
 
     def _match_scan(self, model, tokens, boundary, input_key, pooling, media_start, media_end):
         best_key = None
@@ -359,21 +396,24 @@ class InferenceEngine:
             self._trim(protected=key, clone_bytes=tensor_bytes(entry['cache']), request_clone=True)
             if available_cuda_memory() < self._required_free(tensor_bytes(entry['cache']), request_clone=True):
                 self.restore_rejections += 1
+                self.telemetry.record('restore_reject', 'gpu', key, entry=entry, reason='gpu_workspace')
                 self._acquire_cpu(key,count_hit=False)
                 del entry
                 if key in self.host.entries:return self._acquire(key,device)
                 return None, 'recompute'
             self.entries.move_to_end(key)
-            entry['uses'] = entry.get('uses', 0) + 1
-            entry['last_use'] = time.monotonic_ns()
+            self.frequency.touch(entry)
             self.host.touch(key)
+            self.telemetry.record('hit', 'gpu', key, entry=entry)
             return entry, 'gpu'
         source = self.host.entries.get(key)
         if source is None:
+            self.telemetry.record('miss', 'cpu', key, reason='no_longer_retained')
             return None, 'miss'
         self._trim(clone_bytes=source['bytes'], request_clone=True)
         if available_cuda_memory() < self._required_free(source['bytes'], request_clone=True):
             self.restore_rejections += 1
+            self.telemetry.record('restore_reject', 'cpu', key, entry=source, reason='gpu_workspace')
             return None, 'recompute'
         started = time.perf_counter()
         if self.async_restore is not None:
@@ -381,11 +421,13 @@ class InferenceEngine:
         else:
             cache, chunks = copy_to_device((source['cache'], source['chunks']), device)
         entry = {**source, 'cache': cache, 'chunks': chunks}
-        self.restore_ms += (time.perf_counter() - started) * 1000
+        elapsed = (time.perf_counter() - started) * 1000
+        self.restore_ms += elapsed
         self.host.hits += 1
         # Budget trimming can evict the source from RAM while spilling GPU entries;
         # the local reference is still valid, but it may no longer be indexed.
         self.host.touch(key)
+        self.telemetry.record('hit', 'cpu', key, entry=source, restore_ms=round(elapsed, 1))
         return entry, 'cpu'
 
     def _acquire_cpu(self,key,*,count_hit=True):
@@ -400,15 +442,18 @@ class InferenceEngine:
                 entry={**source,'cache':cache,'chunks':chunks}
             del self.entries[key]
             self.evictions+=1
+            self.telemetry.record('evict', 'gpu', key, entry=source, reason='cpu_execution', retained_in_cpu=key in self.host.entries)
         else:entry=self.host.entries.get(key)
         if entry is None:return None,'miss'
         if count_hit:self.host.hits+=1
         self.host.touch(key,uses=1 if count_hit else 0)
+        if count_hit:self.telemetry.record('hit', 'cpu', key, entry=entry, restore_ms=0, borrowed=True)
         return entry,'cpu'
 
     def spill_gpu_cache(self):
         """Reclaim GPU snapshots through the RAM tier, preserving metadata."""
-        while self.entries or self.features:self._drop()
+        while self.entries or self.features:
+            if not self._drop(reason='spill'):break
         torch.cuda.empty_cache()
 
     def reclaim_host_workspace(self,tokens,mode,model,input_key,pooling,boundary,encoded):
@@ -428,7 +473,7 @@ class InferenceEngine:
             sample=available_memory()
             if sample and sample['available_bytes']//2>=needed:return released
             before=self.host.bytes
-            if not self.host.evict_one(protected=key):return released
+            if not self.host.evict_one(protected=key,reason='active_context_workspace'):return released
             released+=max(0,before-self.host.bytes)
 
     def _input_key(self, model, tokens, end, input_key, pooling, media_start):
@@ -447,39 +492,45 @@ class InferenceEngine:
         key = self._input_key(model, tokens, end, input_key, pooling, media_start)
         if key in self.entries:
             self.entries.move_to_end(key)
+            self.telemetry.record('duplicate', 'gpu', key, entry=self.entries[key])
             return False
         # Snapshot copies KV and both linear-state types; never share mutable state.
         size = tensor_bytes(past) + (sum(c.numel()*c.element_size() for c in chunks) if copy_chunks else tensor_bytes(chunks))
         if self.max_entries == 0:
-            return self._reject_retention('entry_limit_disabled', size)
+            return self._reject_retention('entry_limit_disabled', size, key)
         if size > self._budget():
             if self.host.put(key, {'cache': past, 'chunks': tuple(chunks), 'ids': tuple(tokens[:end]), 'media_key': key[1:3], 'parent_key':parent_key,'media_start':media_start}, tensor_bytes):
                 return True
-            return self._reject_retention('checkpoint_exceeds_memory_budget', size)
+            return self._reject_retention('checkpoint_exceeds_memory_budget', size, key)
         while (self.entries or self.features) and (len(self.entries) >= self.max_entries
                 or self._bytes() + size > self.max_bytes
                 or available_cuda_memory() < self._required_free(size)):
-            self._drop()
+            reason = 'entry_limit' if len(self.entries)>=self.max_entries else 'admit_byte_budget' if self._bytes()+size>self.max_bytes else 'snapshot_headroom'
+            self._drop(reason=reason)
         if available_cuda_memory() < self._required_free(size):
             if self.host.put(key, {'cache': past, 'chunks': tuple(chunks), 'ids': tuple(tokens[:end]), 'media_key': key[1:3], 'parent_key':parent_key,'media_start':media_start}, tensor_bytes):
                 return True
-            return self._reject_retention('insufficient_snapshot_headroom', size)
+            return self._reject_retention('insufficient_snapshot_headroom', size, key)
         snapshot = {'cache': copy.deepcopy(past), 'chunks': tuple(c.clone() for c in chunks) if copy_chunks else tuple(chunks), 'ids': tuple(tokens[:end]),
-                    'media_key': key[1:3], 'uses': 0,'parent_key':parent_key,'media_start':media_start}
+                    'media_key': key[1:3], 'parent_key':parent_key,'media_start':media_start,
+                    'created_ns':time.monotonic_ns(),
+                    **self.frequency.snapshot(self.host.entries.get(key) or {})}
         snapshot['bytes'] = tensor_bytes((snapshot['cache'], snapshot['chunks']))
         self.entries[key] = snapshot
+        self.telemetry.record('admit', 'gpu', key, entry=snapshot, incremental_bytes=snapshot['bytes'])
         return True
 
     def clear(self):
         if self.async_restore is not None:
             self.async_restore.finish(suppress=True)
+        self.telemetry.record('clear', 'gpu', reason='explicit', entry_count=len(self.entries))
         self.entries.clear()
         self.host.clear()
         self.observations.clear()
         self.features.clear()
 
     def stats(self):
-        return {'entries': len(self.entries), 'mib': round(self._bytes() / 2**20, 1),
+        return {'telemetry': self.telemetry.stats(), 'entries': len(self.entries), 'mib': round(self._bytes() / 2**20, 1),
                 'limit_mib': round(self.max_bytes / 2**20, 1), 'budget_mode': 'auto' if self.auto_budget else 'fixed',
                 'elastic': self.elastic, 'phase': 'idle' if self.elastic and self.request_workspace_bytes == 0 else 'request',
                 'request_workspace_mib': round(self._workspace()/2**20, 1),
@@ -500,6 +551,13 @@ class InferenceEngine:
                 'image_features': {'entries': len(self.features), 'mib': round(tensor_bytes(list(self.features.values())) / 2**20, 2),
                     'limit_mib': self.feature_limit / 2**20, 'max_entries': self.feature_entries,
                     'hits': self.feature_hits, 'misses': self.feature_misses, 'evictions': self.feature_evictions}}
+
+    def diagnostics(self):
+        """Called under the inference lock; contains metadata only, no tensors."""
+        return {'gpu': self.telemetry.inventory(self.entries, 'gpu'),
+                'cpu': self.telemetry.inventory(self.host.entries, 'cpu'),
+                'ram_budget': self.host.budget.stats() if self.host.budget is not None else None,
+                'prefix_cache': self.stats()}
 
     def _vision(self, base, encoded, media, grid, enabled):
         """Reuse unpooled image features; vision positions are image-local.
@@ -643,12 +701,18 @@ class InferenceEngine:
                 prefix_entry=entry, prefix_entry_is_working=cache_tier == 'cpu',
                 checkpoint_positions=points, checkpoint_callback=retain if enabled else None, prefix_boundary=boundary,
                 on_chunk=self.progress_hook if mode=='none' else None,
-                active_offload=mode, cpu_head_prepare=execution_plan['head_cpu'] if execution_plan else None)
+                active_offload=mode, cpu_head_prepare=execution_plan['head_cpu'] if execution_plan else None,
+                prefill_policy=self.prefill_policy, max_chunk_tokens=self.prefill_max_chunk_tokens,
+                target_chunk_tokens=self.prefill_target_chunk_tokens,
+                implicit_attention=self.prefill_implicit_attention and self.prefill_policy=='memory',
+                preserve_partitions=self.prefill_preserve_partitions,
+                prefill_reserve_mib=self.prefill_reserve_bytes/2**20,
+                queue_pressure=self.prefill_queue_pressure)
             self.restore_ms+=usage.get('prefix_seed_ms',0.)
             self.chunked_workspace_bytes = max(self.chunked_workspace_bytes,
                 torch.cuda.max_memory_allocated() - (self.base_bytes or 0) - min(retained_start,self._bytes()))
             whole_key = self._input_key(model,encoded.input_ids,boundary,input_key,pooling,media_start)
-            self._remember(whole_key,encoded.input_ids,boundary,input_key,pooling)
+            if enabled:self._remember(whole_key,encoded.input_ids,boundary,input_key,pooling)
             return logits, {**usage, 'prefix_cache_tier': cache_tier, 'prefix_restore_ms': round(self.restore_ms-restore_started, 1), 'prefix_offload_ms': round(self.host.offload_ms-offload_started, 1), 'prefix_cache': 'hit' if key is not None else ('miss' if saved else 'not_retained') if enabled else 'disabled',
                 'prefix_tokens': boundary, 'reused_prefix_tokens': reused,
                 'cache_memory_budget_mib': round(self._budget()/2**20,1),
@@ -858,8 +922,7 @@ class InferenceEngine:
         torch.cuda.current_stream().synchronize()
         head_ms = (time.perf_counter()-head_started)*1000
         if key is not None:
-            self.entries[key]['uses'] = self.entries[key].get('uses', 0) + b
-            self.entries[key]['last_use'] = time.monotonic_ns()
+            self.frequency.touch(self.entries[key], b)
             self.host.touch(key, b)
         if any(not torch.isfinite(v).all() for row in logits for v in row):
             raise ValueError('Non-finite batch decision output')

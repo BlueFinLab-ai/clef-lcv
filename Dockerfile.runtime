@@ -36,6 +36,7 @@ COPY profiles/ profiles/
 COPY vendor/ vendor/
 COPY web/ web/
 COPY scripts/kernel_smoke.py scripts/kernel_smoke.py
+COPY scripts/benchmark_throughput.py scripts/benchmark_throughput.py
 COPY scripts/assert_runtime_tools.py scripts/assert_runtime_tools.py
 COPY scripts/strip_runtime_installers.py /tmp/strip_runtime_installers.py
 COPY THIRD_PARTY.md README.md LICENSE ./

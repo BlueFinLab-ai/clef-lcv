@@ -69,9 +69,12 @@ def _forward_chunked_impl(model, processor, encoded, lexical_weight, *,
                     vision_batch_images=1, features_provider=None, prefix_entry=None,
                     checkpoint_positions=(), checkpoint_callback=None, prefix_boundary=None, prefix_entry_is_working=False,
                     on_chunk=None, active_offload='none', _offload_holder=None, _diagnostic_state=None,
-                    cpu_head_prepare=None):
+                    cpu_head_prepare=None, prefill_policy='fixed', max_chunk_tokens=16384, target_chunk_tokens='auto',
+                    prefill_reserve_mib=512, implicit_attention=None, queue_pressure=None, preserve_partitions=False):
     if initial_chunk_tokens < 1 or chunk_tokens < 1:
         raise ValueError('Prefill chunk sizes must be positive')
+    if prefill_policy not in {'fixed','memory'}:
+        raise ValueError('Invalid prefill policy')
     base = model.language_model.model
     device = next(model.parameters()).device
     has_images = bool(encoded.media)
@@ -94,6 +97,7 @@ def _forward_chunked_impl(model, processor, encoded, lexical_weight, *,
     image_counts = None
     vision_ms = 0.0
     cursor = len(prefix_entry['ids']) if prefix_entry is not None else 0
+    cached_suffix_fast_path = bool(cursor and len(encoded.input_ids)-cursor<=chunk_tokens and active_offload=='none')
     vision_reused = False
     vision_images_reused = 0
     feature_offset = 0
@@ -132,6 +136,25 @@ def _forward_chunked_impl(model, processor, encoded, lexical_weight, *,
         torch.cuda.current_stream(device).synchronize()
         prefix_seed_ms=(time.perf_counter()-seed_started)*1000 if prefix_entry is not None else 0.
     if controller is not None and _offload_holder is not None:_offload_holder.append(controller)
+    from prefill_attention import ImplicitPrefillAttention
+    implicit = ImplicitPrefillAttention(base.language_model,
+        enabled=active_offload=='none' and not cached_suffix_fast_path
+            and (prefill_policy=='memory' if implicit_attention is None else implicit_attention),
+        device=device, unpadded=ids.shape[0]==1 and ids.shape[1]==len(encoded.input_ids))
+    if implicit.enabled and _offload_holder is not None:_offload_holder.append(implicit)
+    scheduler = None
+    resolved_target = (chunk_tokens if preserve_partitions else
+        (initial_chunk_tokens if active_offload=='kv_stream' else chunk_tokens)
+        if target_chunk_tokens=='auto' else int(target_chunk_tokens))
+    if (prefill_policy=='memory' and not cached_suffix_fast_path and device.type=='cuda' and not torch.version.hip
+            and (tiled or active_offload=='none' and torch.backends.cuda.mem_efficient_sdp_enabled())):
+        from prefill_schedule import PrefillSchedule, WorkspaceHeadroom
+        scheduler = PrefillSchedule(base.language_model.config,
+            dtype_bytes=next(model.parameters()).element_size() if next(model.parameters()).is_floating_point() else 2,
+            maximum=max_chunk_tokens, target=resolved_target,
+            initial_target=chunk_tokens if preserve_partitions and cursor else initial_chunk_tokens,
+            reserve_mib=prefill_reserve_mib, mode=active_offload, implicit=implicit.enabled)
+        headroom = WorkspaceHeadroom(device)
     past = controller.cache if controller is not None else None
     hidden = None
     hidden_offload_ms=hidden_restore_ms=0.
@@ -150,18 +173,39 @@ def _forward_chunked_impl(model, processor, encoded, lexical_weight, *,
             raise ValueError('Cached hidden states and prefix length disagree')
         del cached, prefix_entry, piece
     chunks = splits = 0
+    chunk_sizes = []
+    min_size = max_size = queue_limited = 0
     points = sorted(set(checkpoint_positions))
     if device.type == 'cuda':
         torch.cuda.current_stream(device).synchronize()
     started = time.perf_counter()
     while cursor < ids.shape[1]:
         size = initial_chunk_tokens if cursor == 0 else chunk_tokens
-        end = min(cursor + size, ids.shape[1])
+        end = ids.shape[1] if scheduler is not None else min(cursor + size, ids.shape[1])
         # The input/schema boundary is stable across changing questions. Use the
         # same partition for cold, uncached and warm calls, independent of budget.
         cuts = [p for p in (*points, prefix_boundary) if p is not None and cursor < p < end]
         if cuts:
             end = min(cuts)
+        if scheduler is not None:
+            if not preserve_partitions and on_chunk is not None and queue_pressure is not None and queue_pressure():
+                end = min(end,cursor+chunk_tokens)
+                queue_limited += 1
+            free = headroom.available(cursor)
+            hidden_bytes = ids.shape[1]*scheduler.hidden if hidden is None and active_offload=='none' else 0
+            try:
+                size = scheduler.choose(cursor,end,free,hidden_allocation=hidden_bytes,initial=chunks==0)
+            except MemoryError as exc:
+                raise torch.cuda.OutOfMemoryError(str(exc)) from exc
+            if preserve_partitions:
+                canonical = min(initial_chunk_tokens if cursor==0 else chunk_tokens,end-cursor)
+                if size<canonical:
+                    raise torch.cuda.OutOfMemoryError('Canonical prefill chunk requires another memory strategy')
+                size = canonical
+            end = cursor+size
+        size = end-cursor
+        min_size = min(min_size or size,size); max_size = max(max_size,size)
+        if len(chunk_sizes)<64:chunk_sizes.append(size)
         chunk_ids = ids[:, cursor:end]
         if has_images:
             embeddings = base.get_input_embeddings()(chunk_ids)
@@ -193,10 +237,13 @@ def _forward_chunked_impl(model, processor, encoded, lexical_weight, *,
         if checkpoint_callback is not None and end in points:
             checkpoint_callback(end, past, hidden[:, :end])
         if on_chunk is not None and cursor<ids.shape[1]:
-            on_chunk(cursor,ids.shape[1])
+            with implicit.suspended():
+                on_chunk(cursor,ids.shape[1])
     if device.type == 'cuda':
         torch.cuda.current_stream(device).synchronize()
     language_ms = (time.perf_counter() - started) * 1000
+    attention_mode = 'tiled' if tiled else 'implicit_lower_right' if implicit.enabled else 'sdpa'
+    implicit.close()
     offload_usage=controller.stats() if controller is not None else {}
     if controller is not None:controller.close()
     del past, features
@@ -224,6 +271,16 @@ def _forward_chunked_impl(model, processor, encoded, lexical_weight, *,
     usage = {'prefill_mode': 'chunked', 'prefill_chunks': chunks,
              'prefill_initial_chunk_tokens': initial_chunk_tokens,
              'prefill_chunk_tokens': chunk_tokens,
+             'prefill_chunk_policy': 'memory' if scheduler is not None else 'fixed',
+             'prefill_target_chunk_tokens': resolved_target if scheduler is not None else None,
+             'prefill_chunk_sizes': chunk_sizes, 'prefill_chunk_sizes_truncated': chunks>64,
+             'prefill_effective_min_chunk_tokens': min_size, 'prefill_effective_max_chunk_tokens': max_size,
+             'prefill_attention': attention_mode, 'prefill_queue_limited_chunks': queue_limited,
+             'prefill_partition_policy': 'canonical' if preserve_partitions else 'cache_aware',
+             'prefill_cached_suffix_fast_path': cached_suffix_fast_path,
+             'prefill_memory_limited_chunks': scheduler.memory_limited if scheduler is not None else 0,
+             'prefill_memory_samples': headroom.samples if scheduler is not None else 0,
+             'prefill_peak_projected_workspace_mib': round(scheduler.peak_projected/2**20,1) if scheduler is not None else None,
              'language_ms': round(language_ms, 1),
              'head_ms': round((time.perf_counter() - started) * 1000, 1), **head_usage}
     if active_offload!='none':usage.update(active_context_offload=active_offload,

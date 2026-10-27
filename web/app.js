@@ -81,6 +81,7 @@ function markEdited(rowId) {
   refreshCode(); scheduleAutoRun();
 }
 function scheduleAutoRun() {
+  if ($('cold-benchmark').checked) return;
   if (!$('auto-run').checked) return;
   clearTimeout(autoRunTimer);
   autoRunTimer = setTimeout(() => {
@@ -359,6 +360,21 @@ function delta(run, id) {
   return {className: Math.abs(points) < .5 ? 'flat' : points > 0 ? 'up' : 'down',
     text: points === 0 ? '0.0 pts' : `${points > 0 ? '+' : '−'}${Math.abs(points).toFixed(1)} pts`, title: `Change in confidence since run ${earlier.number}`};
 }
+function renderColdThroughput(run) {
+  $('cold-throughput').hidden = !run.coldBenchmark;
+  if (!run.coldBenchmark) return;
+  const usage = run.response?.usage || {}, benchmark = usage.cold_benchmark;
+  const valid = benchmark?.valid === true;
+  $('backbone-rate').textContent = valid && Number.isFinite(benchmark.language_tokens_per_second)
+    ? benchmark.language_tokens_per_second.toLocaleString(undefined, {maximumFractionDigits: 1}) : '—';
+  $('end-to-end-rate').textContent = valid && run.totalMs > 0
+    ? (usage.input_tokens * 1000 / run.totalMs).toLocaleString(undefined, {maximumFractionDigits: 1}) : '—';
+  $('throughput-note').textContent = valid
+    ? `${usage.input_tokens.toLocaleString()} tokens fully processed · ${benchmark.language_forward_calls} backbone forward${benchmark.language_forward_calls === 1 ? '' : 's'} · no cache hits. Backbone excludes vision and the decision head; end-to-end includes preparation, queueing and network time.`
+    : run.error ? 'Benchmark request failed; no throughput recorded.' : benchmark
+      ? `Measurement unavailable: ${benchmark.invalid_reason}. See JSON response.`
+      : 'This server does not report cold-pass phase timing. Update the service to measure backbone throughput.';
+}
 function renderRun(run) {
   activeRun = run; editedQuestions.clear();
   $('elapsed').textContent = (run.totalMs / 1000).toFixed(3);
@@ -415,7 +431,7 @@ function renderRun(run) {
   }
   const linked = document.querySelector('.question-card.linked');
   if (linked) highlight(linked.dataset.link, false);
-  renderHistory(); refreshCode();
+  renderColdThroughput(run); renderHistory(); refreshCode();
 }
 function feedbackControls(run, id) {
   const wrap = node('div', 'feedback'); wrap.append(node('span', '', 'Is this right?'));
@@ -472,6 +488,7 @@ function exampleRequest(forPython) {
   }
   request.image_pooling = $('image-pooling').checked;
   request.questions = questions;
+  if ($('cold-benchmark').checked) {request.prefix_cache = false; request.input_cache = false;}
   return request;
 }
 function pythonLiteral(value, indent = '') {
@@ -488,7 +505,7 @@ function curlExample() {
   return `curl '${apiBase()}/v1/systemone' \\
 ${apiKeyRequired ? "  -H 'Authorization: Bearer YOUR_API_KEY' \\\n" : ''}\
   -H 'Content-Type: application/json' \\
-  --data-binary @- <<'JSON'
+${$('cold-benchmark').checked ? "  -H 'X-Clef-Benchmark: cold' \\\n" : ''}  --data-binary @- <<'JSON'
 ${JSON.stringify(exampleRequest(false), null, 2)}
 JSON`;
 }
@@ -512,7 +529,7 @@ request = ${pythonLiteral(exampleRequest(true))}
 http_request = urllib.request.Request(
     URL,
     data=json.dumps(request).encode(),
-    headers={"Content-Type": "application/json"${apiKeyRequired ? ', "Authorization": "Bearer YOUR_API_KEY"' : ''}},
+    headers={"Content-Type": "application/json"${$('cold-benchmark').checked ? ', "X-Clef-Benchmark": "cold"' : ''}${apiKeyRequired ? ', "Authorization": "Bearer YOUR_API_KEY"' : ''}},
 )
 with urllib.request.urlopen(http_request, timeout=600) as response:
     result = json.load(response)
@@ -620,15 +637,16 @@ async function submit(event) {
   const context = $('shared-context').value.trim() || undefined;
   const imageScaling = $('image-scaling').value;
   const imagePooling = $('image-pooling').checked;
+  const coldBenchmark = $('cold-benchmark').checked;
   running = true; $('editor-fields').disabled = true; $('example').disabled = true; $('run-button').disabled = true;
   $('run-button-text').textContent = images.length ? 'Preparing images…' : 'Answering…'; $('results').setAttribute('aria-busy', 'true');
   $('run-state').textContent = 'Answering'; $('run-state').className = 'run-state running';
-  resetMetrics();
+  resetMetrics(); $('cold-throughput').hidden = true;
   $('run-label').textContent = `Run ${runSequence + 1} · waiting for answers…`;
   document.querySelectorAll('.answer-card').forEach(card => card.classList.add('stale'));
   if (!document.querySelector('.answer-card')) $('results').replaceChildren(node('div', 'empty-state', 'Clef is reading your input and answering your questions…'));
   $('result-announcement').textContent = images.length ? 'Preparing images for upload.' : 'Clef is answering.'; renderHistory();
-  const run = {number: ++runSequence, timestamp: new Date().toISOString(), context, state, questions, imageNames: images.map(item => item.name), imageScaling, imagePooling, feedback: {}};
+  const run = {number: ++runSequence, timestamp: new Date().toISOString(), context, state, questions, imageNames: images.map(item => item.name), imageScaling, imagePooling, coldBenchmark, feedback: {}};
   const started = performance.now();
   function tick() {$('elapsed').textContent = ((performance.now() - started) / 1000).toFixed(3); elapsedFrame = requestAnimationFrame(tick);}
   tick();
@@ -637,13 +655,14 @@ async function submit(event) {
     for (const item of images) prepared.push(await ClefImages.prepare(item, imageScalings[imageScaling]));
     run.clientImageMs = performance.now() - started;
     const request = {model: apiModel, context, state, images: prepared.map(item => item.data), image_pooling: imagePooling, questions};
+    if (coldBenchmark) {request.prefix_cache = false; request.input_cache = false;}
     if (prepared.length) request.media_kwargs = {images_kwargs: {do_resize: true, min_pixels: 1024, max_pixels: 20000000}};
     const body = JSON.stringify(request);
     run.uploadBytes = new TextEncoder().encode(body).byteLength;
     run.processedImages = prepared.map(({width, height, bytes, format}) => ({width, height, bytes, format}));
     $('run-button-text').textContent = 'Waiting for response…';
     $('result-announcement').textContent = 'Request sent. Clef will answer when its turn arrives.';
-    const response = await apiFetch('/v1/systemone', {method: 'POST', headers: {'Content-Type': 'application/json'}, body, signal: AbortSignal.timeout(600000)});
+    const response = await apiFetch('/v1/systemone', {method: 'POST', headers: {'Content-Type': 'application/json', ...(coldBenchmark ? {'X-Clef-Benchmark': 'cold'} : {})}, body, signal: AbortSignal.timeout(600000)});
     const responseText = await response.text();
     let payload;
     try {payload = JSON.parse(responseText);} catch {
@@ -658,7 +677,7 @@ async function submit(event) {
   } finally {
     run.totalMs = performance.now() - started; cancelAnimationFrame(elapsedFrame);
     running = false; $('editor-fields').disabled = false; $('example').disabled = false; $('run-button').disabled = false;
-    $('run-button-text').textContent = 'Ask Clef'; $('results').setAttribute('aria-busy', 'false');
+    $('run-button-text').textContent = $('cold-benchmark').checked ? 'Run cold pass' : 'Ask Clef'; $('results').setAttribute('aria-busy', 'false');
     history.unshift(run); history = history.slice(0, 12); renderRun(run);
     if (run.apiResponse) selectCodeFormat('raw');
     void checkConnection();
@@ -669,6 +688,13 @@ async function submit(event) {
 
 /* Wiring */
 $('decision-form').addEventListener('submit', submit);
+$('cold-benchmark').addEventListener('change', () => {
+  clearTimeout(autoRunTimer); autoRunPending = false;
+  $('auto-run').disabled = $('cold-benchmark').checked;
+  $('run-button-text').textContent = $('cold-benchmark').checked ? 'Run cold pass' : 'Ask Clef';
+  $('run-button').title = `${$('cold-benchmark').checked ? 'Run cold pass' : 'Ask Clef'} (${isMac ? '⌘' : 'Ctrl'}+Enter)`;
+  refreshCode();
+});
 $('add-question').addEventListener('click', () => {addQuestion({}, true); markEdited(questionRows.at(-1).id);});
 $('image-input').addEventListener('change', event => acceptImages(event.target.files));
 document.addEventListener('paste', event => {

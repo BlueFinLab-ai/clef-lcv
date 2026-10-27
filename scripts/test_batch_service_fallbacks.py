@@ -29,13 +29,14 @@ class Engine:
 
 def run(requests):
     engine=Engine();admission=TextBatchAdmission(cfg,padded_tokens=12000)
-    singles=[];emitted=[];cache=NS(stats=lambda:{'token_hits':0,'token_misses':0})
+    singles=[];emitted=[];preparations=[];cache=NS(stats=lambda:{'token_hits':0,'token_misses':0})
     def record(r):
         if r.bad:raise HTTPException(400,'bad member')
         return {'state':r.value}
     def encode(p,r,**kw):return NS(input_ids=tuple([1]*r['state']),media=None),r['state']-1,()
-    def single(r):singles.append(r.value);return {'model':'test','answers':{'ok':True},'usage':{}}
+    def single(r):assert isinstance(r,PreparedDecision);singles.append(r.value);return {'model':'test','answers':{'ok':True},'usage':{}}
     def prepare(r):
+        preparations.append(id(r))
         rec=record(r);e,b,p=encode(None,rec)
         return PreparedDecision(r,rec,e,b,p,{'token_cache_hits':0,'token_cache_misses':0},'text')
     namespace={'time':time,'app':NS(state=NS(text_batching=admission)),'lock':threading.Lock(),
@@ -47,12 +48,15 @@ def run(requests):
           empty_cache=lambda:None,synchronize=lambda:None,max_memory_allocated=lambda:2**30)),
       'sdpa_kernel':lambda *a:contextlib.nullcontext(),'SDPBackend':NS(EFFICIENT_ATTENTION=1),
       'PREFIX_CACHE_ENABLED':True,'GPU_CACHE_SUPPORTED':True,'hashlib':hashlib,'json':json,
+      'GPUTimer':lambda cuda:NS(measure=contextlib.nullcontext,elapsed_ms=1),
       'model':None,'answers':lambda *a:{'ok':True},'BatchUnavailable':BatchUnavailable,
       'gc':gc,'log':logging.getLogger('batch-test'),'run_decision':single}
     namespace.update(PreparedDecision=PreparedDecision,prepare_decision=prepare)
     exec(code,namespace)
     namespace['run_decision_batch'](requests,lambda i,r:emitted.append((i,r)))
     assert sorted(i for i,r in emitted)==list(range(len(requests)))
+    assert len(preparations)==len(set(preparations)), 'Fallback reprocessed an encoded request'
+    assert all(not isinstance(r,PreparedDecision) for r in requests), 'Mutated caller list'
     return engine,admission,singles,emitted
 
 def request(n=2000,bad=False):return NS(value=n,bad=bad,prefix_cache=True,input_cache=True,model='test')
@@ -64,4 +68,6 @@ e,a,s,rows=run([request(bad=True),request(),request(9000),request()])
 assert isinstance(rows[0][1],HTTPException) and rows[0][1].status_code==400
 assert any(isinstance(r,JSONResponse) and r.status_code==413 for _,r in rows)
 assert e.calls==[2] and a.requests==2
+e,a,s,rows=run([request(5000),request(5000)])
+assert s==[5000,5000] and not e.calls
 print('PASS: aggregate OOM splits 4->2 without single context shrink; invalid/oversized members isolated')

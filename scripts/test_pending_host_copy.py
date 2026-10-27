@@ -12,8 +12,8 @@ from optimized_inference import tensor_bytes
 for shared_budget in (False,True):
     allocated=[0];capacity=100*1024
     def probe():return {'available_bytes':capacity-allocated[0],'system_available_bytes':capacity-allocated[0],'cgroup_available_bytes':None}
-    pool=RAMCacheBudget(memory_probe=probe) if shared_budget else None
-    host=HostPrefixCache('auto',None,memory_probe=probe,budget=pool)
+    pool=RAMCacheBudget(reserve_fraction=.25,memory_probe=probe) if shared_budget else None
+    host=HostPrefixCache('auto',None,memory_probe=probe,budget=pool,reserve_fraction=.25)
     data={'cache':SimpleNamespace(keys=torch.zeros(16*1024)), 'chunks':(), 'ids':tuple(range(128)),'media_key':('text',False)}
     def copied(value,device):
         result=copy_to_device(value,device);allocated[0]+=tensor_bytes(result);return result

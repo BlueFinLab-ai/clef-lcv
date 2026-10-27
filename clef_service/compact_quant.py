@@ -7,6 +7,35 @@ import bitsandbytes as bnb
 from safetensors import safe_open
 from safetensors.torch import save_file
 import torch
+from contextlib import contextmanager
+
+
+@contextmanager
+def skip_replaced_embedding_initialization(folder):
+    """Skip random filling of dense tables replaced by the saved NF4 tables.
+
+    Their shape/device is needed by the installer; their random values are never
+    used. Scope the initializer override to model startup and restore on errors.
+    """
+    from transformers.models.qwen3_5.modeling_qwen3_5 import Qwen3_5PreTrainedModel
+    metadata=json.loads((Path(folder)/'compact_quantization.json').read_text())
+    expected={'lm_head.weight','model.language_model.embed_tokens.weight'}
+    shape=tuple(metadata.get('embedding_shape',()))
+    if set(metadata.get('missing_core_keys',()))!=expected or len(shape)!=2 or min(shape)<1:
+        raise ValueError('Compact checkpoint must declare both replaced embedding tables')
+    for name in ('input','output'):
+        if not (Path(folder)/f'{name}-embedding-nf4.safetensors').is_file():
+            raise ValueError('Compact checkpoint is missing a replacement embedding')
+    original=Qwen3_5PreTrainedModel._init_weights
+    def initialize(model,module):
+        if isinstance(module,(torch.nn.Embedding,torch.nn.Linear)) and tuple(module.weight.shape)==shape:
+            return
+        return original(model,module)
+    Qwen3_5PreTrainedModel._init_weights=initialize
+    try:
+        yield
+    finally:
+        Qwen3_5PreTrainedModel._init_weights=original
 
 
 class LexicalRows:

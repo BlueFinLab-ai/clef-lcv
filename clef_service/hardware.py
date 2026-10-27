@@ -183,6 +183,9 @@ def configure_strategy(strategy):
         "CLEF_IMAGE_POOLING": "0",
         "CLEF_MAX_IMAGE_LENGTH": "auto",
         "CLEF_ACTIVE_CONTEXT_OFFLOAD": "auto" if strategy.runtime_backend == "cuda" else "none",
+        "CLEF_PREFILL_POLICY": "memory" if strategy.runtime_backend == "cuda" else "fixed",
+        "CLEF_PREFILL_MAX_CHUNK_TOKENS": "16384",
+        "CLEF_PREFILL_TARGET_CHUNK_TOKENS": "auto",
         "CLEF_PREFIX_SHARED_HOST_BLOCKS": "1" if strategy.runtime_backend == "cuda" else "0",
     }
     if strategy.runtime_backend == "rocm":
